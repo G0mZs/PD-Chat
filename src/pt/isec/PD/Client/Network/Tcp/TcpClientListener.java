@@ -29,7 +29,7 @@ public class TcpClientListener extends Thread {
 
                     switch (message.getType()) {
                         case SKRT:
-                            System.out.println(message.getMessage());
+
                             break;
                     }
                 } else {
