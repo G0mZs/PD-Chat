@@ -1,8 +1,6 @@
 package pt.isec.PD.Client.Network.Udp;
 
 
-import pt.isec.PD.Client.Network.Tcp.TcpClientListener;
-import pt.isec.PD.Data.Constants;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.Utils;
 
@@ -89,29 +87,6 @@ public class UdpClientManager extends Thread {
     }
 
 
-
-    public void initializeGrdsClientConnection() {
-
-        try {
-            this.socket = new DatagramSocket();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
-
-
-        try {
-
-            Message msg = new Message(Message.Type.CLIENT_CONNECTION,"");
-            sendMessage(msg,this.grdsAddress.getHostAddress(),this.grdsPort);
-            DatagramPacket packet = new DatagramPacket(new byte[256], 256);
-            socket.receive(packet);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
     public void run() {
 
         boolean running = true;
@@ -155,6 +130,28 @@ public class UdpClientManager extends Thread {
         }
     }
 
+    public void initializeGrdsClientConnection() {
+
+        try {
+            this.socket = new DatagramSocket();
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+
+
+        try {
+
+            Message msg = new Message(Message.Type.CLIENT_CONNECTION,"");
+            sendMessage(msg,this.grdsAddress.getHostAddress(),this.grdsPort);
+            DatagramPacket packet = new DatagramPacket(new byte[256], 256);
+            socket.receive(packet);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
     public void askForServerConnection(){
 
@@ -173,17 +170,14 @@ public class UdpClientManager extends Thread {
 
     }
 
-        public void sendMessage(Message message, String address, int port) throws Exception {
+    public void sendMessage(Message message, String address, int port) throws Exception {
 
-            byte buffer[];
-            buffer = Utils.convertToBytes(message);
+        byte buffer[];
+        buffer = Utils.convertToBytes(message);
 
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(address), port);
-            socket.send(packet);
-        }
-
-
-
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(address), port);
+        socket.send(packet);
+    }
 
 
 }

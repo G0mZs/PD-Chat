@@ -1,6 +1,6 @@
 package pt.isec.PD.Client.Model;
 
-import pt.isec.PD.Client.Network.Tcp.TcpClientListener;
+import pt.isec.PD.Client.Network.Tcp.TcpClientManager;
 import pt.isec.PD.Client.Network.Udp.UdpClientManager;
 import pt.isec.PD.Data.Constants;
 import pt.isec.PD.Data.Message;
@@ -49,7 +49,7 @@ public class Client {
 
                     exit = true;
                     connectTcp(Constants.SERVER_ADDRESS,udpClientManager.getServerTcpPort());
-                    new Thread(new TcpClientListener(input,output)).start();
+                    new Thread(new TcpClientManager(input,output)).start();
 
                 } catch (Exception e) {
                     e.printStackTrace();

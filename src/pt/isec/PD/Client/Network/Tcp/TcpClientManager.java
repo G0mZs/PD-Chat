@@ -5,12 +5,12 @@ import pt.isec.PD.Data.Message;
 import java.io.*;
 
 
-public class TcpClientListener extends Thread {
+public class TcpClientManager extends Thread {
 
     private ObjectInputStream in = null;
     private ObjectOutputStream out = null;
 
-    public TcpClientListener(ObjectInputStream in,ObjectOutputStream out) {
+    public TcpClientManager(ObjectInputStream in, ObjectOutputStream out) {
 
         this.in = in;
         this.out = out;

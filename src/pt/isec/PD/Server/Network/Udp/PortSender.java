@@ -6,7 +6,7 @@ import pt.isec.PD.Data.Utils;
 
 import java.net.*;
 
-public class PortSender {
+public class PortSender extends Thread{
 
     private int tcpPort;
     private InetAddress grdsAddress;
@@ -35,7 +35,7 @@ public class PortSender {
 
                 this.socket = new DatagramSocket();
 
-                Message msg = new Message(Message.Type.SERVER_CONNECTION, String.valueOf(this.tcpPort));
+                Message msg = new Message(Message.Type.TCP_PORT, String.valueOf(this.tcpPort));
                 sendMessage(msg, Constants.GRDS_ADDRESS, Constants.UDP_PORT);
                 DatagramPacket packet = new DatagramPacket(new byte[256], 256);
                 socket.receive(packet);

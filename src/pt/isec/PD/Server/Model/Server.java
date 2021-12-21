@@ -36,4 +36,6 @@ public class Server {
     public void startTcp(){
         tcpServerManager.start();
     }
+
+    public void startPortSender(){portSender.start();}
 }
