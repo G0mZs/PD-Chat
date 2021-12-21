@@ -2,23 +2,34 @@ package pt.isec.PD.Server.Model;
 
 
 import pt.isec.PD.Data.Constants;
-import pt.isec.PD.Server.Network.ServerCommunicationHandler;
 import pt.isec.PD.Server.Network.Tcp.TcpServerManager;
 import pt.isec.PD.Server.Network.Udp.UdpServerManager;
 
 import java.io.IOException;
-import java.net.SocketException;
 
 public class Server {
 
-    private ServerCommunicationHandler serverCommunicationHandler;
+    private TcpServerManager tcpServerManager;
+    private UdpServerManager udpServerManager;
 
     public Server() throws IOException {
-        serverCommunicationHandler = new ServerCommunicationHandler();
+
+        tcpServerManager = new TcpServerManager();
+        udpServerManager = new UdpServerManager(Constants.UDP_PORT,Constants.GRDS_ADDRESS,tcpServerManager.getServerTcpPort());
 
     }
 
-    public ServerCommunicationHandler getServerCommunicationHandler() {
-        return serverCommunicationHandler;
+    public UdpServerManager getUdpServerManager() {
+        return this.udpServerManager;
+    }
+
+    public TcpServerManager getTcpServerManager() {
+        return this.tcpServerManager;
+    }
+
+    public void startUdp(){ udpServerManager.start();}
+
+    public void startTcp(){
+        tcpServerManager.start();
     }
 }

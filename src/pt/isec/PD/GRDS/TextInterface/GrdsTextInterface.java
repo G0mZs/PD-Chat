@@ -7,11 +7,12 @@ import java.sql.SQLException;
 
 public class GrdsTextInterface {
 
-    private static Grds grds;
+    private Grds grds;
+    public GrdsTextInterface(Grds grds){
+        this.grds = grds;
+    }
 
-
-    public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException, InterruptedException{
-        grds = new Grds();
+    public void uiMain(){
         grds.UdpThread();
     }
 }

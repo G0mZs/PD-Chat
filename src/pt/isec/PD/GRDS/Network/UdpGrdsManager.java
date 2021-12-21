@@ -126,10 +126,10 @@ public class UdpGrdsManager extends Thread {
 
 
         Server aux = new Server();
-        aux.getServerCommunicationHandler().getUdpServerManager().setServerUdpPort(dp.getPort());
-        aux.getServerCommunicationHandler().getUdpServerManager().setServerAddress(dp.getAddress());
+        aux.getUdpServerManager().setServerUdpPort(dp.getPort());
+        aux.getUdpServerManager().setServerAddress(dp.getAddress());
         int port = Integer.parseInt(tcpPort);
-        aux.getServerCommunicationHandler().getTcpServerManager().setServerTcpPort(port);
+        aux.getTcpServerManager().setServerTcpPort(port);
         servers.add(aux);
 
 
@@ -139,7 +139,7 @@ public class UdpGrdsManager extends Thread {
         //Aplicar o escalonamento circular round-robin e distribuir os servidores pelos clientes
         //Mandar duas mensagens: uma com o address do Servidor e outra com o porto de escuta Tcp do Servidor a distribuir pelo cliente
         if(servers.size() != 0) {
-            String portTcp = String.valueOf(servers.get(0).getServerCommunicationHandler().getTcpServerManager().getServerTcpPort1());
+            String portTcp = String.valueOf(servers.get(0).getTcpServerManager().getServerTcpPort1());
             sendMessage(new Message(Message.Type.SERVER_PORT, portTcp), dp.getAddress().getHostAddress(), dp.getPort());
         }
         else{
