@@ -6,6 +6,7 @@ import pt.isec.PD.Data.Constants;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
@@ -95,5 +96,20 @@ public class Client {
 
     }
 
+    public void disconnect() {
+        stopTcp();
+    }
+
+    public void stopTcp() {
+        if (s != null && s.isConnected()) {
+            try {
+                input.close();
+                output.close();
+                s.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }

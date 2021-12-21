@@ -14,12 +14,13 @@ public class Server {
     private TcpServerManager tcpServerManager;
     private UdpServerManager udpServerManager;
     private PortSender portSender;
+    private boolean isRunning = true;
 
     public Server() throws IOException {
 
         tcpServerManager = new TcpServerManager();
         udpServerManager = new UdpServerManager(Constants.UDP_PORT,Constants.GRDS_ADDRESS,tcpServerManager.getServerTcpPort());
-        portSender = new PortSender(tcpServerManager.getServerTcpPort());
+        portSender = new PortSender(tcpServerManager.getServerTcpPort(),Constants.GRDS_ADDRESS,Constants.UDP_PORT);
     }
 
     public UdpServerManager getUdpServerManager() {

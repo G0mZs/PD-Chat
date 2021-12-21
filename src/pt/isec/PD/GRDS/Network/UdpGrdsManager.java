@@ -62,6 +62,15 @@ public class UdpGrdsManager extends Thread {
                         case CLIENT_SERVER_CONNECTION:
                             ClientServerConnection(packet);
                             break;
+                        case TCP_PORT:
+                            //Passar tudo isto para uma função
+                            Server aux = new Server();
+                            aux.getUdpServerManager().setServerUdpPort(packet.getPort());
+                            aux.getUdpServerManager().setServerAddress(packet.getAddress());
+                            int port = Integer.parseInt(message.getMessage());
+                            aux.getTcpServerManager().setServerTcpPort(port);
+                            servers.add(aux);
+                            break;
                     }
                 } else {
 
@@ -123,15 +132,6 @@ public class UdpGrdsManager extends Thread {
         }
 
         System.out.println("Sent to Server: " + dp.getAddress().getHostAddress() + ":" + dp.getPort() + " - " + localTime);
-
-
-        Server aux = new Server();
-        aux.getUdpServerManager().setServerUdpPort(dp.getPort());
-        aux.getUdpServerManager().setServerAddress(dp.getAddress());
-        int port = Integer.parseInt(tcpPort);
-        aux.getTcpServerManager().setServerTcpPort(port);
-        servers.add(aux);
-
 
     }
 

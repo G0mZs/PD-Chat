@@ -122,12 +122,13 @@ public class UdpServerManager extends Thread{
 
     public void run() {
 
+        boolean running = true;
         byte[] buffer = new byte[BUFFER];
 
         initializeGrdsServerConnection();
 
 
-        while (true) {
+        while (running) {
 
             try {
                 Arrays.fill(buffer, (byte) 0);
@@ -154,6 +155,10 @@ public class UdpServerManager extends Thread{
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+
+        if (socket != null && socket.isConnected()) {
+            socket.close();
         }
     }
 }

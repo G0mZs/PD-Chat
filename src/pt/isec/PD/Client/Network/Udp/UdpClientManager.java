@@ -114,12 +114,13 @@ public class UdpClientManager extends Thread {
 
     public void run() {
 
+        boolean running = true;
         byte[] buffer = new byte[BUFFER];
 
         initializeGrdsClientConnection();
 
 
-        while (true) {
+        while (running) {
 
             try {
                 Arrays.fill(buffer, (byte) 0);
@@ -147,6 +148,10 @@ public class UdpClientManager extends Thread {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+
+        if (socket != null && socket.isConnected()) {
+            socket.close();
         }
     }
 
