@@ -1,4 +1,4 @@
-package pt.isec.PD.Server;
+package pt.isec.PD.Server.TextInterface;
 
 import pt.isec.PD.Server.Model.Server;
 

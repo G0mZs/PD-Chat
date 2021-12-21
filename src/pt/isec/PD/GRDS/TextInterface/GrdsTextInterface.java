@@ -1,4 +1,4 @@
-package pt.isec.PD.GRDS;
+package pt.isec.PD.GRDS.TextInterface;
 
 import pt.isec.PD.GRDS.Model.Grds;
 

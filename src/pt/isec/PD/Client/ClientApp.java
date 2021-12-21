@@ -1,6 +1,7 @@
 package pt.isec.PD.Client;
 
 import pt.isec.PD.Client.Model.Client;
+import pt.isec.PD.Client.TextInferface.ClientTextInterface;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package pt.isec.PD.Client;
+package pt.isec.PD.Client.TextInferface;
 
 import pt.isec.PD.Client.Model.Client;
 
