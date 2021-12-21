@@ -11,7 +11,7 @@ public class ClientApp {
     public static void main(String[] args) throws IOException {
         Client client = new Client();
         clientTextInterface = new ClientTextInterface(client);
-        clientTextInterface.begin();
+        clientTextInterface.uiMain();
 
     }
 }

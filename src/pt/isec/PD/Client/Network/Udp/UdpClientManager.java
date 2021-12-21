@@ -30,11 +30,6 @@ public class UdpClientManager extends Thread {
     private int clientPort;
     private InetAddress clientAddress;
     private int serverTcpPort;
-    private ObjectInputStream input = null;
-    private ObjectOutputStream output = null;
-    private Socket s = null;
-
-
 
     /**
      * <p>
@@ -48,7 +43,7 @@ public class UdpClientManager extends Thread {
 
     public UdpClientManager(int port,String address){
         this.grdsPort = port;
-
+        this.serverTcpPort = 0;
         try {
             this.grdsAddress = InetAddress.getByName(address);
         } catch (UnknownHostException e) {
@@ -122,7 +117,7 @@ public class UdpClientManager extends Thread {
         byte[] buffer = new byte[BUFFER];
 
         initializeGrdsClientConnection();
-        askForServerConnection();
+
 
         while (true) {
 
@@ -139,8 +134,6 @@ public class UdpClientManager extends Thread {
                         switch ((message.getType())) {
                             case SERVER_PORT:
                                 setServerTcpPort(Integer.valueOf(message.getMessage()));
-                                connectTcp(Constants.SERVER_ADDRESS,this.serverTcpPort);
-                                new Thread(new TcpClientListener(input,output)).start();
                                 break;
                         }
                     } else {
@@ -162,7 +155,12 @@ public class UdpClientManager extends Thread {
 
         Message msg = new Message(Message.Type.CLIENT_SERVER_CONNECTION,"");
 
-            try {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        try {
                 sendMessage(msg,getGrdsAddress().getHostAddress(),getGrdsPort());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -180,18 +178,7 @@ public class UdpClientManager extends Thread {
         }
 
 
-        private void connectTcp(String serverIp,int serverPort) throws Exception {
 
-            InetAddress add = InetAddress.getByName(serverIp);
-
-            s = new Socket(add, serverPort);
-            input = new ObjectInputStream(s.getInputStream());
-            output = new ObjectOutputStream(s.getOutputStream());
-
-            output.writeObject(new Message(Message.Type.CONNECT_TCP,"Wassup"));
-            output.flush();
-
-        }
 
 
 }
