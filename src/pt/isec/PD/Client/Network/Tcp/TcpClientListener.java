@@ -8,10 +8,12 @@ import java.io.*;
 public class TcpClientListener extends Thread {
 
     private ObjectInputStream in = null;
+    private ObjectOutputStream out = null;
 
-    public TcpClientListener(ObjectInputStream in) {
+    public TcpClientListener(ObjectInputStream in,ObjectOutputStream out) {
 
         this.in = in;
+        this.out = out;
     }
 
 
@@ -40,5 +42,16 @@ public class TcpClientListener extends Thread {
         }
 
 
+    }
+
+    public void sendTCPMessage(Message message) {
+
+        try {
+            out.writeObject(message);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
     }
 }

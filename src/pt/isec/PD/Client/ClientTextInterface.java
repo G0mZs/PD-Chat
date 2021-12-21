@@ -6,13 +6,22 @@ import java.io.IOException;
 
 public class ClientTextInterface {
 
-    private static Client client;
+    private  Client client;
 
-    public static void main(String[] args) throws IOException {
-        client = new Client();
-        client.mainMenu();
-
+    public ClientTextInterface(Client client){
+        this.client = client;
     }
+
+    public void begin(){
+        client.startConnection();
+
+        System.out.println("");
+        System.out.println("------ User Main Menu ------");
+        System.out.println("");
+        System.out.println("1 --> Login");
+        System.out.println("2 --> Registo");
+    }
+
 
 
 }

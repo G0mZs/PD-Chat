@@ -1,35 +1,28 @@
 package pt.isec.PD.Client.Model;
 
-import pt.isec.PD.Client.Network.ClientComunicationHandler;
-import pt.isec.PD.Data.Utils;
+import pt.isec.PD.Client.Network.Udp.UdpClientManager;
+import pt.isec.PD.Data.Constants;
 
 import java.net.SocketException;
 
 public class Client {
 
-    private ClientComunicationHandler clientComunicationHandler;
+    private UdpClientManager udpClientManager;
 
     public Client() throws SocketException {
 
-        clientComunicationHandler = new ClientComunicationHandler();
+        this.udpClientManager = new UdpClientManager(Constants.UDP_PORT,Constants.GRDS_ADDRESS);
+
 
     }
 
-    public ClientComunicationHandler getClientComunicationHandler() {
-        return clientComunicationHandler;
+    public UdpClientManager getUdpClientManager() {
+        return udpClientManager;
     }
 
-    public void mainMenu(){
+    public void startConnection(){
 
-        clientComunicationHandler.getUdpClientManager().start();
-
-
-        System.out.println("");
-        System.out.println("------ User Main Menu ------");
-        System.out.println("");
-        System.out.println("1 --> Login");
-        System.out.println("2 --> Registo");
-
+        udpClientManager.start();
 
     }
 

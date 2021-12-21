@@ -140,7 +140,7 @@ public class UdpClientManager extends Thread {
                             case SERVER_PORT:
                                 setServerTcpPort(Integer.valueOf(message.getMessage()));
                                 connectTcp(Constants.SERVER_ADDRESS,this.serverTcpPort);
-                                new Thread(new TcpClientListener(input)).start();
+                                new Thread(new TcpClientListener(input,output)).start();
                                 break;
                         }
                     } else {
@@ -193,14 +193,5 @@ public class UdpClientManager extends Thread {
 
         }
 
-        public void sendTCPMessage(Message message) {
 
-            try {
-                output.writeObject(message);
-                output.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
-        }
 }

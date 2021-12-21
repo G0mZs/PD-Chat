@@ -98,8 +98,8 @@ public class UdpGrdsManager extends Thread {
 
 
         Client aux = new Client();
-        aux.getClientComunicationHandler().getUdpClientManager().setClientPort(dp.getPort());
-        aux.getClientComunicationHandler().getUdpClientManager().setClientAddress(dp.getAddress());
+        aux.getUdpClientManager().setClientPort(dp.getPort());
+        aux.getUdpClientManager().setClientAddress(dp.getAddress());
 
         clients.add(aux);
 
