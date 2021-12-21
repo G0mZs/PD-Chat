@@ -97,14 +97,12 @@ public class UdpServerManager extends Thread{
             e.printStackTrace();
     }
 
-
         try {
 
             Message msg = new Message(Message.Type.SERVER_CONNECTION,String.valueOf(this.serverTcpPort));
             sendMessage(msg,Constants.GRDS_ADDRESS,Constants.UDP_PORT);
             DatagramPacket packet = new DatagramPacket(new byte[256], 256);
             socket.receive(packet);
-
 
         } catch (Exception e) {
             e.printStackTrace();

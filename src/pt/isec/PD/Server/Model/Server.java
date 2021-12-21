@@ -3,7 +3,9 @@ package pt.isec.PD.Server.Model;
 
 import pt.isec.PD.Data.Constants;
 import pt.isec.PD.Server.Network.Tcp.TcpServerManager;
+import pt.isec.PD.Server.Network.Udp.PortSender;
 import pt.isec.PD.Server.Network.Udp.UdpServerManager;
+
 
 import java.io.IOException;
 
@@ -11,12 +13,13 @@ public class Server {
 
     private TcpServerManager tcpServerManager;
     private UdpServerManager udpServerManager;
+    private PortSender portSender;
 
     public Server() throws IOException {
 
         tcpServerManager = new TcpServerManager();
         udpServerManager = new UdpServerManager(Constants.UDP_PORT,Constants.GRDS_ADDRESS,tcpServerManager.getServerTcpPort());
-
+        portSender = new PortSender(tcpServerManager.getServerTcpPort());
     }
 
     public UdpServerManager getUdpServerManager() {

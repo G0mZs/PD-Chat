@@ -10,7 +10,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketException;
 
 public class Client {
 
@@ -46,9 +45,11 @@ public class Client {
             if(checkTcpPort()){
 
                 try {
+
                     exit = true;
                     connectTcp(Constants.SERVER_ADDRESS,udpClientManager.getServerTcpPort());
                     new Thread(new TcpClientListener(input,output)).start();
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
