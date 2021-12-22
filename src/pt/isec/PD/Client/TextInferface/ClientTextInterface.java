@@ -39,10 +39,10 @@ public class ClientTextInterface {
 
             switch (value){
                 case 1:
-                    //uiLogin()
+                    uiLogin();
                     break;
                 case 2:
-                    //uiRegister()
+                    uiRegister();
                     break;
                 case 3:
                     exit = true;
@@ -60,20 +60,45 @@ public class ClientTextInterface {
 
         String username = null,password = null;
 
-        do {
-            System.out.println("");
-            System.out.println("------ Login Menu ------");
-            System.out.println("");
+        System.out.println("");
+        System.out.println("------ Login Into Your Account ------");
+        System.out.println("");
 
-            System.out.println("Enter your username: ");
+        System.out.println("Enter your username: ");
 
-            username = s.nextLine();
+        username = s.nextLine();
 
-            System.out.println("Enter your password: ");
+        System.out.println("Enter your password: ");
 
-            password = s.nextLine();
+        password = s.nextLine();
 
-        }while(client.checkLogin(username,password) == false);
+        if(client.checkLogin(username,password) == false){
+            return;
+        }
+        else{
+            //uiUtilizador();
+        }
+
+    }
+
+    public void uiRegister(){
+
+
+        String username = null,password = null;
+
+        System.out.println("");
+        System.out.println("------ Register as a new user ------");
+        System.out.println("");
+
+        System.out.println("Enter your username: ");
+
+        username = s.nextLine();
+
+        System.out.println("Enter your password: ");
+
+        password = s.nextLine();
+
+        //client.checkRegister(username,password);
 
     }
 

@@ -17,5 +17,6 @@ public class ServerTextInterface {
         server.startTcp();
         server.startUdp();
         server.startPortSender();
+        server.connectDatabase();
     }
 }
