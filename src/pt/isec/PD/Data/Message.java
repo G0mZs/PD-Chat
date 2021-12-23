@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 public class Message implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private int idMessage;
     private User user;
     private Group group;
@@ -13,10 +14,11 @@ public class Message implements Serializable {
     private Type type;
     private String message;
 
-    public Message(Type type,String message){
+    public Message(Type type,String message,User user){
 
         this.type = type;
         this.message = message;
+        this.user = user;
     }
 
     public int getIdMessage() {
@@ -58,6 +60,6 @@ public class Message implements Serializable {
 
 
     public enum Type {
-        CLIENT_CONNECTION,SERVER_CONNECTION,CLIENT_SERVER_CONNECTION,SERVER_PORT,CONNECT_TCP,SKRT,TCP_PORT
+        CLIENT_CONNECTION,SERVER_CONNECTION,CLIENT_SERVER_CONNECTION,SERVER_PORT,CONNECT_TCP,SKRT,TCP_PORT,LOGIN,REGISTER,REGISTER_SUCESS,REGISTER_FAILED
     }
 }

@@ -134,7 +134,7 @@ public class UdpGrdsManager extends Thread {
         //Mandar duas mensagens: uma com o address do Servidor e outra com o porto de escuta Tcp do Servidor a distribuir pelo cliente
         if(servers.size() != 0) {
             String portTcp = String.valueOf(servers.get(0).getTcpServerManager().getServerTcpPort1());
-            sendMessage(new Message(Message.Type.SERVER_PORT, portTcp), dp.getAddress().getHostAddress(), dp.getPort());
+            sendMessage(new Message(Message.Type.SERVER_PORT, portTcp,null), dp.getAddress().getHostAddress(), dp.getPort());
         }
         else{
             System.out.println("heyo");

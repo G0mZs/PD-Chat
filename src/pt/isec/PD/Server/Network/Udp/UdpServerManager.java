@@ -98,7 +98,7 @@ public class UdpServerManager extends Thread{
 
         try {
 
-            Message msg = new Message(Message.Type.SERVER_CONNECTION,String.valueOf(this.serverTcpPort));
+            Message msg = new Message(Message.Type.SERVER_CONNECTION,String.valueOf(this.serverTcpPort),null);
             sendMessage(msg,Constants.GRDS_ADDRESS,Constants.UDP_PORT);
             DatagramPacket packet = new DatagramPacket(new byte[256], 256);
             socket.receive(packet);

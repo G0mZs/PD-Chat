@@ -22,20 +22,24 @@ public class ClientTextInterface {
         int value;
         client.startConnection();
 
-        System.out.println("");
-        System.out.println("------ User Main Menu ------");
-        System.out.println("");
-        System.out.println("1 --> Login");
-        System.out.println("2 --> Register");
-        System.out.println("3 --> Exit");
-
-        while (!s.hasNextInt()) {
-            s.next();
-        }
-
-        value = s.nextInt();
-
         while(!exit){
+
+            System.out.println("");
+            System.out.println("------ User Main Menu ------");
+            System.out.println("");
+            System.out.println("1 --> Login");
+            System.out.println("2 --> Register");
+            System.out.println("3 --> Exit");
+            System.out.println("");
+
+            System.out.print("Answer: ");
+            while (!s.hasNextInt()) {
+                s.next();
+            }
+
+            value = s.nextInt();
+
+
 
             switch (value){
                 case 1:
@@ -57,6 +61,7 @@ public class ClientTextInterface {
 
     public void uiLogin(){
 
+        Scanner sc = new Scanner(System.in);
 
         String username = null,password = null;
 
@@ -66,11 +71,11 @@ public class ClientTextInterface {
 
         System.out.println("Enter your username: ");
 
-        username = s.nextLine();
+        username = sc.nextLine();
 
         System.out.println("Enter your password: ");
 
-        password = s.nextLine();
+        password = sc.nextLine();
 
         if(client.checkLogin(username,password) == false){
             return;
@@ -81,27 +86,44 @@ public class ClientTextInterface {
 
     }
 
-    public void uiRegister(){
+    public void uiRegister() {
+
+        do {
+
+            Scanner sc = new Scanner(System.in);
+            String username = null, password = null, name = null;
+
+            System.out.println("");
+            System.out.println("------ Register as a new user ------");
+            System.out.println("");
+
+            System.out.println("Enter your name: ");
+
+            name = sc.nextLine();
+
+            System.out.println("Enter your username: ");
+
+            username = sc.nextLine();
+
+            System.out.println("Enter your password: ");
+
+            password = sc.nextLine();
 
 
-        String username = null,password = null;
+            client.sendRegisterData(name, username, password);
 
-        System.out.println("");
-        System.out.println("------ Register as a new user ------");
-        System.out.println("");
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-        System.out.println("Enter your username: ");
 
-        username = s.nextLine();
+        }while (client.getRegisterState() == false);
 
-        System.out.println("Enter your password: ");
-
-        password = s.nextLine();
-
-        //client.checkRegister(username,password);
+        client.setRegisterState(false);
 
     }
-
 
 
 }

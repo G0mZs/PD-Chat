@@ -9,6 +9,8 @@ public class TcpClientManager extends Thread {
 
     private ObjectInputStream in = null;
     private ObjectOutputStream out = null;
+    private boolean register = false;
+    private boolean login = false;
 
     public TcpClientManager(ObjectInputStream in, ObjectOutputStream out) {
 
@@ -16,6 +18,21 @@ public class TcpClientManager extends Thread {
         this.out = out;
     }
 
+    public void setLogin(boolean login) {
+        this.login = login;
+    }
+
+    public void setRegister(boolean register) {
+        this.register = register;
+    }
+
+    public boolean getLogin(){
+        return this.login;
+    }
+
+    public boolean getRegister(){
+        return this.register;
+    }
 
     public void run() {
 
@@ -28,8 +45,13 @@ public class TcpClientManager extends Thread {
                     Message message = (Message) readObject;
 
                     switch (message.getType()) {
-                        case SKRT:
-
+                        case REGISTER_SUCESS:
+                            System.out.println("Registry Sucess");
+                            register = true;
+                            break;
+                        case REGISTER_FAILED:
+                            System.out.println("Registry Failed");
+                            register = false;
                             break;
                     }
                 } else {
@@ -54,4 +76,6 @@ public class TcpClientManager extends Thread {
             return;
         }
     }
+
+
 }

@@ -7,6 +7,7 @@ import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
 
 import java.io.IOException;
+import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
@@ -15,6 +16,7 @@ import java.net.Socket;
 public class Client {
 
     private UdpClientManager udpClientManager;
+    private TcpClientManager tcpClientManager;
     private User user;
     private ObjectInputStream input = null;
     private ObjectOutputStream output = null;
@@ -49,7 +51,8 @@ public class Client {
 
                     exit = true;
                     connectTcp(Constants.SERVER_ADDRESS,udpClientManager.getServerTcpPort());
-                    new Thread(new TcpClientManager(input,output)).start();
+                    tcpClientManager = new TcpClientManager(input,output);
+                    tcpClientManager.start();
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -87,11 +90,12 @@ public class Client {
 
         InetAddress add = InetAddress.getByName(serverIp);
 
-        s = new Socket(add, serverPort);
-        input = new ObjectInputStream(s.getInputStream());
-        output = new ObjectOutputStream(s.getOutputStream());
+        this.s = new Socket(add, serverPort);
+        this.output = new ObjectOutputStream(s.getOutputStream());
+        this.input = new ObjectInputStream(s.getInputStream());
 
-        output.writeObject(new Message(Message.Type.CONNECT_TCP,"Wassup"));
+
+        output.writeObject(new Message(Message.Type.CONNECT_TCP,"Client Connected",null));
         output.flush();
 
     }
@@ -112,4 +116,26 @@ public class Client {
         }
     }
 
+    public void sendRegisterData(String name,String username, String password) {
+
+        User auxUser = new User(0,username,password,name);
+
+        try {
+
+            output.writeObject(new Message(Message.Type.REGISTER,null,auxUser));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    public boolean getRegisterState(){
+        return tcpClientManager.getRegister();
+    }
+
+    public void setRegisterState(boolean state){
+        tcpClientManager.setRegister(state);
+    }
 }

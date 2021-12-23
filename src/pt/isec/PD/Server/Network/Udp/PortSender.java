@@ -35,7 +35,7 @@ public class PortSender extends Thread{
 
                 this.socket = new DatagramSocket();
 
-                Message msg = new Message(Message.Type.TCP_PORT, String.valueOf(this.tcpPort));
+                Message msg = new Message(Message.Type.TCP_PORT, String.valueOf(this.tcpPort),null);
                 sendMessage(msg, Constants.GRDS_ADDRESS, Constants.UDP_PORT);
                 DatagramPacket packet = new DatagramPacket(new byte[256], 256);
                 socket.receive(packet);

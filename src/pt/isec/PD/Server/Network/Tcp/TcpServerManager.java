@@ -1,6 +1,7 @@
 package pt.isec.PD.Server.Network.Tcp;
 
 import pt.isec.PD.Data.Message;
+import pt.isec.PD.Server.Database.DbHelper;
 import pt.isec.PD.Server.Model.Server;
 
 import java.io.*;
@@ -13,49 +14,14 @@ public class TcpServerManager extends Thread{
 
     private int serverTcpPort;
     private InetAddress serverAddress;
-    private ServerSocket serverSocket = null;
+    private ServerSocket serverSocket;
     private Socket socket = null;
+    private DbHelper dbHelper;
 
-    public TcpServerManager() throws IOException {
+    public TcpServerManager(DbHelper dbHelper) throws IOException {
 
         this.serverSocket = new ServerSocket(0);
-    }
-
-    public void run() {
-
-        try {
-
-            while(true) {
-
-                socket = serverSocket.accept();
-
-
-                ObjectOutputStream out;
-                out = new ObjectOutputStream(socket.getOutputStream());
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-
-                Message message = (Message) in.readObject();
-
-                switch (message.getType()) {
-                    case CONNECT_TCP:
-                        System.out.println(message.getMessage());
-                        Message msg = new Message(Message.Type.SKRT,"Ayoo");
-                        out.writeObject(msg);
-                        out.flush();
-                        break;
-                }
-            }
-
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }finally {
-            if (serverSocket != null)
-                try {
-                    serverSocket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-        }
+        this.dbHelper = dbHelper;
     }
 
     public int getServerTcpPort() {
@@ -77,4 +43,32 @@ public class TcpServerManager extends Thread{
     public int getServerTcpPort1(){
         return this.serverTcpPort;
     }
+
+    public void run() {
+
+        dbHelper.connectDatabase();
+
+        try {
+
+            while(true) {
+
+                socket = serverSocket.accept();
+                new Thread(new Authentication(socket,dbHelper)).start();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            if (serverSocket != null)
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+        }
+    }
+
+
+
+
 }

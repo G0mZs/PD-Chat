@@ -141,7 +141,7 @@ public class UdpClientManager extends Thread {
 
         try {
 
-            Message msg = new Message(Message.Type.CLIENT_CONNECTION,"");
+            Message msg = new Message(Message.Type.CLIENT_CONNECTION,"",null);
             sendMessage(msg,this.grdsAddress.getHostAddress(),this.grdsPort);
             DatagramPacket packet = new DatagramPacket(new byte[256], 256);
             socket.receive(packet);
@@ -155,7 +155,7 @@ public class UdpClientManager extends Thread {
 
     public void askForServerConnection(){
 
-        Message msg = new Message(Message.Type.CLIENT_SERVER_CONNECTION,"");
+        Message msg = new Message(Message.Type.CLIENT_SERVER_CONNECTION,"",null); // Onde está null no user depois meter o tcpPort do cliente
 
         try {
             Thread.sleep(500);
@@ -178,6 +178,7 @@ public class UdpClientManager extends Thread {
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(address), port);
         socket.send(packet);
     }
+
 
 
 }
