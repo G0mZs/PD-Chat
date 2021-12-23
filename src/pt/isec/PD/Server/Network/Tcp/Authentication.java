@@ -34,16 +34,12 @@ public class Authentication extends Thread{
                 switch (message.getType()) {
                     case CONNECT_TCP:
                         System.out.println(message.getMessage());
-                        /*Message msg = new Message(Message.Type.SKRT,"Ayoo");
-                        out.writeObject(msg);
-                        out.flush();*/
                         break;
                     case LOGIN:
-                        checkLogin(dbHelper.Login(message.getUser().getUsername(), message.getUser().getPassword()), out);
+                        checkLogin(dbHelper.Login(message.getUser().getUsername(), message.getUser().getPassword()), out,message);
                         break;
                     case REGISTER:
-                        System.out.println("Checking Register");
-                        checkRegister(dbHelper.Register(message.getUser().getName(), message.getUser().getUsername()), out);
+                        checkRegister(dbHelper.Register(message.getUser().getName(), message.getUser().getUsername(),message.getUser().getPassword()), out,message);
                         break;
                 }
             }
@@ -55,11 +51,27 @@ public class Authentication extends Thread{
         }
     }
 
-    public void checkLogin(boolean login,ObjectOutputStream out){
+    public void checkLogin(boolean login,ObjectOutputStream out,Message message){
+
+        try{
+            Message msg;
+            if(login == false){
+
+                msg = new Message(Message.Type.LOGIN_FAILED, "", null);
+            }
+            else{
+
+                msg = new Message(Message.Type.LOGIN_SUCESS, "", null);//mandar depois os dados do username
+            }
+            out.writeObject(msg);
+            out.flush();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
 
     }
 
-    public void checkRegister(boolean register,ObjectOutputStream out){
+    public void checkRegister(boolean register,ObjectOutputStream out,Message message){
 
         try {
 
@@ -80,4 +92,6 @@ public class Authentication extends Thread{
         }
 
     }
+
+
 }

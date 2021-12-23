@@ -41,7 +41,7 @@ import java.sql.*;
 
     }
 
-    public boolean Register(String nome, String username) {
+    public boolean Register(String nome, String username,String pass) {
 
         try {
 
@@ -57,7 +57,8 @@ import java.sql.*;
             throwables.printStackTrace();
         }
 
-        //Insert dos dados na Database, 1: Meter o id a contar do 0 crescentemente, e meter username,pass,nome introduzidos, coonectado a falso ou seja 0
+        int id = generateId();
+        insertUser(id,nome,username,pass,0);
         return true;
 
     }
@@ -80,6 +81,37 @@ import java.sql.*;
         }
 
         return false;
+    }
+
+    public int generateId(){
+
+        int lastId = 0;
+        try {
+
+            ResultSet resultSet = statement.executeQuery("select * from utilizador");
+
+            while(resultSet.next()){
+                lastId = resultSet.getInt("idUtilizadores");
+            }
+
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return lastId + 1;
+    }
+
+    public void insertUser(int id,String name,String username,String pass,int conectado){
+
+
+        String combined = id +"," +"'" + username + "'," + "'" + pass + "'," + "'" + name + "'," + conectado;
+
+        try {
+            statement.executeUpdate("INSERT INTO `mydb`.`utilizador`(`idUtilizadores`,`username`,`password`,`nome`,`conectado`) VALUES (" + combined + ");");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
 }

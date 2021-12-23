@@ -138,4 +138,12 @@ public class Client {
     public void setRegisterState(boolean state){
         tcpClientManager.setRegister(state);
     }
+
+    public boolean getLoginState(){
+        return tcpClientManager.getLogin();
+    }
+
+    public void setLoginState(boolean state){
+        tcpClientManager.setLogin(state);
+    }
 }

@@ -61,28 +61,27 @@ public class ClientTextInterface {
 
     public void uiLogin(){
 
-        Scanner sc = new Scanner(System.in);
+        do {
 
-        String username = null,password = null;
+            Scanner sc = new Scanner(System.in);
 
-        System.out.println("");
-        System.out.println("------ Login Into Your Account ------");
-        System.out.println("");
+            String username = null, password = null;
 
-        System.out.println("Enter your username: ");
+            System.out.println("");
+            System.out.println("------ Login Into Your Account ------");
+            System.out.println("");
 
-        username = sc.nextLine();
+            System.out.println("Enter your username: ");
 
-        System.out.println("Enter your password: ");
+            username = sc.nextLine();
 
-        password = sc.nextLine();
+            System.out.println("Enter your password: ");
 
-        if(client.checkLogin(username,password) == false){
-            return;
-        }
-        else{
-            //uiUtilizador();
-        }
+            password = sc.nextLine();
+
+        }while(client.getLoginState() == false);
+
+       //uiUtilizador
 
     }
 

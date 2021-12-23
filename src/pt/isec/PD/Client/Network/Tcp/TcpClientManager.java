@@ -46,12 +46,20 @@ public class TcpClientManager extends Thread {
 
                     switch (message.getType()) {
                         case REGISTER_SUCESS:
-                            System.out.println("Registry Sucess");
+                            System.out.println("Registration Sucess");
                             register = true;
                             break;
                         case REGISTER_FAILED:
-                            System.out.println("Registry Failed");
+                            System.out.println("Registration Failed");//Depois meter msg de erro para caso o nome ou username ser usado
                             register = false;
+                            break;
+                        case LOGIN_SUCESS:
+                            System.out.println("Login Sucess");
+                            login = true;
+                            break;
+                        case LOGIN_FAILED:
+                            System.out.println("Login Failed");
+                            login = false;
                             break;
                     }
                 } else {
