@@ -81,6 +81,20 @@ public class TcpClientManager extends Thread {
                             System.out.println("Your Password has been changed");
                             getMessage().getUser().setPassword(message.getUser().getPassword());
                             break;
+                        case USERNAME_CHANGED_SUCESS:
+                            System.out.println("Your Username has been changed");
+                            getMessage().getUser().setUsername(message.getUser().getUsername());
+                            break;
+                        case USERNAME_CHANGED_FAILED:
+                            System.out.println("This Username is already in use!");
+                            break;
+                        case NAME_CHANGED_SUCESS:
+                            System.out.println("Your Name has been changed");
+                            getMessage().getUser().setName(message.getUser().getName());
+                            break;
+                        case NAME_CHANGED_FAILED:
+                            System.out.println("This Name is already in use");
+                            break;
                     }
                 } else {
                     System.err.println("Received unrecognized data on TCP socket! Ignoring...");

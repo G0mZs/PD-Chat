@@ -180,5 +180,59 @@ import java.sql.*;
         }
     }
 
+    public void changeUsername(int id,String username){
+        try {
+            statement.executeUpdate("UPDATE utilizador SET username ='" + username + "' WHERE idUtilizadores = " + id + ";");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public void changeName(int id,String name){
+        try {
+            statement.executeUpdate("UPDATE utilizador SET nome ='" + name + "' WHERE idUtilizadores = " + id + ";");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public boolean checkName(String nome){
+
+        try {
+
+            ResultSet resultSet = statement.executeQuery("select * from utilizador");
+
+            while (resultSet.next()) {
+                if (nome.equals(resultSet.getString("nome"))) {
+                    return false;
+                }
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return true;
+    }
+
+    public boolean checkUsername(String username){
+
+        try {
+
+            ResultSet resultSet = statement.executeQuery("select * from utilizador");
+
+            while (resultSet.next()) {
+                if (username.equals(resultSet.getString("username"))) {
+                    return false;
+                }
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return true;
+    }
+
 }
 

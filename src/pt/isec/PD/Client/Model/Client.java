@@ -183,5 +183,33 @@ public class Client {
         }
     }
 
+    public void changeName(String name){
+        User auxUser = new User(getUser().getId(),null,null,name);
+
+        try {
+
+            output.writeObject(new Message(Message.Type.CHANGE_NAME,null,auxUser));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    public void changeUsername(String username){
+        User auxUser = new User(getUser().getId(),username,null,null);
+
+        try {
+
+            output.writeObject(new Message(Message.Type.CHANGE_USERNAME,null,auxUser));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
 
 }

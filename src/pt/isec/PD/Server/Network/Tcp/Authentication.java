@@ -49,10 +49,10 @@ public class Authentication extends Thread{
                         changePassword(message.getUser().getId(),message.getUser().getPassword(),out);
                         break;
                     case CHANGE_NAME:
-
+                        changeName(message.getUser().getId(),message.getUser().getName(),out);
                         break;
                     case CHANGE_USERNAME:
-
+                        changeUsername(message.getUser().getId(),message.getUser().getUsername(),out);
                         break;
                 }
             }
@@ -145,6 +145,54 @@ public class Authentication extends Thread{
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void changeName(int id,String name,ObjectOutputStream out){
+
+        Message msg;
+
+        if(dbHelper.checkName(name)){
+            dbHelper.changeName(id,name);
+            msg = new Message(Message.Type.NAME_CHANGED_SUCESS,null,new User(0,null,null,name));
+        }
+        else{
+
+            msg = new Message(Message.Type.NAME_CHANGED_FAILED,null,new User(0,null,null,null));
+        }
+
+
+        try {
+
+            out.writeObject(msg);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void changeUsername(int id,String username,ObjectOutputStream out){
+
+        Message msg;
+
+        if(dbHelper.checkUsername(username)){
+            dbHelper.changeUsername(id,username);
+            msg = new Message(Message.Type.USERNAME_CHANGED_SUCESS,null,new User(0,username,null,null));
+        }
+        else{
+
+            msg = new Message(Message.Type.USERNAME_CHANGED_FAILED,null,new User(0,null,null,null));
+        }
+
+        try {
+
+            out.writeObject(msg);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 

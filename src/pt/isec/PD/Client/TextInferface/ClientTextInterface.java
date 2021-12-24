@@ -82,7 +82,7 @@ public class ClientTextInterface {
             client.sendLoginData(username, password);
 
             try {
-                Thread.sleep(200);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -121,7 +121,7 @@ public class ClientTextInterface {
             client.sendRegisterData(name, username, password);
 
             try {
-                Thread.sleep(200);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -216,10 +216,10 @@ public class ClientTextInterface {
 
             switch (value) {
                 case 1:
-                    //uiChangeName()
+                    uiChangeName();
                     break;
                 case 2:
-                    //uiChangeUsername();
+                    uiChangeUsername();
                     break;
                 case 3:
                     uiChangePassword();
@@ -250,7 +250,7 @@ public class ClientTextInterface {
 
         name = sc.nextLine();
 
-        //client.changeName(name);
+        client.changeName(name);
 
     }
 
@@ -264,7 +264,7 @@ public class ClientTextInterface {
 
         username = sc.nextLine();
 
-        //client.changeUsername(username);
+        client.changeUsername(username);
 
     }
 
