@@ -37,6 +37,26 @@ public class Client {
 
     public void setUser(User user) { this.user = user;}
 
+    public boolean getRegisterState(){
+        return tcpClientManager.getRegister();
+    }
+
+    public void setRegisterState(boolean state){
+        tcpClientManager.setRegister(state);
+    }
+
+    public boolean getLoginState(){
+        return tcpClientManager.getLogin();
+    }
+
+    public void setLoginState(boolean state){
+        tcpClientManager.setLogin(state);
+    }
+
+    public void setInfoUser(){
+        setUser(tcpClientManager.getMessage().getUser());
+    }
+
     public void startConnection(){
 
         exit = false;
@@ -60,20 +80,6 @@ public class Client {
             }
         }
 
-    }
-
-    public boolean checkLogin(String username,String password){
-
-        if(username == null || password == null){
-            return false;
-        }
-
-        /*Enviar mensagem tcp ao servidor para autenticar
-        else if(tcpClientManager.getLoginSucess() == false){
-            return false
-            else return true;
-         */
-        return true;
     }
 
     public boolean checkTcpPort(){
@@ -162,23 +168,20 @@ public class Client {
         }
     }
 
-    public boolean getRegisterState(){
-        return tcpClientManager.getRegister();
+    public void changePassword(String password){
+
+        User auxUser = new User(getUser().getId(),null,password,null);
+
+        try {
+
+            output.writeObject(new Message(Message.Type.CHANGE_PASSWORD,null,auxUser));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
     }
 
-    public void setRegisterState(boolean state){
-        tcpClientManager.setRegister(state);
-    }
 
-    public boolean getLoginState(){
-        return tcpClientManager.getLogin();
-    }
-
-    public void setLoginState(boolean state){
-        tcpClientManager.setLogin(state);
-    }
-
-    public void setInfoUser(){
-        setUser(tcpClientManager.getMessage().getUser());
-    }
 }

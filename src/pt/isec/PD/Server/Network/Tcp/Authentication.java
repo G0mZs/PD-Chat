@@ -43,8 +43,16 @@ public class Authentication extends Thread{
                         checkRegister(dbHelper.Register(message.getUser().getName(), message.getUser().getUsername(),message.getUser().getPassword()), out,message);
                         break;
                     case LOGOUT:
-                        System.out.println(message.getUser().getId());
-                        Logout(message.getUser().getId(),out);
+                        logout(message.getUser().getId(),out);
+                        break;
+                    case CHANGE_PASSWORD:
+                        changePassword(message.getUser().getId(),message.getUser().getPassword(),out);
+                        break;
+                    case CHANGE_NAME:
+
+                        break;
+                    case CHANGE_USERNAME:
+
                         break;
                 }
             }
@@ -101,7 +109,7 @@ public class Authentication extends Thread{
 
     }
 
-    public void Logout(int id,ObjectOutputStream out){
+    public void logout(int id,ObjectOutputStream out){
 
         dbHelper.userDisconnected(id);
         User auxUser = new User(0,null,null,null);
@@ -109,7 +117,25 @@ public class Authentication extends Thread{
 
         Message msg;
 
-        msg = new Message(Message.Type.LOGOUT_COMPLETE,"",auxUser);
+        msg = new Message(Message.Type.LOGOUT_COMPLETE,null,auxUser);
+
+        try {
+
+            out.writeObject(msg);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void changePassword(int id,String password,ObjectOutputStream out){
+
+        dbHelper.changePassword(id,password);
+
+        Message msg;
+
+        msg = new Message(Message.Type.PASSWORD_CHANGED,null,new User(0,null,password,null));
 
         try {
 

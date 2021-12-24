@@ -77,6 +77,10 @@ public class TcpClientManager extends Thread {
                             System.out.println("Logout Sucess");
                             setMessage(message);
                             break;
+                        case PASSWORD_CHANGED:
+                            System.out.println("Your Password has been changed");
+                            getMessage().getUser().setPassword(message.getUser().getPassword());
+                            break;
                     }
                 } else {
                     System.err.println("Received unrecognized data on TCP socket! Ignoring...");

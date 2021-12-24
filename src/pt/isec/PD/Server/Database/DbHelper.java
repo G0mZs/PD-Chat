@@ -172,5 +172,13 @@ import java.sql.*;
         }
     }
 
+    public void changePassword(int id,String password){
+        try {
+            statement.executeUpdate("UPDATE utilizador SET password ='" + password + "' WHERE idUtilizadores = " + id + ";");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
 }
 

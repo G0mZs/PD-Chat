@@ -29,7 +29,7 @@ public class ClientTextInterface {
             System.out.println("");
             System.out.println("1 --> Login");
             System.out.println("2 --> Register");
-            System.out.println("3 --> Exit");
+            System.out.println("0 --> Exit");
             System.out.println("");
 
             System.out.print("Answer: ");
@@ -48,7 +48,7 @@ public class ClientTextInterface {
                 case 2:
                     uiRegister();
                     break;
-                case 3:
+                case 0:
                     exit = true;
                     //Send message to Grds and Server
                     break;
@@ -142,7 +142,7 @@ public class ClientTextInterface {
         while(client.getLoginState()) {
 
             System.out.println("");
-            System.out.println("Welcome " + client.getUser().getName() + " " + client.getUser().getId() + " to your main menu");
+            System.out.println("Welcome [" + client.getUser().getName() + "] to your application");
             System.out.println("");
             System.out.println("Choose an option below");
 
@@ -150,7 +150,7 @@ public class ClientTextInterface {
             System.out.println("2 --> List and Search Users");
             System.out.println("3 --> Contacts Menu");
             System.out.println("4 --> Groups Menu");
-            System.out.println("5 --> Logout");
+            System.out.println("0 --> Logout");
             System.out.println("");
 
             System.out.print("Answer: ");
@@ -173,7 +173,7 @@ public class ClientTextInterface {
                     case 4:
                         //uiGroups();
                         break;
-                    case 5:
+                    case 0:
                         client.setLoginState(false);
                         client.logout(client.getUser().getId());
                         break;
@@ -197,13 +197,13 @@ public class ClientTextInterface {
 
         while(!leave) {
             System.out.println("");
-            System.out.println("Name: " + client.getUser().getName() + " Username: " + client.getUser().getUsername() + " Password: " + client.getUser().getPassword());
             System.out.println("Edit Personal Data");
+            System.out.println("Name: " + client.getUser().getName() + " Username: " + client.getUser().getUsername() + " Password: " + client.getUser().getPassword());
             System.out.println("");
             System.out.println("1 --> Change Name");
             System.out.println("2 --> Change Username");
             System.out.println("3 --> Change Password");
-            System.out.println("4 --> Return to Main Menu");
+            System.out.println("0 --> Return to Main Menu");
 
             System.out.println("");
 
@@ -222,13 +222,19 @@ public class ClientTextInterface {
                     //uiChangeUsername();
                     break;
                 case 3:
-                    //uiChangePassword();
+                    uiChangePassword();
                     break;
-                case 4:
+                case 0:
                     leave = true;
                     break;
                 default:
                     System.out.println("Invalid option");
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
 
@@ -272,7 +278,7 @@ public class ClientTextInterface {
 
         password = sc.nextLine();
 
-        //client.changePassword(password);
+        client.changePassword(password);
 
     }
 
