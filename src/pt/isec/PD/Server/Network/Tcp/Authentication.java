@@ -1,6 +1,7 @@
 package pt.isec.PD.Server.Network.Tcp;
 
 import pt.isec.PD.Data.Message;
+import pt.isec.PD.Data.User;
 import pt.isec.PD.Server.Database.DbHelper;
 
 import java.io.*;
@@ -41,6 +42,10 @@ public class Authentication extends Thread{
                     case REGISTER:
                         checkRegister(dbHelper.Register(message.getUser().getName(), message.getUser().getUsername(),message.getUser().getPassword()), out,message);
                         break;
+                    case LOGOUT:
+                        System.out.println(message.getUser().getId());
+                        Logout(message.getUser().getId(),out);
+                        break;
                 }
             }
 
@@ -60,8 +65,11 @@ public class Authentication extends Thread{
                 msg = new Message(Message.Type.LOGIN_FAILED, "", null);
             }
             else{
-
-                msg = new Message(Message.Type.LOGIN_SUCESS, "", null);//mandar depois os dados do username
+                String name = dbHelper.getName(message.getUser().getUsername());
+                int id = dbHelper.getId(message.getUser().getUsername());
+                message.getUser().setName(name);
+                message.getUser().setId(id);
+                msg = new Message(Message.Type.LOGIN_SUCESS, "", message.getUser());
             }
             out.writeObject(msg);
             out.flush();
@@ -91,6 +99,26 @@ public class Authentication extends Thread{
             e.printStackTrace();
         }
 
+    }
+
+    public void Logout(int id,ObjectOutputStream out){
+
+        dbHelper.userDisconnected(id);
+        User auxUser = new User(0,null,null,null);
+        auxUser.setConnected(false);
+
+        Message msg;
+
+        msg = new Message(Message.Type.LOGOUT_COMPLETE,"",auxUser);
+
+        try {
+
+            out.writeObject(msg);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

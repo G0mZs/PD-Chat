@@ -71,7 +71,7 @@ import java.sql.*;
 
             while (resultSet.next()) {
                 if (username.equals(resultSet.getString("username")) && password.equals(resultSet.getString("password"))) {
-                    //Meter o conectado do utilizador a true;
+                    userConnected(username);
                     return true;
                 }
             }
@@ -109,6 +109,64 @@ import java.sql.*;
 
         try {
             statement.executeUpdate("INSERT INTO `mydb`.`utilizador`(`idUtilizadores`,`username`,`password`,`nome`,`conectado`) VALUES (" + combined + ");");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public String getName(String username){
+
+        String name = null;
+
+        try {
+
+            ResultSet resultSet = statement.executeQuery("select * from utilizador");
+
+            while(resultSet.next()){
+               if(username.equals(resultSet.getString("username"))){
+                   name = resultSet.getString("nome");
+               }
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return name;
+    }
+
+    public int getId(String username){
+
+        int id = 0;
+
+        try {
+
+            ResultSet resultSet = statement.executeQuery("select * from utilizador");
+
+            while(resultSet.next()){
+                if(username.equals(resultSet.getString("username"))){
+                    id = resultSet.getInt("idUtilizadores");
+                }
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return id;
+    }
+
+    public void userConnected(String username){
+        try {
+            statement.executeUpdate("UPDATE utilizador SET conectado = 1 WHERE username = '" + username + "';");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public void userDisconnected(int id){
+        try {
+            statement.executeUpdate("UPDATE utilizador SET conectado = 0 WHERE idUtilizadores = " + id + ";");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }

@@ -79,9 +79,18 @@ public class ClientTextInterface {
 
             password = sc.nextLine();
 
+            client.sendLoginData(username, password);
+
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
         }while(client.getLoginState() == false);
 
-       //uiUtilizador
+        client.setInfoUser();
+        uiUser();
 
     }
 
@@ -120,7 +129,150 @@ public class ClientTextInterface {
 
         }while (client.getRegisterState() == false);
 
+
         client.setRegisterState(false);
+
+    }
+
+    public void uiUser(){
+
+        int value;
+
+
+        while(client.getLoginState()) {
+
+            System.out.println("");
+            System.out.println("Welcome " + client.getUser().getName() + " " + client.getUser().getId() + " to your main menu");
+            System.out.println("");
+            System.out.println("Choose an option below");
+
+            System.out.println("1 --> Edit Personal Data");
+            System.out.println("2 --> List and Search Users");
+            System.out.println("3 --> Contacts Menu");
+            System.out.println("4 --> Groups Menu");
+            System.out.println("5 --> Logout");
+            System.out.println("");
+
+            System.out.print("Answer: ");
+            while (!s.hasNextInt()) {
+                s.next();
+            }
+
+            value = s.nextInt();
+
+                switch (value) {
+                    case 1:
+                        uiPersonalData();
+                        break;
+                    case 2:
+                        //uiSearchUsers();
+                        break;
+                    case 3:
+                        //uiContacts();
+                        break;
+                    case 4:
+                        //uiGroups();
+                        break;
+                    case 5:
+                        client.setLoginState(false);
+                        client.logout(client.getUser().getId());
+                        break;
+                    default:
+                        System.out.println("Invalid option");
+                }
+        }
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        client.setInfoUser();
+
+    }
+
+    public void uiPersonalData(){
+
+        int value;
+        boolean leave = false;
+
+        while(!leave) {
+            System.out.println("");
+            System.out.println("Name: " + client.getUser().getName() + " Username: " + client.getUser().getUsername() + " Password: " + client.getUser().getPassword());
+            System.out.println("Edit Personal Data");
+            System.out.println("");
+            System.out.println("1 --> Change Name");
+            System.out.println("2 --> Change Username");
+            System.out.println("3 --> Change Password");
+            System.out.println("4 --> Return to Main Menu");
+
+            System.out.println("");
+
+            System.out.print("Answer: ");
+            while (!s.hasNextInt()) {
+                s.next();
+            }
+
+            value = s.nextInt();
+
+            switch (value) {
+                case 1:
+                    //uiChangeName()
+                    break;
+                case 2:
+                    //uiChangeUsername();
+                    break;
+                case 3:
+                    //uiChangePassword();
+                    break;
+                case 4:
+                    leave = true;
+                    break;
+                default:
+                    System.out.println("Invalid option");
+            }
+        }
+
+    }
+
+    public void uiChangeName(){
+
+        Scanner sc = new Scanner(System.in);
+        String name = null;
+
+        System.out.println("");
+        System.out.println("Enter your new Name: ");
+
+        name = sc.nextLine();
+
+        //client.changeName(name);
+
+    }
+
+    public void uiChangeUsername(){
+
+        Scanner sc = new Scanner(System.in);
+        String username = null;
+
+        System.out.println("");
+        System.out.println("Enter your new Username: ");
+
+        username = sc.nextLine();
+
+        //client.changeUsername(username);
+
+    }
+
+    public void uiChangePassword(){
+
+        Scanner sc = new Scanner(System.in);
+        String password = null;
+
+        System.out.println("");
+        System.out.println("Enter your new Password: ");
+
+        password = sc.nextLine();
+
+        //client.changePassword(password);
 
     }
 

@@ -131,6 +131,37 @@ public class Client {
         }
     }
 
+    public void sendLoginData(String username,String password){
+
+        User auxUser = new User(0,username,password,null);
+
+        try {
+
+            output.writeObject(new Message(Message.Type.LOGIN,null,auxUser));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+    }
+
+    public void logout(int id){
+
+        User auxUser = new User(id,null,null,null);
+
+        try {
+
+            output.writeObject(new Message(Message.Type.LOGOUT,null,auxUser));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
     public boolean getRegisterState(){
         return tcpClientManager.getRegister();
     }
@@ -145,5 +176,9 @@ public class Client {
 
     public void setLoginState(boolean state){
         tcpClientManager.setLogin(state);
+    }
+
+    public void setInfoUser(){
+        setUser(tcpClientManager.getMessage().getUser());
     }
 }

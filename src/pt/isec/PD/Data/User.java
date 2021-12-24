@@ -56,4 +56,7 @@ public class User implements Cloneable, Serializable {
         isConnected = connected;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
 }

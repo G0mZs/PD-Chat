@@ -2,6 +2,8 @@ package pt.isec.PD.Client.Network.Tcp;
 
 
 import pt.isec.PD.Data.Message;
+import pt.isec.PD.Data.User;
+
 import java.io.*;
 
 
@@ -11,11 +13,20 @@ public class TcpClientManager extends Thread {
     private ObjectOutputStream out = null;
     private boolean register = false;
     private boolean login = false;
+    private Message message;
 
     public TcpClientManager(ObjectInputStream in, ObjectOutputStream out) {
 
         this.in = in;
         this.out = out;
+    }
+
+    public Message getMessage() {
+        return message;
+    }
+
+    public void setMessage(Message message) {
+        this.message = message;
     }
 
     public void setLogin(boolean login) {
@@ -55,11 +66,16 @@ public class TcpClientManager extends Thread {
                             break;
                         case LOGIN_SUCESS:
                             System.out.println("Login Sucess");
+                            setMessage(message);
                             login = true;
                             break;
                         case LOGIN_FAILED:
                             System.out.println("Login Failed");
                             login = false;
+                            break;
+                        case LOGOUT_COMPLETE:
+                            System.out.println("Logout Sucess");
+                            setMessage(message);
                             break;
                     }
                 } else {
