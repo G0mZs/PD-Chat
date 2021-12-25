@@ -84,7 +84,7 @@ public class UdpServerManager extends Thread{
         this.serverTcpPort = serverTcpPort;
     }
 
-    /** No Arranque do Cliente , este recebe o endereço IP e o protocolo de escuta UDP do GRDS */
+
 
 
 

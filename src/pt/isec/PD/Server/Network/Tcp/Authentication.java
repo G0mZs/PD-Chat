@@ -6,6 +6,7 @@ import pt.isec.PD.Server.Database.DbHelper;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
 public class Authentication extends Thread{
 
@@ -54,6 +55,12 @@ public class Authentication extends Thread{
                     case CHANGE_USERNAME:
                         changeUsername(message.getUser().getId(),message.getUser().getUsername(),out);
                         break;
+                    case SEARCH_USER:
+                        searchUser(message.getUser().getUsername(),out);
+                        break;
+                    case LIST_USERS:
+                        sendUsersList(out);
+                        break;
                 }
             }
 
@@ -77,6 +84,7 @@ public class Authentication extends Thread{
                 int id = dbHelper.getId(message.getUser().getUsername());
                 message.getUser().setName(name);
                 message.getUser().setId(id);
+                message.getUser().setConnected(true);
                 msg = new Message(Message.Type.LOGIN_SUCESS, "", message.getUser());
             }
             out.writeObject(msg);
@@ -118,6 +126,7 @@ public class Authentication extends Thread{
         Message msg;
 
         msg = new Message(Message.Type.LOGOUT_COMPLETE,null,auxUser);
+        msg.getUser().setConnected(auxUser.getState());
 
         try {
 
@@ -183,6 +192,49 @@ public class Authentication extends Thread{
 
             msg = new Message(Message.Type.USERNAME_CHANGED_FAILED,null,new User(0,null,null,null));
         }
+
+        try {
+
+            out.writeObject(msg);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void searchUser(String username,ObjectOutputStream out){
+
+        Message msg;
+
+        User auxUser = dbHelper.searchUser(username);
+
+        if(auxUser == null){
+            msg = new Message(Message.Type.USER_DONT_EXIST,null,null);
+        }
+        else{
+            msg = new Message(Message.Type.USER_RECEIVED,null,new User(auxUser.getId(),auxUser.getUsername(),null,auxUser.getName()));
+            msg.getUser().setConnected(auxUser.getState());
+        }
+
+        try {
+
+            out.writeObject(msg);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendUsersList(ObjectOutputStream out){
+
+        Message msg;
+        ArrayList<User> listUsers;
+        listUsers = dbHelper.getAllUsers();
+        msg = new Message(Message.Type.LIST_RECEIVED,null,new User(0,null,null,null));
+        msg.setUsersInfo(listUsers);
 
         try {
 

@@ -54,7 +54,7 @@ public class Client {
     }
 
     public void setInfoUser(){
-        setUser(tcpClientManager.getMessage().getUser());
+        setUser(tcpClientManager.getUserData());
     }
 
     public void startConnection(){
@@ -209,6 +209,36 @@ public class Client {
             e.printStackTrace();
             return;
         }
+    }
+
+    public void searchUser(String username){
+
+        User auxUser = new User(0,username,null,null);
+
+        try {
+
+            output.writeObject(new Message(Message.Type.SEARCH_USER,null,auxUser));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+    }
+
+    public void listUsers(){
+
+        try {
+
+            output.writeObject(new Message(Message.Type.LIST_USERS,null,null));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
     }
 
 

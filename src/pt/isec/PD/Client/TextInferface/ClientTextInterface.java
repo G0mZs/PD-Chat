@@ -165,7 +165,7 @@ public class ClientTextInterface {
                         uiPersonalData();
                         break;
                     case 2:
-                        //uiSearchUsers();
+                        uiSearchUsers();
                         break;
                     case 3:
                         //uiContacts();
@@ -280,6 +280,69 @@ public class ClientTextInterface {
 
         client.changePassword(password);
 
+    }
+
+    public void uiSearchUsers(){
+
+        int value;
+        boolean leave = false;
+
+        while(!leave) {
+            System.out.println("");
+            System.out.println("Choose a option below");
+            System.out.println("");
+            System.out.println("1 --> List Users");
+            System.out.println("2 --> Search User");
+            System.out.println("0 --> Return to Main Menu");
+
+            System.out.println("");
+
+            System.out.print("Answer: ");
+            while (!s.hasNextInt()) {
+                s.next();
+            }
+
+            value = s.nextInt();
+
+            switch (value) {
+                case 1:
+                    uiListUsers();
+                    break;
+                case 2:
+                    uiSearchUser();
+                    break;
+                case 0:
+                    leave = true;
+                    break;
+                default:
+                    System.out.println("Invalid option");
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void uiSearchUser(){
+
+        Scanner sc = new Scanner(System.in);
+        String username = null;
+
+        System.out.println("");
+        System.out.println("Enter the username of the user you want to search: ");
+
+        username = sc.nextLine();
+
+        client.searchUser(username);
+
+    }
+
+    public void uiListUsers(){
+
+        client.listUsers();
     }
 
 

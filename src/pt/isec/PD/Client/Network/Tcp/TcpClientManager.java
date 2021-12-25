@@ -5,6 +5,7 @@ import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
 
 import java.io.*;
+import java.util.ArrayList;
 
 
 public class TcpClientManager extends Thread {
@@ -13,7 +14,7 @@ public class TcpClientManager extends Thread {
     private ObjectOutputStream out = null;
     private boolean register = false;
     private boolean login = false;
-    private Message message;
+    private User userData;
 
     public TcpClientManager(ObjectInputStream in, ObjectOutputStream out) {
 
@@ -21,12 +22,12 @@ public class TcpClientManager extends Thread {
         this.out = out;
     }
 
-    public Message getMessage() {
-        return message;
+    public User getUserData() {
+        return userData;
     }
 
-    public void setMessage(Message message) {
-        this.message = message;
+    public void setUserData(User userData) {
+        this.userData = userData;
     }
 
     public void setLogin(boolean login) {
@@ -66,7 +67,7 @@ public class TcpClientManager extends Thread {
                             break;
                         case LOGIN_SUCESS:
                             System.out.println("Login Sucess");
-                            setMessage(message);
+                            setUserData(message.getUser());
                             login = true;
                             break;
                         case LOGIN_FAILED:
@@ -75,25 +76,34 @@ public class TcpClientManager extends Thread {
                             break;
                         case LOGOUT_COMPLETE:
                             System.out.println("Logout Sucess");
-                            setMessage(message);
+                            setUserData(message.getUser());
                             break;
                         case PASSWORD_CHANGED:
                             System.out.println("Your Password has been changed");
-                            getMessage().getUser().setPassword(message.getUser().getPassword());
+                            getUserData().setPassword(message.getUser().getPassword());
                             break;
                         case USERNAME_CHANGED_SUCESS:
                             System.out.println("Your Username has been changed");
-                            getMessage().getUser().setUsername(message.getUser().getUsername());
+                            getUserData().setUsername(message.getUser().getUsername());
                             break;
                         case USERNAME_CHANGED_FAILED:
                             System.out.println("This Username is already in use!");
                             break;
                         case NAME_CHANGED_SUCESS:
                             System.out.println("Your Name has been changed");
-                            getMessage().getUser().setName(message.getUser().getName());
+                            getUserData().setName(message.getUser().getName());
                             break;
                         case NAME_CHANGED_FAILED:
                             System.out.println("This Name is already in use");
+                            break;
+                        case USER_DONT_EXIST:
+                            System.out.println("This Username doesn't exist");
+                            break;
+                        case USER_RECEIVED:
+                            displayUser(message.getUser().getState(),message.getUser().getId(),message.getUser().getUsername(),message.getUser().getName());
+                            break;
+                        case LIST_RECEIVED:
+                            displayUsersList(message.getUsersInfo());
                             break;
                     }
                 } else {
@@ -108,16 +118,39 @@ public class TcpClientManager extends Thread {
 
     }
 
-    public void sendTCPMessage(Message message) {
+    public String checkConnection(boolean connected){
 
-        try {
-            out.writeObject(message);
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
+        String state = null;
+
+        if(connected == false){
+            state = "Offline";
         }
+        else{
+            state = "Online";
+        }
+
+        return state;
     }
 
+    public void displayUser(boolean connection,int id,String username,String name) {
 
+        System.out.println("");
+        System.out.println("The User you searched for:");
+        System.out.println("");
+        String connected = checkConnection(connection);
+        System.out.println("--> Id: " + id + " Username: " + username + " Name: " + name + " State: " + connected);
+
+    }
+
+    public void displayUsersList(ArrayList<User> usersList){
+
+        System.out.println("");
+        System.out.println("---------- List of Users -----------");
+
+        for(int i = 0; i < usersList.size(); i++){
+            String connected = checkConnection(usersList.get(i).getState());
+            System.out.println("--> Id: " + usersList.get(i).getId() + " Username: " + usersList.get(i).getUsername() + " Name: " + usersList.get(i).getName() + " State: " + connected);
+        }
+        System.out.println("");
+    }
 }

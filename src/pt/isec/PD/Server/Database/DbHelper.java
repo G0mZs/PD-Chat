@@ -1,6 +1,9 @@
 package pt.isec.PD.Server.Database;
 
+import pt.isec.PD.Data.User;
+
 import java.sql.*;
+import java.util.ArrayList;
 
 /**
      * <p>DbHelper class.</p>
@@ -232,6 +235,49 @@ import java.sql.*;
         }
 
         return true;
+    }
+
+    public User searchUser(String username){
+
+        try {
+
+            ResultSet resultSet = statement.executeQuery("select * from utilizador");
+
+            while (resultSet.next()) {
+                if (username.equals(resultSet.getString("username"))) {
+                    User auxUser = new User(resultSet.getInt("idUtilizadores"),resultSet.getString("username"),resultSet.getString("password"),resultSet.getString("nome"));
+                    auxUser.setConnected(resultSet.getBoolean("conectado"));
+                    return auxUser;
+                }
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return null;
+
+    }
+
+    public ArrayList<User> getAllUsers(){
+
+        ArrayList<User> users = new ArrayList<>();
+
+        try {
+
+            ResultSet resultSet = statement.executeQuery("select * from utilizador");
+
+            while (resultSet.next()){
+                User auxUser = new User(resultSet.getInt("idUtilizadores"),resultSet.getString("username"),null,resultSet.getString("nome"));
+                auxUser.setConnected(resultSet.getBoolean("conectado"));
+                users.add(auxUser);
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return users;
     }
 
 }
