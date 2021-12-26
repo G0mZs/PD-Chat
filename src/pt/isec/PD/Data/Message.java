@@ -24,6 +24,21 @@ public class Message implements Serializable {
         this.usersInfo = new ArrayList<>();
     }
 
+    public Message(Type type){
+        this.type = type;
+    }
+
+    public Message(Type type,User user){
+        this.type = type;
+        this.user = user;
+    }
+
+    public Message(Type type,String message){
+        this.type = type;
+        this.message = message;
+    }
+
+
     public int getIdMessage() {
         return idMessage;
     }

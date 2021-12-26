@@ -8,6 +8,7 @@ import pt.isec.PD.Server.Network.CommunicationHandler;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 
 public class Server {
@@ -16,9 +17,11 @@ public class Server {
     private ServerDetails serverDetails;
     private CommunicationHandler communication;
     private boolean running = true;
+    private ArrayList<ClientDetails> clients;
 
     public Server(DbHelper dbHelper) throws IOException {
 
+        this.clients = new ArrayList<>();
         this.dbHelper = dbHelper;
         this.serverDetails = new ServerDetails("Server", getHostAddress());
 
@@ -68,7 +71,8 @@ public class Server {
         return dbHelper;
     }
 
-
-
+    public ArrayList<ClientDetails> getClients() {
+        return clients;
+    }
 
 }

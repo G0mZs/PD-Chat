@@ -23,9 +23,6 @@ public class TcpServerManager extends Thread{
         return tcpPort;
     }
 
-    public void setTcpPort(int tcpPort) {
-        this.tcpPort = tcpPort;
-    }
 
     public void run() {
 

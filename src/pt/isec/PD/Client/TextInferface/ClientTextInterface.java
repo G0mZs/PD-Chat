@@ -168,10 +168,10 @@ public class ClientTextInterface {
                         uiSearchUsers();
                         break;
                     case 3:
-                        //uiContacts();
+                        uiContacts();
                         break;
                     case 4:
-                        //uiGroups();
+                        uiGroups();
                         break;
                     case 0:
                         client.setLoginState(false);
@@ -343,6 +343,108 @@ public class ClientTextInterface {
     public void uiListUsers(){
 
         client.listUsers();
+    }
+
+    public void uiContacts(){
+
+        int value;
+        boolean leave = false;
+
+        while(!leave) {
+
+            System.out.println("");
+            System.out.println("---------- Contacts ----------");
+            System.out.println("");
+            System.out.println("1 --> Send Contact Request");
+            System.out.println("2 --> List Contacts");
+            System.out.println("3 --> Delete Contact");
+            System.out.println("0 --> Return to Main Menu");
+
+            System.out.println("");
+
+            System.out.print("Answer: ");
+            while (!s.hasNextInt()) {
+                s.next();
+            }
+
+            value = s.nextInt();
+
+            switch (value) {
+                case 1:
+                    //uiContactRequest();
+                    break;
+                case 2:
+                    //uiCheckContacts();
+                    break;
+                case 3:
+                    //uiDeleteContact();
+                    break;
+                case 0:
+                    leave = true;
+                    break;
+                default:
+                    System.out.println("Invalid option");
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void uiGroups(){
+
+        int value;
+        boolean leave = false;
+
+        while(!leave) {
+
+            System.out.println("");
+            System.out.println("---------- Groups ----------");
+            System.out.println("");
+            System.out.println("1 --> List your Groups");
+            System.out.println("2 --> Create Group");
+            System.out.println("3 --> Edit Group"); // menu com alterar o nome de um grupo,expulsar membros e extinguir grupo
+            System.out.println("4 --> Join Group");
+            System.out.println("0 --> Return to Main Menu");
+
+            System.out.println("");
+
+            System.out.print("Answer: ");
+            while (!s.hasNextInt()) {
+                s.next();
+            }
+
+            value = s.nextInt();
+
+            switch (value) {
+                case 1:
+                    //uiListGroups();
+                    break;
+                case 2:
+                    //uiCreateGroup();
+                    break;
+                case 3:
+                    //uiEditGroup();
+                    break;
+                case 4:
+                    //uiJoinGroup();
+                    break;
+                case 0:
+                    leave = true;
+                    break;
+                default:
+                    System.out.println("Invalid option");
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 

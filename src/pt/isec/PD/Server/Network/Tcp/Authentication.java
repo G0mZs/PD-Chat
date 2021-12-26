@@ -4,6 +4,7 @@ import pt.isec.PD.Client.Model.Client;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
 import pt.isec.PD.Server.Database.DbHelper;
+import pt.isec.PD.Server.Model.ClientDetails;
 import pt.isec.PD.Server.Model.Server;
 
 import java.io.*;
@@ -77,7 +78,7 @@ public class Authentication extends Thread{
             Message msg;
             if(login == false){
 
-                msg = new Message(Message.Type.LOGIN_FAILED, "", null);
+                msg = new Message(Message.Type.LOGIN_FAILED);
             }
             else{
                 String name = model.getDbHelper().getName(message.getUser().getUsername());
@@ -85,7 +86,9 @@ public class Authentication extends Thread{
                 message.getUser().setName(name);
                 message.getUser().setId(id);
                 message.getUser().setConnected(true);
-                msg = new Message(Message.Type.LOGIN_SUCESS, "", message.getUser());
+                ClientDetails client = new ClientDetails(message.getUser(),socket,out);
+                model.getClients().add(client);
+                msg = new Message(Message.Type.LOGIN_SUCESS,message.getUser());
             }
             out.writeObject(msg);
             out.flush();
@@ -102,11 +105,11 @@ public class Authentication extends Thread{
             Message msg;
             if(register == false){
 
-                msg = new Message(Message.Type.REGISTER_FAILED, "", null);
+                msg = new Message(Message.Type.REGISTER_FAILED);
             }
             else{
 
-                msg = new Message(Message.Type.REGISTER_SUCESS, "", null);
+                msg = new Message(Message.Type.REGISTER_SUCESS);
             }
             out.writeObject(msg);
             out.flush();
@@ -125,7 +128,7 @@ public class Authentication extends Thread{
 
         Message msg;
 
-        msg = new Message(Message.Type.LOGOUT_COMPLETE,null,auxUser);
+        msg = new Message(Message.Type.LOGOUT_COMPLETE,auxUser);
         msg.getUser().setConnected(auxUser.getState());
 
         try {
@@ -144,7 +147,7 @@ public class Authentication extends Thread{
 
         Message msg;
 
-        msg = new Message(Message.Type.PASSWORD_CHANGED,null,new User(0,null,password,null));
+        msg = new Message(Message.Type.PASSWORD_CHANGED,new User(0,null,password,null));
 
         try {
 
@@ -162,11 +165,11 @@ public class Authentication extends Thread{
 
         if(model.getDbHelper().checkName(name)){
             model.getDbHelper().changeName(id,name);
-            msg = new Message(Message.Type.NAME_CHANGED_SUCESS,null,new User(0,null,null,name));
+            msg = new Message(Message.Type.NAME_CHANGED_SUCESS,new User(0,null,null,name));
         }
         else{
 
-            msg = new Message(Message.Type.NAME_CHANGED_FAILED,null,new User(0,null,null,null));
+            msg = new Message(Message.Type.NAME_CHANGED_FAILED,new User(0,null,null,null));
         }
 
 
@@ -186,11 +189,11 @@ public class Authentication extends Thread{
 
         if(model.getDbHelper().checkUsername(username)){
             model.getDbHelper().changeUsername(id,username);
-            msg = new Message(Message.Type.USERNAME_CHANGED_SUCESS,null,new User(0,username,null,null));
+            msg = new Message(Message.Type.USERNAME_CHANGED_SUCESS,new User(0,username,null,null));
         }
         else{
 
-            msg = new Message(Message.Type.USERNAME_CHANGED_FAILED,null,new User(0,null,null,null));
+            msg = new Message(Message.Type.USERNAME_CHANGED_FAILED,new User(0,null,null,null));
         }
 
         try {
@@ -211,10 +214,10 @@ public class Authentication extends Thread{
         User auxUser = model.getDbHelper().searchUser(username);
 
         if(auxUser == null){
-            msg = new Message(Message.Type.USER_DONT_EXIST,null,null);
+            msg = new Message(Message.Type.USER_DONT_EXIST);
         }
         else{
-            msg = new Message(Message.Type.USER_RECEIVED,null,new User(auxUser.getId(),auxUser.getUsername(),null,auxUser.getName()));
+            msg = new Message(Message.Type.USER_RECEIVED,new User(auxUser.getId(),auxUser.getUsername(),null,auxUser.getName()));
             msg.getUser().setConnected(auxUser.getState());
         }
 
@@ -233,7 +236,7 @@ public class Authentication extends Thread{
         Message msg;
         ArrayList<User> listUsers;
         listUsers = model.getDbHelper().getAllUsers();
-        msg = new Message(Message.Type.LIST_RECEIVED,null,new User(0,null,null,null));
+        msg = new Message(Message.Type.LIST_RECEIVED,new User(0,null,null,null));
         msg.setUsersInfo(listUsers);
 
         try {

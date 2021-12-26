@@ -7,7 +7,6 @@ import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
 
 import java.io.IOException;
-import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
@@ -101,7 +100,7 @@ public class Client {
         this.input = new ObjectInputStream(s.getInputStream());
 
 
-        output.writeObject(new Message(Message.Type.CONNECT_TCP,"Client Connected",null));
+        output.writeObject(new Message(Message.Type.CONNECT_TCP,"Client Connected"));
         output.flush();
 
     }
@@ -128,12 +127,12 @@ public class Client {
 
         try {
 
-            output.writeObject(new Message(Message.Type.REGISTER,null,auxUser));
+            output.writeObject(new Message(Message.Type.REGISTER,auxUser));
             output.flush();
 
         } catch (IOException e) {
             e.printStackTrace();
-            return;
+
         }
     }
 
@@ -143,12 +142,12 @@ public class Client {
 
         try {
 
-            output.writeObject(new Message(Message.Type.LOGIN,null,auxUser));
+            output.writeObject(new Message(Message.Type.LOGIN,auxUser));
             output.flush();
 
         } catch (IOException e) {
             e.printStackTrace();
-            return;
+
         }
 
     }
@@ -159,12 +158,12 @@ public class Client {
 
         try {
 
-            output.writeObject(new Message(Message.Type.LOGOUT,null,auxUser));
+            output.writeObject(new Message(Message.Type.LOGOUT,auxUser));
             output.flush();
 
         } catch (IOException e) {
             e.printStackTrace();
-            return;
+
         }
     }
 
@@ -179,7 +178,7 @@ public class Client {
 
         } catch (IOException e) {
             e.printStackTrace();
-            return;
+
         }
     }
 
@@ -188,12 +187,12 @@ public class Client {
 
         try {
 
-            output.writeObject(new Message(Message.Type.CHANGE_NAME,null,auxUser));
+            output.writeObject(new Message(Message.Type.CHANGE_NAME,auxUser));
             output.flush();
 
         } catch (IOException e) {
             e.printStackTrace();
-            return;
+
         }
     }
 
@@ -202,12 +201,12 @@ public class Client {
 
         try {
 
-            output.writeObject(new Message(Message.Type.CHANGE_USERNAME,null,auxUser));
+            output.writeObject(new Message(Message.Type.CHANGE_USERNAME,auxUser));
             output.flush();
 
         } catch (IOException e) {
             e.printStackTrace();
-            return;
+
         }
     }
 
@@ -217,12 +216,12 @@ public class Client {
 
         try {
 
-            output.writeObject(new Message(Message.Type.SEARCH_USER,null,auxUser));
+            output.writeObject(new Message(Message.Type.SEARCH_USER,auxUser));
             output.flush();
 
         } catch (IOException e) {
             e.printStackTrace();
-            return;
+
         }
 
     }
@@ -231,12 +230,12 @@ public class Client {
 
         try {
 
-            output.writeObject(new Message(Message.Type.LIST_USERS,null,null));
+            output.writeObject(new Message(Message.Type.LIST_USERS));
             output.flush();
 
         } catch (IOException e) {
             e.printStackTrace();
-            return;
+
         }
 
     }
