@@ -1,6 +1,9 @@
 package pt.isec.PD.Server.Network;
 
 import pt.isec.PD.Data.Constants;
+import pt.isec.PD.Data.Message;
+import pt.isec.PD.Data.User;
+import pt.isec.PD.Server.Model.ClientDetails;
 import pt.isec.PD.Server.Model.Server;
 import pt.isec.PD.Server.Network.Tcp.TcpServerManager;
 import pt.isec.PD.Server.Network.Udp.UdpMessageSender;
@@ -48,17 +51,17 @@ public class CommunicationHandler {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
 
-    /*public void sendTCPMessage(Client client, Message message) {
+    public void sendTCPMessage(ClientDetails client, Message message) {
         try {
-            client.getTcpOut().writeObject(message);
-            client.getTcpOut().flush();
+            client.getOut().writeObject(message);
+            client.getOut().flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }*/
+    }
 
     public TcpServerManager getTcpServerManager() {
         return tcpServerManager;

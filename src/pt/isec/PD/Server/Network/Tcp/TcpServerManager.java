@@ -32,8 +32,7 @@ public class TcpServerManager extends Thread{
 
                 Socket socket;
                 socket = server.accept();
-                //ClientHandler newClient = new ClientHandler(socket);
-                //clients.add(newClient);
+
                 new Thread(new Authentication(socket,model)).start();
 
             }
