@@ -240,5 +240,19 @@ public class Client {
 
     }
 
+    public void sendContactRequest(String username){
+
+        User aux = new User(0,username,null,null);
+
+        try {
+            output.writeObject(new Message(Message.Type.CONTACT_REQUEST,aux));
+            output.flush();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
 
 }

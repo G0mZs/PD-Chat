@@ -22,5 +22,7 @@ public class ClientDetails {
         return out;
     }
 
-
+    public User getUser() {
+        return user;
+    }
 }

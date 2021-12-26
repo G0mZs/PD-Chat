@@ -371,7 +371,7 @@ public class ClientTextInterface {
 
             switch (value) {
                 case 1:
-                    //uiContactRequest();
+                    uiContactRequest();
                     break;
                 case 2:
                     //uiCheckContacts();
@@ -445,6 +445,20 @@ public class ClientTextInterface {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void uiContactRequest(){
+
+        String username;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the username you want to send a contact request: ");
+        username = sc.nextLine();
+
+        client.sendContactRequest(username);
+
+
     }
 
 

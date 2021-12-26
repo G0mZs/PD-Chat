@@ -62,12 +62,13 @@ public class Authentication extends Thread{
                     case LIST_USERS:
                         sendUsersList(out);
                         break;
+                    case CONTACT_REQUEST:
+
+                        break;
                 }
             }
 
-        } catch(IOException e){
-            e.printStackTrace();
-        } catch(ClassNotFoundException e){
+        } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
     }
@@ -83,11 +84,14 @@ public class Authentication extends Thread{
             else{
                 String name = model.getDbHelper().getName(message.getUser().getUsername());
                 int id = model.getDbHelper().getId(message.getUser().getUsername());
+
                 message.getUser().setName(name);
                 message.getUser().setId(id);
                 message.getUser().setConnected(true);
+
                 ClientDetails client = new ClientDetails(message.getUser(),socket,out);
                 model.getClients().add(client);
+
                 msg = new Message(Message.Type.LOGIN_SUCESS,message.getUser());
             }
             out.writeObject(msg);
@@ -103,7 +107,7 @@ public class Authentication extends Thread{
         try {
 
             Message msg;
-            if(register == false){
+            if(!register){
 
                 msg = new Message(Message.Type.REGISTER_FAILED);
             }
@@ -123,6 +127,16 @@ public class Authentication extends Thread{
     public synchronized void logout(int id,ObjectOutputStream out){
 
         model.getDbHelper().userDisconnected(id);
+        int i;
+
+        for(i = 0; i < model.getClients().size(); i++){
+
+            if(model.getClients().get(i).getUser().getId() == id){
+                model.getClients().remove(i);
+            }
+
+        }
+
         User auxUser = new User(0,null,null,null);
         auxUser.setConnected(false);
 
