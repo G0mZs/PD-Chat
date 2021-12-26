@@ -21,11 +21,11 @@ public class UdpGrdsManager extends Thread {
     private int port;
     private DatagramSocket ds;
     private ArrayList<Client> clients;
-    private ArrayList<Server> servers;
+    private ArrayList<Integer> TcpPorts;
 
     public UdpGrdsManager(int port) {
         clients = new ArrayList<Client>();
-        servers = new ArrayList<Server>();
+        TcpPorts = new ArrayList<Integer>();
         this.port = port;
     }
 
@@ -125,6 +125,9 @@ public class UdpGrdsManager extends Thread {
             e.printStackTrace();
         }
 
+        int port = Integer.parseInt(tcpPort);
+        TcpPorts.add(port);
+
         System.out.println("Sent to Server: " + dp.getAddress().getHostAddress() + ":" + dp.getPort() + " - " + localTime);
 
     }
@@ -132,8 +135,8 @@ public class UdpGrdsManager extends Thread {
     public void ClientServerConnection(DatagramPacket dp) throws Exception {
         //Aplicar o escalonamento circular round-robin e distribuir os servidores pelos clientes
         //Mandar duas mensagens: uma com o address do Servidor e outra com o porto de escuta Tcp do Servidor a distribuir pelo cliente
-        if(servers.size() != 0) {
-            String portTcp = String.valueOf(servers.get(0).getTcpServerManager().getServerTcpPort1());
+        if(TcpPorts.size() != 0) {
+            String portTcp = String.valueOf(TcpPorts.get(0));
             sendMessage(new Message(Message.Type.SERVER_PORT, portTcp,null), dp.getAddress().getHostAddress(), dp.getPort());
         }
         else{
@@ -152,18 +155,12 @@ public class UdpGrdsManager extends Thread {
 
     public void addServer(DatagramPacket dp,Message msg){
 
-        Server aux = null;
-        try {
-            aux = new Server();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        aux.getUdpServerManager().setServerUdpPort(dp.getPort());
-        aux.getUdpServerManager().setServerAddress(dp.getAddress());
         int port = Integer.parseInt(msg.getMessage());
-        aux.getTcpServerManager().setServerTcpPort(port);
-        servers.add(aux);
+
+        //aux.getUdpServerManager().setServerUdpPort(dp.getPort());
+        //aux.getUdpServerManager().setServerAddress(dp.getAddress());
+        //aux.getTcpServerManager().setServerTcpPort(port);
+        TcpPorts.add(port);
     }
 
 

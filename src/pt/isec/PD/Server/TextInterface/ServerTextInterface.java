@@ -1,21 +1,31 @@
 package pt.isec.PD.Server.TextInterface;
 
+import pt.isec.PD.Data.Constants;
+import pt.isec.PD.Server.Database.DbHelper;
 import pt.isec.PD.Server.Model.Server;
+import pt.isec.PD.Server.Network.CommunicationHandler;
 
 import java.io.IOException;
 
 public class ServerTextInterface {
 
-    private Server server;
-
-    public ServerTextInterface(Server server){
-        this.server = server;
-    }
 
     public void uiMain(){
 
-        server.startTcp();
-        server.startUdp();
-        server.startPortSender();
+        DbHelper helper = new DbHelper("localhost","mydb","root","sql098");
+        helper.connectDatabase();
+
+        Server server = null;
+        try {
+            server = new Server(helper);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        CommunicationHandler handler = new CommunicationHandler(server);
+        server.setCommunication(handler);
+
+        handler.startTCP();
+        handler.startUDP();
     }
 }

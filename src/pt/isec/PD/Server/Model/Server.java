@@ -1,45 +1,74 @@
 package pt.isec.PD.Server.Model;
 
 
-import pt.isec.PD.Data.Constants;
 import pt.isec.PD.Server.Database.DbHelper;
-import pt.isec.PD.Server.Network.Tcp.TcpServerManager;
-import pt.isec.PD.Server.Network.Udp.PortSender;
-import pt.isec.PD.Server.Network.Udp.UdpServerManager;
+import pt.isec.PD.Server.Network.CommunicationHandler;
 
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 
 public class Server {
 
-    private TcpServerManager tcpServerManager;
-    private UdpServerManager udpServerManager;
-    private PortSender portSender;
-    private boolean isRunning = true;
+    private DbHelper dbHelper;
+    private ServerDetails serverDetails;
+    private CommunicationHandler communication;
+    private boolean running = true;
 
-    public Server() throws IOException {
+    public Server(DbHelper dbHelper) throws IOException {
 
-        tcpServerManager = new TcpServerManager(new DbHelper("localhost","mydb","root","sql098"));
-        udpServerManager = new UdpServerManager(Constants.UDP_PORT,Constants.GRDS_ADDRESS,tcpServerManager.getServerTcpPort());
-        portSender = new PortSender(tcpServerManager.getServerTcpPort(),Constants.GRDS_ADDRESS,Constants.UDP_PORT);
+        this.dbHelper = dbHelper;
+        this.serverDetails = new ServerDetails("Server", getHostAddress());
 
     }
 
-    public UdpServerManager getUdpServerManager() {
-        return this.udpServerManager;
+    public String getHostAddress() {
+        InetAddress hostAddress = null;
+
+        try {
+            hostAddress = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+
+        return hostAddress.getHostAddress();
     }
 
-    public TcpServerManager getTcpServerManager() {
-        return this.tcpServerManager;
+    public ServerDetails getServerDetails() {
+        return serverDetails;
     }
 
-    public void startUdp(){ udpServerManager.start();}
-
-    public void startTcp(){
-        tcpServerManager.start();
+    public void setServerDetails(ServerDetails serverDetails) {
+        this.serverDetails = serverDetails;
     }
 
-    public void startPortSender(){portSender.start();}
+    public CommunicationHandler getCommunication() {
+        return communication;
+    }
+
+    public void setCommunication(CommunicationHandler communication) {
+        this.communication = communication;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
+
+    public int getTcpPort() {
+        return serverDetails.getTcpPort();
+    }
+
+    public DbHelper getDbHelper() {
+        return dbHelper;
+    }
+
+
+
 
 }

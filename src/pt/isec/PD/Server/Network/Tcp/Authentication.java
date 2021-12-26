@@ -1,8 +1,10 @@
 package pt.isec.PD.Server.Network.Tcp;
 
+import pt.isec.PD.Client.Model.Client;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
 import pt.isec.PD.Server.Database.DbHelper;
+import pt.isec.PD.Server.Model.Server;
 
 import java.io.*;
 import java.net.*;
@@ -10,25 +12,23 @@ import java.util.ArrayList;
 
 public class Authentication extends Thread{
 
-    private DbHelper dbHelper;
+    private Server model;
     private Socket socket;
-    private ObjectOutputStream out = null;
-    private ObjectInputStream in = null;
 
-    public Authentication(Socket socket,DbHelper dbHelper){
+
+    public Authentication(Socket socket, Server model){
         this.socket = socket;
-        this.dbHelper = dbHelper;
-        try {
-            out = new ObjectOutputStream(socket.getOutputStream());
-            in = new ObjectInputStream(socket.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.model = model;
     }
 
     public void run(){
 
         try {
+
+            ObjectOutputStream out;
+            out = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+
 
             while (true) {
 
@@ -38,10 +38,10 @@ public class Authentication extends Thread{
                         System.out.println(message.getMessage());
                         break;
                     case LOGIN:
-                        checkLogin(dbHelper.Login(message.getUser().getUsername(), message.getUser().getPassword()), out,message);
+                        checkLogin(model.getDbHelper().Login(message.getUser().getUsername(), message.getUser().getPassword()), out,message);
                         break;
                     case REGISTER:
-                        checkRegister(dbHelper.Register(message.getUser().getName(), message.getUser().getUsername(),message.getUser().getPassword()), out,message);
+                        checkRegister(model.getDbHelper().Register(message.getUser().getName(), message.getUser().getUsername(),message.getUser().getPassword()), out,message);
                         break;
                     case LOGOUT:
                         logout(message.getUser().getId(),out);
@@ -71,7 +71,7 @@ public class Authentication extends Thread{
         }
     }
 
-    public void checkLogin(boolean login,ObjectOutputStream out,Message message){
+    public synchronized void checkLogin(boolean login,ObjectOutputStream out,Message message){
 
         try{
             Message msg;
@@ -80,8 +80,8 @@ public class Authentication extends Thread{
                 msg = new Message(Message.Type.LOGIN_FAILED, "", null);
             }
             else{
-                String name = dbHelper.getName(message.getUser().getUsername());
-                int id = dbHelper.getId(message.getUser().getUsername());
+                String name = model.getDbHelper().getName(message.getUser().getUsername());
+                int id = model.getDbHelper().getId(message.getUser().getUsername());
                 message.getUser().setName(name);
                 message.getUser().setId(id);
                 message.getUser().setConnected(true);
@@ -95,7 +95,7 @@ public class Authentication extends Thread{
 
     }
 
-    public void checkRegister(boolean register,ObjectOutputStream out,Message message){
+    public synchronized void checkRegister(boolean register,ObjectOutputStream out,Message message){
 
         try {
 
@@ -117,9 +117,9 @@ public class Authentication extends Thread{
 
     }
 
-    public void logout(int id,ObjectOutputStream out){
+    public synchronized void logout(int id,ObjectOutputStream out){
 
-        dbHelper.userDisconnected(id);
+        model.getDbHelper().userDisconnected(id);
         User auxUser = new User(0,null,null,null);
         auxUser.setConnected(false);
 
@@ -138,9 +138,9 @@ public class Authentication extends Thread{
         }
     }
 
-    public void changePassword(int id,String password,ObjectOutputStream out){
+    public synchronized void changePassword(int id,String password,ObjectOutputStream out){
 
-        dbHelper.changePassword(id,password);
+        model.getDbHelper().changePassword(id,password);
 
         Message msg;
 
@@ -156,12 +156,12 @@ public class Authentication extends Thread{
         }
     }
 
-    public void changeName(int id,String name,ObjectOutputStream out){
+    public synchronized void changeName(int id,String name,ObjectOutputStream out){
 
         Message msg;
 
-        if(dbHelper.checkName(name)){
-            dbHelper.changeName(id,name);
+        if(model.getDbHelper().checkName(name)){
+            model.getDbHelper().changeName(id,name);
             msg = new Message(Message.Type.NAME_CHANGED_SUCESS,null,new User(0,null,null,name));
         }
         else{
@@ -180,12 +180,12 @@ public class Authentication extends Thread{
         }
     }
 
-    public void changeUsername(int id,String username,ObjectOutputStream out){
+    public synchronized void changeUsername(int id,String username,ObjectOutputStream out){
 
         Message msg;
 
-        if(dbHelper.checkUsername(username)){
-            dbHelper.changeUsername(id,username);
+        if(model.getDbHelper().checkUsername(username)){
+            model.getDbHelper().changeUsername(id,username);
             msg = new Message(Message.Type.USERNAME_CHANGED_SUCESS,null,new User(0,username,null,null));
         }
         else{
@@ -204,11 +204,11 @@ public class Authentication extends Thread{
 
     }
 
-    public void searchUser(String username,ObjectOutputStream out){
+    public synchronized void searchUser(String username,ObjectOutputStream out){
 
         Message msg;
 
-        User auxUser = dbHelper.searchUser(username);
+        User auxUser = model.getDbHelper().searchUser(username);
 
         if(auxUser == null){
             msg = new Message(Message.Type.USER_DONT_EXIST,null,null);
@@ -228,11 +228,11 @@ public class Authentication extends Thread{
         }
     }
 
-    public void sendUsersList(ObjectOutputStream out){
+    public synchronized void sendUsersList(ObjectOutputStream out){
 
         Message msg;
         ArrayList<User> listUsers;
-        listUsers = dbHelper.getAllUsers();
+        listUsers = model.getDbHelper().getAllUsers();
         msg = new Message(Message.Type.LIST_RECEIVED,null,new User(0,null,null,null));
         msg.setUsersInfo(listUsers);
 

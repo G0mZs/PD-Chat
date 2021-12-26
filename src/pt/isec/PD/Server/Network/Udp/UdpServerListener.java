@@ -3,22 +3,21 @@ package pt.isec.PD.Server.Network.Udp;
 import pt.isec.PD.Data.Constants;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.Utils;
+import pt.isec.PD.Server.Model.Server;
 
 import java.io.IOException;
 import java.net.*;
 import java.util.Arrays;
 
-public class UdpServerManager extends Thread{
+public class UdpServerListener extends Thread{
 
     private final static int BUFFER = 4096;
-
+    private Server server;
     private DatagramSocket socket = null;
-
     private InetAddress grdsAddress;
     private int grdsPort;
-    private InetAddress serverAddress;
-    private int serverUdpPort;
     private int serverTcpPort;
+
 
     /**
      * <p>
@@ -30,8 +29,9 @@ public class UdpServerManager extends Thread{
      * @throws java.net.SocketException if any.
      */
 
-    public UdpServerManager(int port,String grdsAddress,int tcpPort) throws SocketException {
+    public UdpServerListener(int port, String grdsAddress, Server server, int serverTcpPort) throws SocketException {
 
+        this.server = server;
         try {
             this.grdsAddress = InetAddress.getByName(grdsAddress);
         } catch (UnknownHostException e) {
@@ -39,53 +39,8 @@ public class UdpServerManager extends Thread{
         }
 
         this.grdsPort = port;
-        this.serverTcpPort = tcpPort;
-
-    }
-
-
-    /** Gets */
-    public InetAddress getGrdsAddress() {
-        return grdsAddress;
-    }
-
-    public int getGrdsPort() {
-        return grdsPort;
-    }
-
-
-    public InetAddress getServerAddress() {
-        return serverAddress;
-    }
-
-    public void setGrdsPort(int grdsPort) {
-        this.grdsPort = grdsPort;
-    }
-
-    public int getServerTcpPort() {
-        return serverTcpPort;
-    }
-
-    /** Sets */
-
-    public void setServerUdpPort(int serverUdpPort) {
-        this.serverUdpPort = serverUdpPort;
-    }
-
-    public void setGrdsAddress(InetAddress grdsAddress) {
-        this.grdsAddress = grdsAddress;
-    }
-
-    public void setServerAddress(InetAddress serverAddress) {
-        this.serverAddress = serverAddress;
-    }
-
-    public void setServerTcpPort(int serverTcpPort) {
         this.serverTcpPort = serverTcpPort;
     }
-
-
-
 
 
     public void initializeGrdsServerConnection() {
@@ -98,8 +53,9 @@ public class UdpServerManager extends Thread{
 
         try {
 
-            Message msg = new Message(Message.Type.SERVER_CONNECTION,String.valueOf(this.serverTcpPort),null);
-            sendMessage(msg,Constants.GRDS_ADDRESS,Constants.UDP_PORT);
+            Message msg = new Message(Message.Type.SERVER_CONNECTION,String.valueOf(serverTcpPort),null);
+            System.out.println(serverTcpPort);
+            sendMessage(msg,grdsAddress.getHostAddress(),grdsPort);
             DatagramPacket packet = new DatagramPacket(new byte[256], 256);
             socket.receive(packet);
 
