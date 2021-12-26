@@ -135,8 +135,7 @@ public class UdpGrdsManager extends Thread {
     }
 
     public void ClientServerConnection(DatagramPacket dp) throws Exception {
-        //Aplicar o escalonamento circular round-robin e distribuir os servidores pelos clientes
-        //Mandar duas mensagens: uma com o address do Servidor e outra com o porto de escuta Tcp do Servidor a distribuir pelo cliente
+
         if(rr_index>=TcpPorts.size())
             rr_index=0;
         if(TcpPorts.size() != 0) {
