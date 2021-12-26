@@ -22,11 +22,13 @@ public class UdpGrdsManager extends Thread {
     private DatagramSocket ds;
     private ArrayList<Client> clients;
     private ArrayList<Integer> TcpPorts;
+    private int rr_index;
 
     public UdpGrdsManager(int port) {
         clients = new ArrayList<Client>();
         TcpPorts = new ArrayList<Integer>();
         this.port = port;
+        rr_index=0;
     }
 
 
@@ -135,9 +137,12 @@ public class UdpGrdsManager extends Thread {
     public void ClientServerConnection(DatagramPacket dp) throws Exception {
         //Aplicar o escalonamento circular round-robin e distribuir os servidores pelos clientes
         //Mandar duas mensagens: uma com o address do Servidor e outra com o porto de escuta Tcp do Servidor a distribuir pelo cliente
+        if(rr_index>=TcpPorts.size())
+            rr_index=0;
         if(TcpPorts.size() != 0) {
-            String portTcp = String.valueOf(TcpPorts.get(0));
+            String portTcp = String.valueOf(TcpPorts.get(rr_index));
             sendMessage(new Message(Message.Type.SERVER_PORT, portTcp,null), dp.getAddress().getHostAddress(), dp.getPort());
+            rr_index++;
         }
         else{
             System.out.println("heyo");
