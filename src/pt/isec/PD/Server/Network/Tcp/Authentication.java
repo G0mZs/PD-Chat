@@ -1,6 +1,7 @@
 package pt.isec.PD.Server.Network.Tcp;
 
 import pt.isec.PD.Client.Model.Client;
+import pt.isec.PD.Data.Group;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
 import pt.isec.PD.Server.Database.DbHelper;
@@ -61,6 +62,18 @@ public class Authentication extends Thread{
                         break;
                     case LIST_USERS:
                         sendUsersList(out);
+                        break;
+                    case LIST_GROUPS:
+                        listGroups(out);
+                        break;
+                    case CREATE_GROUP:
+
+                        break;
+                    case EDIT_GROUP:
+
+                        break;
+                    case JOIN_GROUP:
+
                         break;
                 }
             }
@@ -250,5 +263,17 @@ public class Authentication extends Thread{
 
     }
 
+    public synchronized void listGroups(ObjectOutputStream out){
+        Message msg;
+        ArrayList<Group> listGroups = model.getDbHelper().getAllGroups();
+        msg = new Message(Message.Type.LIST_GROUPS, listGroups);
+
+        try {
+            out.writeObject(msg);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

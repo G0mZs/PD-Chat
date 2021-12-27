@@ -1,5 +1,6 @@
 package pt.isec.PD.Server.Database;
 
+import pt.isec.PD.Data.Group;
 import pt.isec.PD.Data.User;
 
 import java.sql.*;
@@ -278,6 +279,39 @@ import java.util.ArrayList;
         }
 
         return users;
+    }
+
+    public ArrayList<Group> getAllGroups(){
+
+        ArrayList<Group> groups = new ArrayList<>();
+
+        try {
+            ResultSet resultSetGroup = statement.executeQuery("select * from Grupo");
+
+            while (resultSetGroup.next()){
+                ResultSet resultSetAdmin = statement.executeQuery("select * from utilizador where id="+resultSetGroup.getInt("idAdmnistrador"));
+                User admin = new User(resultSetAdmin.getInt("idUtilizadores"),resultSetAdmin.getString("username"),null,resultSetAdmin.getString("nome"));
+
+                Group auxGroup = new Group(resultSetGroup.getInt("idGrupos"),admin,resultSetGroup.getString("nome"));
+
+                ResultSet resultSetUsers =  statement.executeQuery(
+                        "select * " +
+                            "from Grupo_has_Utilizador " +
+                            "inner join utilizador on Utilizador_idUtilizadores=idUtilizadores "+
+                            "where Grupo_idGrupos="+auxGroup.getId()+" and "+
+                            "aceite=1");
+                while (resultSetUsers.next()){
+                    User auxUser = new User(resultSetUsers.getInt("idUtilizadores"),resultSetUsers.getString("username"),null,resultSetUsers.getString("nome"));
+                    auxGroup.addMember(auxUser);
+                }
+                groups.add(auxGroup);
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return groups;
     }
 
 }

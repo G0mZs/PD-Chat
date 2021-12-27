@@ -1,6 +1,7 @@
 package pt.isec.PD.Client.Network.Tcp;
 
 
+import pt.isec.PD.Data.Group;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
 
@@ -105,6 +106,9 @@ public class TcpClientManager extends Thread {
                         case LIST_RECEIVED:
                             displayUsersList(message.getUsersInfo());
                             break;
+                        case LIST_GROUPS:
+                            displayGroupsList(message.getListGroups());
+                            break;
                     }
                 } else {
                     System.err.println("Received unrecognized data on TCP socket! Ignoring...");
@@ -151,6 +155,20 @@ public class TcpClientManager extends Thread {
             String connected = checkConnection(usersList.get(i).getState());
             System.out.println("--> Id: " + usersList.get(i).getId() + " Username: " + usersList.get(i).getUsername() + " Name: " + usersList.get(i).getName() + " State: " + connected);
         }
+        System.out.println("");
+    }
+
+    public void displayGroupsList(ArrayList<Group> groupList){
+
+        System.out.println("");
+        System.out.println("---------- List of Groups -----------");
+
+        for(Group group : groupList){
+            System.out.println("Nome: "+group.getName());
+            for (User user : group.getMembers())
+                System.out.println("-"+user.getName());
+        }
+
         System.out.println("");
     }
 }

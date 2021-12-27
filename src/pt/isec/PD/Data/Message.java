@@ -15,6 +15,7 @@ public class Message implements Serializable {
     private Type type;
     private String message;
     private ArrayList<User> usersInfo;
+    private ArrayList<Group> listGroups;
 
     public Message(Type type,String message,User user){
 
@@ -36,6 +37,11 @@ public class Message implements Serializable {
     public Message(Type type,String message){
         this.type = type;
         this.message = message;
+    }
+
+    public Message(Type type,ArrayList<Group> listGroups){
+        this.type = type;
+        this.listGroups = listGroups;
     }
 
 
@@ -85,8 +91,11 @@ public class Message implements Serializable {
 
     public void setUsersInfo(ArrayList<User> usersInfo) {this.usersInfo = usersInfo;}
 
+    public ArrayList<Group> getListGroups() {return listGroups;}
+
     public enum Type {
         CLIENT_CONNECTION,SERVER_CONNECTION,CLIENT_SERVER_CONNECTION,SERVER_PORT,CONNECT_TCP,TCP_PORT,LOGIN,LOGIN_SUCESS,LOGIN_FAILED,LOGOUT,LOGOUT_COMPLETE,REGISTER,REGISTER_SUCESS,REGISTER_FAILED,CHANGE_PASSWORD,
         CHANGE_USERNAME,CHANGE_NAME,PASSWORD_CHANGED,USERNAME_CHANGED_SUCESS,USERNAME_CHANGED_FAILED,NAME_CHANGED_SUCESS,NAME_CHANGED_FAILED,SEARCH_USER,LIST_USERS,USER_RECEIVED,LIST_RECEIVED,USER_DONT_EXIST,
+        LIST_GROUPS,CREATE_GROUP,EDIT_GROUP,JOIN_GROUP,
     }
 }

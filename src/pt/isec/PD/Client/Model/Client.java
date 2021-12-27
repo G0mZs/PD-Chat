@@ -240,5 +240,15 @@ public class Client {
 
     }
 
+    public void listGroups(){
+        try {
+            output.writeObject(new Message(Message.Type.LIST_GROUPS));
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
 }

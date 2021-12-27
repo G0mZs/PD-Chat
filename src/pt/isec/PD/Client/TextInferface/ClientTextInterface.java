@@ -421,7 +421,7 @@ public class ClientTextInterface {
 
             switch (value) {
                 case 1:
-                    //uiListGroups();
+                    uiListGroups();
                     break;
                 case 2:
                     //uiCreateGroup();
@@ -445,6 +445,10 @@ public class ClientTextInterface {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void uiListGroups() {
+
     }
 
 
