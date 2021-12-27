@@ -1,36 +1,36 @@
 package pt.isec.PD.Client.TextInferface;
 
-import pt.isec.PD.Client.Model.Client;
+import pt.isec.PD.Client.Network.CommunicationHandler;
 
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class ClientTextInterface {
 
-    private  Client client;
+    private final CommunicationHandler handler;
     private final Scanner s;
     boolean exit;
 
-    public ClientTextInterface(Client client){
-        this.client = client;
-        this.s = new Scanner(System.in, "UTF-8");
+    public ClientTextInterface(CommunicationHandler handler){
+        this.handler = handler;
+        this.s = new Scanner(System.in, StandardCharsets.UTF_8);
     }
 
     public void uiMain(){
 
         exit = false;
         int value;
-        client.startConnection();
+        handler.startConnection();
 
         while(!exit){
 
-            System.out.println("");
+            System.out.print("\n");
             System.out.println("------ User Main Menu ------");
-            System.out.println("");
+            System.out.print("\n");
             System.out.println("1 --> Login");
             System.out.println("2 --> Register");
             System.out.println("0 --> Exit");
-            System.out.println("");
+            System.out.print("\n");
 
             System.out.print("Answer: ");
             while (!s.hasNextInt()) {
@@ -39,21 +39,11 @@ public class ClientTextInterface {
 
             value = s.nextInt();
 
-
-
-            switch (value){
-                case 1:
-                    uiLogin();
-                    break;
-                case 2:
-                    uiRegister();
-                    break;
-                case 0:
-                    exit = true;
-                    //Send message to Grds and Server
-                    break;
-                default:
-                    System.out.println("Invalid option");
+            switch (value) {
+                case 1 -> uiLogin();
+                case 2 -> uiRegister();
+                case 0 -> exit = true;  //Send message to Grds and Server
+                default -> System.out.println("Invalid option");
             }
 
         }
@@ -65,11 +55,11 @@ public class ClientTextInterface {
 
             Scanner sc = new Scanner(System.in);
 
-            String username = null, password = null;
+            String username,password;
 
-            System.out.println("");
+            System.out.print("\n");
             System.out.println("------ Login Into Your Account ------");
-            System.out.println("");
+            System.out.print("\n");
 
             System.out.println("Enter your username: ");
 
@@ -79,7 +69,7 @@ public class ClientTextInterface {
 
             password = sc.nextLine();
 
-            client.sendLoginData(username, password);
+            handler.sendLoginData(username, password);
 
             try {
                 Thread.sleep(100);
@@ -87,9 +77,9 @@ public class ClientTextInterface {
                 e.printStackTrace();
             }
 
-        }while(client.getLoginState() == false);
+        }while(!handler.getLoginState());
 
-        client.setInfoUser();
+        handler.setInfoUser();
         uiUser();
 
     }
@@ -99,11 +89,11 @@ public class ClientTextInterface {
         do {
 
             Scanner sc = new Scanner(System.in);
-            String username = null, password = null, name = null;
+            String username,password,name;
 
-            System.out.println("");
+            System.out.print("\n");
             System.out.println("------ Register as a new user ------");
-            System.out.println("");
+            System.out.print("\n");
 
             System.out.println("Enter your name: ");
 
@@ -118,7 +108,7 @@ public class ClientTextInterface {
             password = sc.nextLine();
 
 
-            client.sendRegisterData(name, username, password);
+            handler.sendRegisterData(name, username, password);
 
             try {
                 Thread.sleep(100);
@@ -127,10 +117,10 @@ public class ClientTextInterface {
             }
 
 
-        }while (client.getRegisterState() == false);
+        }while (!handler.getRegisterState());
 
 
-        client.setRegisterState(false);
+        handler.setRegisterState(false);
 
     }
 
@@ -139,11 +129,11 @@ public class ClientTextInterface {
         int value;
 
 
-        while(client.getLoginState()) {
+        while(handler.getLoginState()) {
 
-            System.out.println("");
-            System.out.println("Welcome [" + client.getUser().getName() + "] to your application");
-            System.out.println("");
+            System.out.print("\n");
+            System.out.println("Welcome [" + handler.getUser().getName() + "] to your application");
+            System.out.print("\n");
             System.out.println("Choose an option below");
 
             System.out.println("1 --> Edit Personal Data");
@@ -151,61 +141,7 @@ public class ClientTextInterface {
             System.out.println("3 --> Contacts Menu");
             System.out.println("4 --> Groups Menu");
             System.out.println("0 --> Logout");
-            System.out.println("");
-
-            System.out.print("Answer: ");
-            while (!s.hasNextInt()) {
-                s.next();
-            }
-
-            value = s.nextInt();
-
-                switch (value) {
-                    case 1:
-                        uiPersonalData();
-                        break;
-                    case 2:
-                        uiSearchUsers();
-                        break;
-                    case 3:
-                        uiContacts();
-                        break;
-                    case 4:
-                        uiGroups();
-                        break;
-                    case 0:
-                        client.setLoginState(false);
-                        client.logout(client.getUser().getId());
-                        break;
-                    default:
-                        System.out.println("Invalid option");
-                }
-        }
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        client.setInfoUser();
-
-    }
-
-    public void uiPersonalData(){
-
-        int value;
-        boolean leave = false;
-
-        while(!leave) {
-            System.out.println("");
-            System.out.println("Edit Personal Data");
-            System.out.println("Name: " + client.getUser().getName() + " Username: " + client.getUser().getUsername() + " Password: " + client.getUser().getPassword());
-            System.out.println("");
-            System.out.println("1 --> Change Name");
-            System.out.println("2 --> Change Username");
-            System.out.println("3 --> Change Password");
-            System.out.println("0 --> Return to Main Menu");
-
-            System.out.println("");
+            System.out.print("\n");
 
             System.out.print("Answer: ");
             while (!s.hasNextInt()) {
@@ -215,20 +151,56 @@ public class ClientTextInterface {
             value = s.nextInt();
 
             switch (value) {
-                case 1:
-                    uiChangeName();
-                    break;
-                case 2:
-                    uiChangeUsername();
-                    break;
-                case 3:
-                    uiChangePassword();
-                    break;
-                case 0:
-                    leave = true;
-                    break;
-                default:
-                    System.out.println("Invalid option");
+                case 1 -> uiPersonalData();
+                case 2 -> uiSearchUsers();
+                case 3 -> uiContacts();
+                case 4 -> uiGroups();
+                case 0 -> {
+                    handler.setLoginState(false);
+                    handler.logout(handler.getUser().getId());
+                }
+                default -> System.out.println("Invalid option");
+            }
+        }
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        handler.setInfoUser();
+
+    }
+
+    public void uiPersonalData(){
+
+        int value;
+        boolean leave = false;
+
+        while(!leave) {
+            System.out.print("\n");
+            System.out.println("Edit Personal Data");
+            System.out.println("Name: " + handler.getUser().getName() + " Username: " + handler.getUser().getUsername() + " Password: " + handler.getUser().getPassword());
+            System.out.print("\n");
+            System.out.println("1 --> Change Name");
+            System.out.println("2 --> Change Username");
+            System.out.println("3 --> Change Password");
+            System.out.println("0 --> Return to Main Menu");
+
+            System.out.print("\n");
+
+            System.out.print("Answer: ");
+            while (!s.hasNextInt()) {
+                s.next();
+            }
+
+            value = s.nextInt();
+
+            switch (value) {
+                case 1 -> uiChangeName();
+                case 2 -> uiChangeUsername();
+                case 3 -> uiChangePassword();
+                case 0 -> leave = true;
+                default -> System.out.println("Invalid option");
             }
 
             try {
@@ -243,42 +215,42 @@ public class ClientTextInterface {
     public void uiChangeName(){
 
         Scanner sc = new Scanner(System.in);
-        String name = null;
+        String name;
 
-        System.out.println("");
+        System.out.print("\n");
         System.out.println("Enter your new Name: ");
 
         name = sc.nextLine();
 
-        client.changeName(name);
+        handler.changeName(name);
 
     }
 
     public void uiChangeUsername(){
 
         Scanner sc = new Scanner(System.in);
-        String username = null;
+        String username;
 
-        System.out.println("");
+        System.out.print("\n");
         System.out.println("Enter your new Username: ");
 
         username = sc.nextLine();
 
-        client.changeUsername(username);
+        handler.changeUsername(username);
 
     }
 
     public void uiChangePassword(){
 
         Scanner sc = new Scanner(System.in);
-        String password = null;
+        String password;
 
-        System.out.println("");
+        System.out.print("\n");
         System.out.println("Enter your new Password: ");
 
         password = sc.nextLine();
 
-        client.changePassword(password);
+        handler.changePassword(password);
 
     }
 
@@ -288,14 +260,14 @@ public class ClientTextInterface {
         boolean leave = false;
 
         while(!leave) {
-            System.out.println("");
+            System.out.print("\n");
             System.out.println("Choose a option below");
-            System.out.println("");
+            System.out.print("\n");
             System.out.println("1 --> List Users");
             System.out.println("2 --> Search User");
             System.out.println("0 --> Return to Main Menu");
 
-            System.out.println("");
+            System.out.print("\n");
 
             System.out.print("Answer: ");
             while (!s.hasNextInt()) {
@@ -305,17 +277,10 @@ public class ClientTextInterface {
             value = s.nextInt();
 
             switch (value) {
-                case 1:
-                    uiListUsers();
-                    break;
-                case 2:
-                    uiSearchUser();
-                    break;
-                case 0:
-                    leave = true;
-                    break;
-                default:
-                    System.out.println("Invalid option");
+                case 1 -> uiListUsers();
+                case 2 -> uiSearchUser();
+                case 0 -> leave = true;
+                default -> System.out.println("Invalid option");
             }
 
             try {
@@ -329,20 +294,20 @@ public class ClientTextInterface {
     public void uiSearchUser(){
 
         Scanner sc = new Scanner(System.in);
-        String username = null;
+        String username;
 
-        System.out.println("");
+        System.out.print("\n");
         System.out.println("Enter the username of the user you want to search: ");
 
         username = sc.nextLine();
 
-        client.searchUser(username);
+        handler.searchUser(username);
 
     }
 
     public void uiListUsers(){
 
-        client.listUsers();
+        handler.listUsers();
     }
 
     public void uiContacts(){
@@ -352,15 +317,15 @@ public class ClientTextInterface {
 
         while(!leave) {
 
-            System.out.println("");
+            System.out.print("\n");
             System.out.println("---------- Contacts ----------");
-            System.out.println("");
+            System.out.print("\n");
             System.out.println("1 --> Send Contact Request");
             System.out.println("2 --> List Contacts");
             System.out.println("3 --> Delete Contact");
             System.out.println("0 --> Return to Main Menu");
 
-            System.out.println("");
+            System.out.print("\n");
 
             System.out.print("Answer: ");
             while (!s.hasNextInt()) {
@@ -370,20 +335,11 @@ public class ClientTextInterface {
             value = s.nextInt();
 
             switch (value) {
-                case 1:
-                    uiContactRequest();
-                    break;
-                case 2:
-                    //uiCheckContacts();
-                    break;
-                case 3:
-                    //uiDeleteContact();
-                    break;
-                case 0:
-                    leave = true;
-                    break;
-                default:
-                    System.out.println("Invalid option");
+                case 1 -> uiContactRequest();
+                case 2 -> uiListContacts();
+                case 3 -> uiDeleteContact();
+                case 0 -> leave = true;
+                default -> System.out.println("Invalid option");
             }
 
             try {
@@ -401,16 +357,16 @@ public class ClientTextInterface {
 
         while(!leave) {
 
-            System.out.println("");
+            System.out.print("\n");
             System.out.println("---------- Groups ----------");
-            System.out.println("");
+            System.out.print("\n");
             System.out.println("1 --> List your Groups");
             System.out.println("2 --> Create Group");
             System.out.println("3 --> Edit Group"); // menu com alterar o nome de um grupo,expulsar membros e extinguir grupo
             System.out.println("4 --> Join Group");
             System.out.println("0 --> Return to Main Menu");
 
-            System.out.println("");
+            System.out.print("\n");
 
             System.out.print("Answer: ");
             while (!s.hasNextInt()) {
@@ -456,8 +412,32 @@ public class ClientTextInterface {
         System.out.println("Enter the username you want to send a contact request: ");
         username = sc.nextLine();
 
-        client.sendContactRequest(username);
+        handler.sendContactRequest(username);
 
+
+    }
+
+    public void uiListContacts(){
+
+        for(int i = 0; i < handler.getUser().getContacts().size();i++){
+            System.out.print("\n");
+            System.out.println("----------- Lista de Contactos ----------");
+            System.out.print("\n");
+            String connected = handler.returnState(handler.getUser().getContacts().get(i).getState());
+            System.out.println("Nome: " + handler.getUser().getContacts().get(i).getName() + " Username: " + handler.getUser().getContacts().get(i).getName() + " State: " + connected);
+        }
+    }
+
+    public void uiDeleteContact(){
+
+        String username;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the username of the contact you want to delete: ");
+        username = sc.nextLine();
+
+        handler.deleteContact(username);
 
     }
 

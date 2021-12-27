@@ -1,6 +1,7 @@
 package pt.isec.PD.Data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class User implements Cloneable, Serializable {
 
@@ -10,6 +11,7 @@ public class User implements Cloneable, Serializable {
     private String password;
     private String name;
     private Boolean isConnected;
+    private ArrayList<User> contacts;
 
 
     public User(int id,String username,String password,String name){
@@ -18,6 +20,7 @@ public class User implements Cloneable, Serializable {
         this.password = password;
         this.name = name;
         this.isConnected = false;
+        contacts = new ArrayList<>();
     }
 
     public int getId() {
@@ -56,7 +59,9 @@ public class User implements Cloneable, Serializable {
         isConnected = connected;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public void setId(int id) { this.id = id;}
+
+    public ArrayList<User> getContacts() { return contacts; }
+
+    public void setContacts(ArrayList<User> contacts) { this.contacts = contacts;}
 }

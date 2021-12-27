@@ -1,5 +1,6 @@
-package pt.isec.PD.Client.Model;
+package pt.isec.PD.Client.Network;
 
+import pt.isec.PD.Client.Model.Chat;
 import pt.isec.PD.Client.Network.Tcp.TcpClientManager;
 import pt.isec.PD.Client.Network.Udp.UdpClientManager;
 import pt.isec.PD.Data.Constants;
@@ -12,29 +13,24 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
-public class Client {
+public class CommunicationHandler {
 
     private UdpClientManager udpClientManager;
     private TcpClientManager tcpClientManager;
-    private User user;
+    private Chat chat;
     private ObjectInputStream input = null;
     private ObjectOutputStream output = null;
     private Socket s = null;
     boolean exit;
 
-    public Client(){
-
-        this.udpClientManager = new UdpClientManager(Constants.UDP_PORT,Constants.GRDS_ADDRESS);
-
+    public CommunicationHandler(Chat chat){
+        this.chat = chat;
+        this.udpClientManager = new UdpClientManager(chat,Constants.UDP_PORT,Constants.GRDS_ADDRESS);
     }
 
-    public UdpClientManager getUdpClientManager() {
-        return udpClientManager;
-    }
+    public User getUser() { return chat.getUser();}
 
-    public User getUser() { return user;}
-
-    public void setUser(User user) { this.user = user;}
+    public void setUser(User user) { chat.setUser(user);}
 
     public boolean getRegisterState(){
         return tcpClientManager.getRegister();
@@ -70,7 +66,7 @@ public class Client {
 
                     exit = true;
                     connectTcp(Constants.SERVER_ADDRESS,udpClientManager.getServerTcpPort());
-                    tcpClientManager = new TcpClientManager(input,output);
+                    tcpClientManager = new TcpClientManager(chat,input,output);
                     tcpClientManager.start();
 
                 } catch (Exception e) {
@@ -245,7 +241,7 @@ public class Client {
         User aux = new User(0,username,null,null);
 
         try {
-            output.writeObject(new Message(Message.Type.CONTACT_REQUEST,user.getUsername(),aux));
+            output.writeObject(new Message(Message.Type.CONTACT_REQUEST, chat.getUser().getUsername(),aux));
             output.flush();
 
         }catch (IOException e) {
@@ -254,5 +250,28 @@ public class Client {
         }
     }
 
+    public void deleteContact(String username){
 
+        //Verificação para ver se este username esta nos contactos mesmo
+        User aux = new User(0,username,null,null);
+
+        try {
+            output.writeObject(new Message(Message.Type.DELETE_CONTACT,null,aux));
+            output.flush();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+
+        }
+
+    }
+
+    public String returnState(boolean connected){
+        if(connected){
+            return "Online";
+        }
+        else{
+            return "Offline";
+        }
+    }
 }

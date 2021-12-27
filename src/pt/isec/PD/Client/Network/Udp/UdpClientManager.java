@@ -1,22 +1,13 @@
 package pt.isec.PD.Client.Network.Udp;
 
 
+import pt.isec.PD.Client.Model.Chat;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.Utils;
 
-import java.io.*;
 import java.net.*;
 import java.util.Arrays;
 
-
-/**
- * <p>
- * UDPListener class.
- * </p>
- *
- * @author
- * @version $Id: $Id
- */
 
 public class UdpClientManager extends Thread {
 
@@ -28,18 +19,11 @@ public class UdpClientManager extends Thread {
     private int clientPort;
     private InetAddress clientAddress;
     private int serverTcpPort;
+    private Chat chat;
 
-    /**
-     * <p>
-     * Constructor for UDPListener.
-     * </p>
-     *
-     * @param   {@link } object.
-     * @param   port       a int.
-     * @throws java.net.SocketException if any.
-     */
 
-    public UdpClientManager(int port,String address){
+    public UdpClientManager(Chat chat,int port,String address){
+        this.chat = chat;
         this.grdsPort = port;
         this.serverTcpPort = 0;
         try {
@@ -109,7 +93,7 @@ public class UdpClientManager extends Thread {
 
                         switch ((message.getType())) {
                             case SERVER_PORT:
-                                setServerTcpPort(Integer.valueOf(message.getMessage()));
+                                setServerTcpPort(Integer.parseInt(message.getMessage()));
                                 break;
                         }
                     } else {
@@ -118,8 +102,6 @@ public class UdpClientManager extends Thread {
 
                     }
 
-            } catch (IOException e) {
-                e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
             }

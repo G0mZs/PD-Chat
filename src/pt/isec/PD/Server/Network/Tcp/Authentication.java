@@ -1,9 +1,7 @@
 package pt.isec.PD.Server.Network.Tcp;
 
-import pt.isec.PD.Client.Model.Client;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
-import pt.isec.PD.Server.Database.DbHelper;
 import pt.isec.PD.Server.Model.ClientDetails;
 import pt.isec.PD.Server.Model.Server;
 
@@ -64,6 +62,9 @@ public class Authentication extends Thread{
                         break;
                     case CONTACT_REQUEST:
                         sendContactRequest(message.getMessage(),message.getUser().getUsername(),out);
+                        break;
+                    case DELETE_CONTACT:
+                        removeContact(message.getUser().getUsername(),out);
                         break;
                 }
             }
@@ -276,7 +277,8 @@ public class Authentication extends Thread{
 
             for(int i = 0; i < model.getClients().size(); i++){
                 if(model.getClients().get(i).getUser().getUsername().equals(receiver)){
-                    Message message = new Message(Message.Type.CONTACT_REQUEST,sender + " sent you a contact Request. Please type yes to accept or no to refuse");
+                    User aux = model.getDbHelper().searchUser(sender);
+                    Message message = new Message(Message.Type.CONTACT_REQUEST,sender + " sent you a contact Request. Please type yes to accept or no to refuse",aux);
 
                     try {
                         model.getClients().get(i).getOut().writeObject(message);
@@ -294,6 +296,31 @@ public class Authentication extends Thread{
             e.printStackTrace();
         }
 
+    }
+
+    public synchronized void removeContact(String username,ObjectOutputStream out){
+
+        Message msg;
+
+        User auxUser = model.getDbHelper().searchUser(username);
+
+        if(auxUser == null){
+            msg = new Message(Message.Type.USER_DONT_EXIST);
+        }
+        else{
+            //Fazer alguma coisa na bd?
+            msg = new Message(Message.Type.DELETE_CONTACT,"Contact removed !",new User(auxUser.getId(),auxUser.getUsername(),null,auxUser.getName()));
+            msg.getUser().setConnected(auxUser.getState());
+        }
+
+        try {
+
+            out.writeObject(msg);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

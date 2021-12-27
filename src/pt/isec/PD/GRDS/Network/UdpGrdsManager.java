@@ -1,9 +1,7 @@
 package pt.isec.PD.GRDS.Network;
 
-import pt.isec.PD.Client.Model.Client;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.Utils;
-import pt.isec.PD.Server.Model.Server;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -20,12 +18,12 @@ public class UdpGrdsManager extends Thread {
     private final static int BUFFER = 4096;
     private int port;
     private DatagramSocket ds;
-    private ArrayList<Client> clients;
+    private ArrayList<Integer> clients;
     private ArrayList<Integer> TcpPorts;
     private int rr_index;
 
     public UdpGrdsManager(int port) {
-        clients = new ArrayList<Client>();
+        clients = new ArrayList<>();
         TcpPorts = new ArrayList<Integer>();
         this.port = port;
         rr_index=0;
@@ -102,9 +100,7 @@ public class UdpGrdsManager extends Thread {
         }
 
 
-        Client aux = new Client();
-        aux.getUdpClientManager().setClientPort(dp.getPort());
-        aux.getUdpClientManager().setClientAddress(dp.getAddress());
+        int aux = dp.getPort();
 
         clients.add(aux);
 

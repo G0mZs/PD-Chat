@@ -1,6 +1,7 @@
 package pt.isec.PD.Client.Network.Tcp;
 
 
+import pt.isec.PD.Client.Model.Chat;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
 
@@ -14,10 +15,12 @@ public class TcpClientManager extends Thread {
     private ObjectOutputStream out = null;
     private boolean register = false;
     private boolean login = false;
+    private Chat chat;
     private User userData;
 
-    public TcpClientManager(ObjectInputStream in, ObjectOutputStream out) {
+    public TcpClientManager(Chat chat,ObjectInputStream in, ObjectOutputStream out) {
 
+        this.chat = chat;
         this.in = in;
         this.out = out;
     }
@@ -108,6 +111,8 @@ public class TcpClientManager extends Thread {
                         case CONTACT:
                             System.out.println(message.getMessage());
                             break;
+                        case CONTACT_REQUEST:
+                            break;
                     }
                 } else {
                     System.err.println("Received unrecognized data on TCP socket! Ignoring...");
@@ -125,7 +130,7 @@ public class TcpClientManager extends Thread {
 
         String state = null;
 
-        if(connected == false){
+        if(!connected){
             state = "Offline";
         }
         else{
@@ -150,9 +155,9 @@ public class TcpClientManager extends Thread {
         System.out.println("");
         System.out.println("---------- List of Users -----------");
 
-        for(int i = 0; i < usersList.size(); i++){
-            String connected = checkConnection(usersList.get(i).getState());
-            System.out.println("--> Id: " + usersList.get(i).getId() + " Username: " + usersList.get(i).getUsername() + " Name: " + usersList.get(i).getName() + " State: " + connected);
+        for (User user : usersList) {
+            String connected = checkConnection(user.getState());
+            System.out.println("--> Id: " + user.getId() + " Username: " + user.getUsername() + " Name: " + user.getName() + " State: " + connected);
         }
         System.out.println("");
     }
