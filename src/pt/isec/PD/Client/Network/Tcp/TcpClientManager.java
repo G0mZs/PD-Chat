@@ -105,6 +105,9 @@ public class TcpClientManager extends Thread {
                         case LIST_RECEIVED:
                             displayUsersList(message.getUsersInfo());
                             break;
+                        case CONTACT:
+                            System.out.println(message.getMessage());
+                            break;
                     }
                 } else {
                     System.err.println("Received unrecognized data on TCP socket! Ignoring...");

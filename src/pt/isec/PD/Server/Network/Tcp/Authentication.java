@@ -63,7 +63,7 @@ public class Authentication extends Thread{
                         sendUsersList(out);
                         break;
                     case CONTACT_REQUEST:
-
+                        sendContactRequest(message.getMessage(),message.getUser().getUsername(),out);
                         break;
                 }
             }
@@ -258,6 +258,38 @@ public class Authentication extends Thread{
             out.writeObject(msg);
             out.flush();
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public synchronized void sendContactRequest(String sender,String receiver,ObjectOutputStream out){
+
+        Message msg;
+
+        if(model.getDbHelper().checkUsername(receiver)){
+            msg = new Message(Message.Type.CONTACT,"Contact Request Failed ! This username is not available");
+        }
+        else{
+            msg = new Message(Message.Type.CONTACT,"Contact Request Sent !");
+
+            for(int i = 0; i < model.getClients().size(); i++){
+                if(model.getClients().get(i).getUser().getUsername().equals(receiver)){
+                    Message message = new Message(Message.Type.CONTACT_REQUEST,sender + " sent you a contact Request. Please type yes to accept or no to refuse");
+
+                    try {
+                        model.getClients().get(i).getOut().writeObject(message);
+                        model.getClients().get(i).getOut().flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        try {
+           out.writeObject(msg);
+           out.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
