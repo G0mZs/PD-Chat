@@ -73,7 +73,7 @@ import java.util.ArrayList;
             ResultSet resultSet = statement.executeQuery("select * from utilizador");
 
             while (resultSet.next()) {
-                if (username.equals(resultSet.getString("username")) && password.equals(resultSet.getString("password"))) {
+                if (username.equals(resultSet.getString("username")) && password.equals(resultSet.getString("password")) && resultSet.getInt("conectado") == 0) {
                     userConnected(username);
                     return true;
                 }
@@ -333,7 +333,7 @@ import java.util.ArrayList;
 
     }
 
-    public boolean checkPendingRequest(int sender,int receiver){
+    public boolean requestTrue(int sender,int receiver){
         try {
             ResultSet resultSet = statement.executeQuery("select * from utilizador_has_utilizador");
 
@@ -342,6 +342,29 @@ import java.util.ArrayList;
 
                     try {
                         statement.executeUpdate("UPDATE utilizador_has_utilizador SET aceite = 1 WHERE Utilizador_idUtilizadores = " + sender + " AND Utilizador_idUtilizadores1 = " + receiver + " AND aceite = " + "2 ;");
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                    return true;
+                }
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean requestFalse(int sender,int receiver){
+        try {
+            ResultSet resultSet = statement.executeQuery("select * from utilizador_has_utilizador");
+
+            while (resultSet.next()){
+                if(resultSet.getInt("Utilizador_idUtilizadores") == sender && resultSet.getInt("Utilizador_idUtilizadores1") == receiver && resultSet.getInt("aceite") == 2){
+
+                    try {
+                        statement.executeUpdate("UPDATE utilizador_has_utilizador SET aceite = 0 WHERE Utilizador_idUtilizadores = " + sender + " AND Utilizador_idUtilizadores1 = " + receiver + " AND aceite = " + "2 ;");
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
                     }

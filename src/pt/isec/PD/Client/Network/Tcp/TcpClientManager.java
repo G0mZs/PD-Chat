@@ -2,7 +2,6 @@ package pt.isec.PD.Client.Network.Tcp;
 
 
 import pt.isec.PD.Client.Model.Chat;
-import pt.isec.PD.Data.ContactRequest;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
 
@@ -129,6 +128,14 @@ public class TcpClientManager extends Thread {
                             contacts.add(message.getUser());
                             removePendingRequest(message.getUser().getUsername());
                             break;
+                        case CONTACT_REFUSED:
+                            System.out.println("\n" + message.getMessage());
+                            removePendingRequest(message.getUser().getUsername());
+                            break;
+                        case DELETE_CONTACT:
+                            System.out.println("\n" + message.getMessage());
+                            removeFromContactList(message.getUser().getUsername());
+                            break;
                     }
                 } else {
                     System.err.println("Received unrecognized data on TCP socket! Ignoring...");
@@ -184,6 +191,16 @@ public class TcpClientManager extends Thread {
         for(i = 0; i < pendingRequests.size(); i++){
             if(username.equals(pendingRequests.get(i).getUsername())){
                 pendingRequests.remove(i);
+            }
+        }
+    }
+
+    public void removeFromContactList(String username){
+
+        int i;
+        for(i = 0; i < contacts.size(); i++){
+            if(username.equals(contacts.get(i).getUsername())){
+                contacts.remove(i);
             }
         }
     }

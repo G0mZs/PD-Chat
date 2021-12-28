@@ -511,7 +511,7 @@ public class ClientTextInterface {
         System.out.println("Enter the username of the contact request sender: ");
         username = sc.nextLine();
 
-        //handler.refuseContactRequest(username);
+        handler.refuseContactRequest(username);
     }
 
     public void uiListPendingRequests(){

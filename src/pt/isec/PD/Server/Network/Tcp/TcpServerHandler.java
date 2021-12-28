@@ -1,5 +1,7 @@
 package pt.isec.PD.Server.Network.Tcp;
 
+import pt.isec.PD.Data.Constants;
+import pt.isec.PD.Data.Contact;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
 import pt.isec.PD.Server.Model.ClientDetails;
@@ -27,9 +29,9 @@ public class TcpServerHandler extends Thread{
             ObjectOutputStream out;
             out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+            boolean running = true;
 
-
-            while (true) {
+            while (running) {
 
                 Message message = (Message) in.readObject();
                 switch (message.getType()) {
@@ -37,6 +39,9 @@ public class TcpServerHandler extends Thread{
                         System.out.println(message.getMessage());
                         break;
                     case LOGIN:
+                        for(int i = 0; i < model.getCommunication().getActiveServers().size(); i++){
+                            System.out.println(model.getCommunication().getActiveServers().get(i));
+                        }
                         checkLogin(model.getDbHelper().Login(message.getUser().getUsername(), message.getUser().getPassword()), out,message);
                         break;
                     case REGISTER:
@@ -69,6 +74,26 @@ public class TcpServerHandler extends Thread{
                     case CONTACT_ACCEPT:
                         acceptContact(message.getUser().getId(),message.getUser().getUsername(),out);
                         break;
+                    case CONTACT_REFUSED:
+                        refuseContactRequest(message.getUser().getId(),message.getUser().getUsername(),out);
+                        break;
+                    case SERVER_CONTACT_REQUEST:
+                        sendRequestToClient(message.getMessage(), message.getContactRequest());
+                        running = false;
+                        break;
+                    case SERVER_ACCEPT_CONTACT:
+                        sendAcceptContactToClient(message.getMessage(),message.getContactRequest());
+                        running = false;
+                        break;
+                    case SERVER_DELETE_CONTACT:
+                        sendDeleteContactToClient(message.getMessage(),message.getContactRequest());
+                        running = false;
+                        break;
+                    case SERVER_REFUSE_CONTACT:
+                        sendRefusedContactToClient(message.getMessage(),message.getUser());
+                        running = false;
+                        break;
+
                 }
             }
 
@@ -81,7 +106,7 @@ public class TcpServerHandler extends Thread{
 
         try{
             Message msg;
-            if(login == false){
+            if(!login){
 
                 msg = new Message(Message.Type.LOGIN_FAILED);
             }
@@ -287,13 +312,17 @@ public class TcpServerHandler extends Thread{
 
                     model.getDbHelper().createContactRequest(idSender, idReceiver);
                     msg = new Message(Message.Type.CONTACT, "Contact Request Sent !");
+                    User auxSender = model.getDbHelper().searchUser(sender);
+                    User auxReceiver = model.getDbHelper().searchUser(receiver);
+                    Contact request = new Contact(auxSender,auxReceiver);
+
+
 
                     for (int i = 0; i < model.getClients().size(); i++) {
                         if (model.getClients().get(i).getUser().getUsername().equals(receiver)) {
 
-                            //Mandar pedido de contacto(ContactRequest);
-                            User aux = model.getDbHelper().searchUser(sender);
-                            Message message = new Message(Message.Type.CONTACT_REQUEST, sender + " sent you a contact Request.", aux);
+
+                            Message message = new Message(Message.Type.CONTACT_REQUEST, sender + " sent you a contact Request.", request.getSender());
 
                                 try {
                                     model.getClients().get(i).getOut().writeObject(message);
@@ -303,6 +332,9 @@ public class TcpServerHandler extends Thread{
                                 }
                         }
                     }
+
+                    contactServers(new Message(Message.Type.SERVER_CONTACT_REQUEST, sender + " sent you a contact Request.", request));
+
                 }
                 else{
                     msg = new Message(Message.Type.CONTACT, "There is already a contact request with that data");
@@ -323,26 +355,41 @@ public class TcpServerHandler extends Thread{
 
         Message msg;
 
-        User auxUser = model.getDbHelper().searchUser(username);
-        int idContact = auxUser.getId();
+        User contactUser = model.getDbHelper().searchUser(username);
+        User user = model.getDbHelper().getUser(idUser);
 
-        if(auxUser == null){
+        if(contactUser == null){
             msg = new Message(Message.Type.USER_DONT_EXIST);
         }
-        else if(idContact == idUser){
+        else if(contactUser.getId() == idUser){
             msg = new Message(Message.Type.CONTACT,"You are not apart of your contact list");
         }
         else{
-            //Refazer isto tudo
 
-            boolean remove = model.getDbHelper().removeContact(idUser,idContact);
+            boolean remove = model.getDbHelper().removeContact(idUser,contactUser.getId());
 
                 if(remove){
-                    msg = new Message(Message.Type.DELETE_CONTACT,"Contact removed !",new User(auxUser.getId(),auxUser.getUsername(),null,auxUser.getName()));
-                    msg.getUser().setConnected(auxUser.getState());
+                    msg = new Message(Message.Type.DELETE_CONTACT,"Contact removed !",new User(contactUser.getId(),contactUser.getUsername(),null,contactUser.getName()));
+                    msg.getUser().setConnected(contactUser.getState());
+                    Contact contact = new Contact(user,contactUser);
+                    Message message = new Message(Message.Type.DELETE_CONTACT,"You have been removed from " + user.getUsername() + " contact list",user);
+
+                    for(int i = 0; i < model.getClients().size(); i++){
+                        if(username.equals(model.getClients().get(i).getUser().getUsername())){
+
+                            try {
+                                model.getClients().get(i).getOut().writeObject(message);
+                                model.getClients().get(i).getOut().flush();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    contactServers(new Message(Message.Type.SERVER_DELETE_CONTACT,"You have been removed from " + user.getUsername() + " contact list",contact));
                 }
                 else{
-                    msg = new Message(Message.Type.DELETE_CONTACT,"Contact couldn't be removed because its not on your list !");
+                    msg = new Message(Message.Type.CONTACT,"Contact couldn't be removed because its not on your list !");
 
                 }
 
@@ -361,10 +408,9 @@ public class TcpServerHandler extends Thread{
     public synchronized void acceptContact(int idAccepter,String usernameSender,ObjectOutputStream out){
 
         User auxSender = model.getDbHelper().searchUser(usernameSender);
+        User auxReceiver = model.getDbHelper().getUser(idAccepter);
         Message msg;
         Message message;
-        User auxReceiver = model.getDbHelper().getUser(idAccepter);
-
 
         if(auxSender == null){
             msg = new Message(Message.Type.USER_DONT_EXIST);
@@ -373,20 +419,20 @@ public class TcpServerHandler extends Thread{
             msg = new Message(Message.Type.CONTACT,"You can't accept requests from yourself !");
         }else{
 
-            boolean verifyRequest = model.getDbHelper().checkPendingRequest(auxSender.getId(),idAccepter);
+            boolean verifyRequest = model.getDbHelper().requestTrue(auxSender.getId(),idAccepter);
 
             if(!verifyRequest){
                 msg = new Message(Message.Type.CONTACT,"There are no pending requests from this user");
             }
             else {
-                msg = new Message(Message.Type.CONTACT_ACCEPT,"Contact Request Accepted",auxSender);
+                Contact request = new Contact(auxSender,auxReceiver);
+                msg = new Message(Message.Type.CONTACT_ACCEPT,"Contact Request Accepted",request.getSender());
                 for(int i = 0; i < model.getClients().size(); i++){
-                    if(auxSender.getId() == model.getClients().get(i).getUser().getId()){
+                    if(auxSender.getUsername().equals(model.getClients().get(i).getUser().getUsername())){
 
-                        message = new Message(Message.Type.CONTACT_ACCEPT,auxReceiver.getUsername() + " has accepted your contact request !",auxReceiver);
+                        message = new Message(Message.Type.CONTACT_ACCEPT,auxReceiver.getUsername() + " has accepted your contact request !",request.getReceiver());
 
                         try {
-
                             model.getClients().get(i).getOut().writeObject(message);
                             model.getClients().get(i).getOut().flush();
 
@@ -396,11 +442,11 @@ public class TcpServerHandler extends Thread{
                     }
                 }
 
+                contactServers(new Message(Message.Type.SERVER_ACCEPT_CONTACT,auxReceiver.getUsername() + " has accepted your contact request !",request));
+
             }
         }
-
         try {
-
             out.writeObject(msg);
             out.flush();
 
@@ -408,6 +454,152 @@ public class TcpServerHandler extends Thread{
             e.printStackTrace();
         }
 
+    }
+
+    public synchronized void refuseContactRequest(int idRefuser,String Sender,ObjectOutputStream out){
+
+        User auxSender = model.getDbHelper().searchUser(Sender);
+
+        User auxRefuser = model.getDbHelper().getUser(idRefuser);
+        Message msg;
+        Message message;
+
+        if(auxSender == null){
+            msg = new Message(Message.Type.USER_DONT_EXIST);
+        }
+        else if(auxSender.getId() == auxRefuser.getId()){
+            msg = new Message(Message.Type.CONTACT,"You can't refuse requests from yourself !");
+        }else{
+
+            boolean verifyRequest = model.getDbHelper().requestFalse(auxSender.getId(),idRefuser);
+
+            if(!verifyRequest){
+                msg = new Message(Message.Type.CONTACT,"There are no pending requests from this user");
+            }
+            else {
+                msg = new Message(Message.Type.CONTACT_REFUSED,"Contact Request Refused",auxSender);
+                for(int i = 0; i < model.getClients().size(); i++){
+                    if(auxSender.getUsername().equals(model.getClients().get(i).getUser().getUsername())){
+
+                        message = new Message(Message.Type.CONTACT,auxRefuser.getUsername() + " has refused your contact request !");
+
+                        try {
+                            model.getClients().get(i).getOut().writeObject(message);
+                            model.getClients().get(i).getOut().flush();
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                contactServers(new Message(Message.Type.SERVER_REFUSE_CONTACT,auxRefuser.getUsername() + " has refused your contact request !",auxSender));
+
+            }
+        }
+        try {
+            out.writeObject(msg);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+    public void contactServers(Message msg){
+
+        for(int i = 0; i < model.getCommunication().getActiveServers().size(); i++){
+            try {
+                InetAddress add = InetAddress.getByName(Constants.SERVER_ADDRESS);
+
+                Socket socket = new Socket(add, model.getCommunication().getActiveServers().get(i));
+
+                ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+
+
+                output.writeObject(msg);
+                output.flush();
+
+                socket.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void sendRequestToClient(String msg, Contact request){
+
+        for (int i = 0; i < model.getClients().size(); i++) {
+
+            if (model.getClients().get(i).getUser().getUsername().equals(request.getReceiver().getUsername())) {
+
+
+                Message message = new Message(Message.Type.CONTACT_REQUEST, msg, request.getSender());
+
+                try {
+                    model.getClients().get(i).getOut().writeObject(message);
+                    model.getClients().get(i).getOut().flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void sendDeleteContactToClient(String msg,Contact request){
+        for (int i = 0; i < model.getClients().size(); i++) {
+
+            if (model.getClients().get(i).getUser().getUsername().equals(request.getReceiver().getUsername())) {
+
+
+                Message message = new Message(Message.Type.DELETE_CONTACT, msg, request.getSender());
+
+                try {
+                    model.getClients().get(i).getOut().writeObject(message);
+                    model.getClients().get(i).getOut().flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void sendAcceptContactToClient(String msg, Contact request){
+
+        for (int i = 0; i < model.getClients().size(); i++) {
+
+            if (model.getClients().get(i).getUser().getUsername().equals(request.getSender().getUsername())) {
+
+                Message message = new Message(Message.Type.CONTACT_ACCEPT, msg, request.getReceiver());
+
+                try {
+                    model.getClients().get(i).getOut().writeObject(message);
+                    model.getClients().get(i).getOut().flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void sendRefusedContactToClient(String msg,User sender){
+
+        for (int i = 0; i < model.getClients().size(); i++) {
+
+            if (model.getClients().get(i).getUser().getUsername().equals(sender.getUsername())) {
+
+                Message message = new Message(Message.Type.CONTACT, msg);
+
+                try {
+                    model.getClients().get(i).getOut().writeObject(message);
+                    model.getClients().get(i).getOut().flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
 

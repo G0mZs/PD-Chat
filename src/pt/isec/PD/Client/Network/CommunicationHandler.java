@@ -289,6 +289,20 @@ public class CommunicationHandler {
         }
     }
 
+    public void refuseContactRequest(String username){
+
+        User aux = new User(chat.getUser().getId(),username,null,null);
+
+        try {
+            output.writeObject(new Message(Message.Type.CONTACT_REFUSED,null,aux));
+            output.flush();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
     public String returnState(boolean connected){
         if(connected){
             return "Online";

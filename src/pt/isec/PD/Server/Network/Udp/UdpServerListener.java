@@ -7,6 +7,7 @@ import pt.isec.PD.Server.Model.Server;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class UdpServerListener extends Thread{
@@ -17,6 +18,7 @@ public class UdpServerListener extends Thread{
     private InetAddress grdsAddress;
     private int grdsPort;
     private int serverTcpPort;
+    private ArrayList<Integer> activeServers;
 
 
     /**
@@ -40,8 +42,12 @@ public class UdpServerListener extends Thread{
 
         this.grdsPort = port;
         this.serverTcpPort = serverTcpPort;
+        this.activeServers = new ArrayList<>();
     }
 
+    public ArrayList<Integer> getActiveServers() {
+        return activeServers;
+    }
 
     public void initializeGrdsServerConnection() {
 
@@ -53,8 +59,7 @@ public class UdpServerListener extends Thread{
 
         try {
 
-            Message msg = new Message(Message.Type.SERVER_CONNECTION,String.valueOf(serverTcpPort),null);
-            System.out.println(serverTcpPort);
+            Message msg = new Message(Message.Type.SERVER_CONNECTION,String.valueOf(serverTcpPort));
             sendMessage(msg,grdsAddress.getHostAddress(),grdsPort);
             DatagramPacket packet = new DatagramPacket(new byte[256], 256);
             socket.receive(packet);
@@ -95,10 +100,11 @@ public class UdpServerListener extends Thread{
                 if (readObject instanceof Message) {
                     Message message = (Message) readObject;
 
-                    /*switch ((message.getType())) {
-                        case :
+                    switch ((message.getType())) {
+                        case SERVER_CONNECTION:
+                            saveOtherServers(message.getMessage());
                             break;
-                    }*/
+                    }
                 } else {
 
                     System.err.println("Received unrecognized data on UDP socket! Ignoring...");
@@ -115,5 +121,11 @@ public class UdpServerListener extends Thread{
         if (socket != null && socket.isConnected()) {
             socket.close();
         }
+    }
+
+    public void saveOtherServers(String tcpPort){
+        int port = Integer.parseInt(tcpPort);
+        activeServers.add(port);
+
     }
 }

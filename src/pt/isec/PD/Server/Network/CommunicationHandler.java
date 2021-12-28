@@ -9,6 +9,7 @@ import pt.isec.PD.Server.Network.Udp.UdpMessageSender;
 import pt.isec.PD.Server.Network.Udp.UdpServerListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class CommunicationHandler {
 
@@ -69,4 +70,6 @@ public class CommunicationHandler {
     public UdpServerListener getUdpServerManager() {
         return udpServerListener;
     }
+
+    public ArrayList<Integer> getActiveServers() {return udpServerListener.getActiveServers();}
 }

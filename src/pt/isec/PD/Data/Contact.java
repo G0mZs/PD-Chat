@@ -1,15 +1,17 @@
 package pt.isec.PD.Data;
 
-public class ContactRequest {
+import java.io.Serializable;
 
+public class Contact implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     private User sender;
     private User receiver;
     private boolean accept;
 
-    public ContactRequest(User sender, User receiver,boolean accept){
+    public Contact(User sender, User receiver){
         this.sender = sender;
         this.receiver = receiver;
-        this.accept = accept;
     }
 
     public User getReceiver() {

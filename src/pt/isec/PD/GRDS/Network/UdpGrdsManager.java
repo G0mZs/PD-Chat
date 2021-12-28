@@ -1,5 +1,6 @@
 package pt.isec.PD.GRDS.Network;
 
+import pt.isec.PD.Data.Constants;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.Utils;
 
@@ -19,12 +20,14 @@ public class UdpGrdsManager extends Thread {
     private int port;
     private DatagramSocket ds;
     private ArrayList<Integer> clients;
+    private ArrayList<Integer> udpPorts;
     private ArrayList<Integer> TcpPorts;
     private int rr_index;
 
     public UdpGrdsManager(int port) {
         clients = new ArrayList<>();
         TcpPorts = new ArrayList<Integer>();
+        udpPorts = new ArrayList<Integer>();
         this.port = port;
         rr_index=0;
     }
@@ -125,8 +128,35 @@ public class UdpGrdsManager extends Thread {
 
         int port = Integer.parseInt(tcpPort);
         TcpPorts.add(port);
+        udpPorts.add(dp.getPort());
 
         System.out.println("Sent to Server: " + dp.getAddress().getHostAddress() + ":" + dp.getPort() + " - " + localTime);
+
+        for (int i = 0; i < udpPorts.size(); i++) {
+            if (udpPorts.get(i) != dp.getPort()) {
+
+                Message msg = new Message(Message.Type.SERVER_CONNECTION, String.valueOf(port));
+                byte buffer[];
+                buffer = Utils.convertToBytes(msg);
+
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(Constants.SERVER_ADDRESS), udpPorts.get(i));
+                ds.send(packet);
+            }
+        }
+        for (int j = 0; j < TcpPorts.size(); j++) {
+            if (TcpPorts.get(j) != port) {
+                System.out.println("1");
+                Message msg = new Message(Message.Type.SERVER_CONNECTION, String.valueOf(TcpPorts.get(j)));
+                byte buffer[];
+                buffer = Utils.convertToBytes(msg);
+
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(Constants.SERVER_ADDRESS), dp.getPort());
+                ds.send(packet);
+
+            }
+
+        }
+
 
     }
 
@@ -135,9 +165,8 @@ public class UdpGrdsManager extends Thread {
         if(rr_index>=TcpPorts.size())
             rr_index=0;
         if(TcpPorts.size() != 0) {
-            System.out.println("Index: " + rr_index + " Size: " + TcpPorts.size());
             String portTcp = String.valueOf(TcpPorts.get(rr_index));
-            sendMessage(new Message(Message.Type.SERVER_PORT, portTcp,null), dp.getAddress().getHostAddress(), dp.getPort());
+            sendMessage(new Message(Message.Type.SERVER_PORT, portTcp), dp.getAddress().getHostAddress(), dp.getPort());
             rr_index++;
         }
         else{
