@@ -72,7 +72,7 @@ public class UdpClientManager extends Thread {
 
 
     public void run() {
-
+        Object readObject;
         boolean running = true;
         byte[] buffer = new byte[BUFFER];
 
@@ -86,7 +86,7 @@ public class UdpClientManager extends Thread {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
 
-                Object readObject = Utils.convertFromBytes(buffer);
+                 readObject = Utils.convertFromBytes(buffer);
 
                     if (readObject instanceof Message) {
                         Message message = (Message) readObject;
@@ -137,13 +137,10 @@ public class UdpClientManager extends Thread {
 
     public void askForServerConnection(){
 
+
         Message msg = new Message(Message.Type.CLIENT_SERVER_CONNECTION,"",null); // Onde está null no user depois meter o tcpPort do cliente
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         try {
                 sendMessage(msg,getGrdsAddress().getHostAddress(),getGrdsPort());
             } catch (Exception e) {

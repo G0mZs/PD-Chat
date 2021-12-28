@@ -2,10 +2,9 @@ package pt.isec.PD.Server.Network;
 
 import pt.isec.PD.Data.Constants;
 import pt.isec.PD.Data.Message;
-import pt.isec.PD.Data.User;
 import pt.isec.PD.Server.Model.ClientDetails;
 import pt.isec.PD.Server.Model.Server;
-import pt.isec.PD.Server.Network.Tcp.TcpServerManager;
+import pt.isec.PD.Server.Network.Tcp.TcpServerListener;
 import pt.isec.PD.Server.Network.Udp.UdpMessageSender;
 import pt.isec.PD.Server.Network.Udp.UdpServerListener;
 
@@ -15,7 +14,7 @@ public class CommunicationHandler {
 
     private Server server;
     private UdpMessageSender udpMessageSender;
-    private TcpServerManager tcpServerManager;
+    private TcpServerListener tcpServerListener;
     private UdpServerListener udpServerListener;
     //private PortSender portSender;
 
@@ -23,8 +22,8 @@ public class CommunicationHandler {
         this.server = server;
 
         try {
-            this.tcpServerManager = new TcpServerManager(server);
-            this.udpServerListener = new UdpServerListener(Constants.UDP_PORT, Constants.GRDS_ADDRESS,server,tcpServerManager.getTcpPort());
+            this.tcpServerListener = new TcpServerListener(server);
+            this.udpServerListener = new UdpServerListener(Constants.UDP_PORT, Constants.GRDS_ADDRESS,server, tcpServerListener.getTcpPort());
             //this.portSender = new PortSender(tcpServerManager.getTcpPort(),Constants.GRDS_ADDRESS,Constants.UDP_PORT);
         } catch (IOException e) {
             e.printStackTrace();
@@ -36,7 +35,7 @@ public class CommunicationHandler {
 
     public void startTCP() {
 
-        this.tcpServerManager.start();
+        this.tcpServerListener.start();
     }
 
 
@@ -63,8 +62,8 @@ public class CommunicationHandler {
         }
     }
 
-    public TcpServerManager getTcpServerManager() {
-        return tcpServerManager;
+    public TcpServerListener getTcpServerManager() {
+        return tcpServerListener;
     }
 
     public UdpServerListener getUdpServerManager() {

@@ -245,7 +245,30 @@ import java.util.ArrayList;
 
             while (resultSet.next()) {
                 if (username.equals(resultSet.getString("username"))) {
-                    User auxUser = new User(resultSet.getInt("idUtilizadores"),resultSet.getString("username"),resultSet.getString("password"),resultSet.getString("nome"));
+                    User auxUser = new User(resultSet.getInt("idUtilizadores"),resultSet.getString("username"),null,resultSet.getString("nome"));
+                    auxUser.setConnected(resultSet.getBoolean("conectado"));
+                    return auxUser;
+                }
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return null;
+
+    }
+
+
+    public User getUser(int id){
+
+        try {
+
+            ResultSet resultSet = statement.executeQuery("select * from utilizador");
+
+            while (resultSet.next()) {
+                if (id == resultSet.getInt("idUtilizadores")) {
+                    User auxUser = new User(resultSet.getInt("idUtilizadores"),resultSet.getString("username"),null,resultSet.getString("nome"));
                     auxUser.setConnected(resultSet.getBoolean("conectado"));
                     return auxUser;
                 }
@@ -278,6 +301,82 @@ import java.util.ArrayList;
         }
 
         return users;
+    }
+
+    public void createContactRequest(int sender,int receiver){
+
+        String combined = sender + "," + receiver + "," + "2";
+
+        try {
+            statement.executeUpdate("INSERT INTO `mydb`.`utilizador_has_utilizador`(`Utilizador_idUtilizadores`,`Utilizador_idUtilizadores1`,`aceite`) VALUES (" + combined + ");");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public boolean checkRequest(int sender,int receiver){
+
+        try {
+            ResultSet resultSet = statement.executeQuery("select * from utilizador_has_utilizador");
+
+            while (resultSet.next()){
+                if(resultSet.getInt("Utilizador_idUtilizadores") == sender && resultSet.getInt("Utilizador_idUtilizadores1") == receiver && resultSet.getInt("aceite") != 0 || resultSet.getInt("Utilizador_idUtilizadores") == receiver && resultSet.getInt("Utilizador_idUtilizadores1") == sender && resultSet.getInt("aceite") != 0){
+                    return false;
+                }
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return true;
+
+    }
+
+    public boolean checkPendingRequest(int sender,int receiver){
+        try {
+            ResultSet resultSet = statement.executeQuery("select * from utilizador_has_utilizador");
+
+            while (resultSet.next()){
+                if(resultSet.getInt("Utilizador_idUtilizadores") == sender && resultSet.getInt("Utilizador_idUtilizadores1") == receiver && resultSet.getInt("aceite") == 2){
+
+                    try {
+                        statement.executeUpdate("UPDATE utilizador_has_utilizador SET aceite = 1 WHERE Utilizador_idUtilizadores = " + sender + " AND Utilizador_idUtilizadores1 = " + receiver + " AND aceite = " + "2 ;");
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                    return true;
+                }
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean removeContact(int idUser,int idContact){
+
+        try {
+            ResultSet resultSet = statement.executeQuery("select * from utilizador_has_utilizador");
+
+            while (resultSet.next()){
+                if(resultSet.getInt("Utilizador_idUtilizadores") == idUser && resultSet.getInt("Utilizador_idUtilizadores1") == idContact && resultSet.getInt("aceite") == 1){
+                    statement.executeUpdate("DELETE FROM mydb.utilizador_has_utilizador WHERE Utilizador_idUtilizadores = " + idUser + " AND Utilizador_idUtilizadores1 = " + idContact + " AND aceite = 1;" );
+                    return true;
+                }
+                else if(resultSet.getInt("Utilizador_idUtilizadores") == idContact && resultSet.getInt("Utilizador_idUtilizadores1") == idUser && resultSet.getInt("aceite") == 1){
+                    statement.executeUpdate("DELETE FROM mydb.utilizador_has_utilizador WHERE Utilizador_idUtilizadores = " + idContact + " AND Utilizador_idUtilizadores1 = " + idUser + " AND aceite = 1;");
+                    return true;
+                }
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return false;
     }
 
 }

@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class CommunicationHandler {
 
@@ -27,6 +28,8 @@ public class CommunicationHandler {
         this.chat = chat;
         this.udpClientManager = new UdpClientManager(chat,Constants.UDP_PORT,Constants.GRDS_ADDRESS);
     }
+
+    public void startUDP(){ udpClientManager.start();}
 
     public User getUser() { return chat.getUser();}
 
@@ -55,11 +58,18 @@ public class CommunicationHandler {
     public void startConnection(){
 
         exit = false;
-        udpClientManager.start();
 
         while(!exit){
 
+
             udpClientManager.askForServerConnection();
+
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             if(checkTcpPort()){
 
                 try {
@@ -252,8 +262,7 @@ public class CommunicationHandler {
 
     public void deleteContact(String username){
 
-        //Verificação para ver se este username esta nos contactos mesmo
-        User aux = new User(0,username,null,null);
+        User aux = new User(chat.getUser().getId(),username,null,null);
 
         try {
             output.writeObject(new Message(Message.Type.DELETE_CONTACT,null,aux));
@@ -266,6 +275,20 @@ public class CommunicationHandler {
 
     }
 
+    public void acceptContactRequest(String username){
+
+        User aux = new User(chat.getUser().getId(),username,null,null);
+
+        try {
+            output.writeObject(new Message(Message.Type.CONTACT_ACCEPT,null,aux));
+            output.flush();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
     public String returnState(boolean connected){
         if(connected){
             return "Online";
@@ -273,5 +296,13 @@ public class CommunicationHandler {
         else{
             return "Offline";
         }
+    }
+
+    public ArrayList<User> getPendingRequests(){
+        return tcpClientManager.getPendingRequests();
+    }
+
+    public ArrayList<User> getContacts(){
+        return tcpClientManager.getContacts();
     }
 }

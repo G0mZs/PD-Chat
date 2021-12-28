@@ -20,6 +20,12 @@ public class ClientTextInterface {
 
         exit = false;
         int value;
+        handler.startUDP();
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         handler.startConnection();
 
         while(!exit){
@@ -323,6 +329,7 @@ public class ClientTextInterface {
             System.out.println("1 --> Send Contact Request");
             System.out.println("2 --> List Contacts");
             System.out.println("3 --> Delete Contact");
+            System.out.println("4 --> Pending Contact Requests");
             System.out.println("0 --> Return to Main Menu");
 
             System.out.print("\n");
@@ -338,6 +345,7 @@ public class ClientTextInterface {
                 case 1 -> uiContactRequest();
                 case 2 -> uiListContacts();
                 case 3 -> uiDeleteContact();
+                case 4 -> uiPendingRequests();
                 case 0 -> leave = true;
                 default -> System.out.println("Invalid option");
             }
@@ -419,12 +427,12 @@ public class ClientTextInterface {
 
     public void uiListContacts(){
 
-        for(int i = 0; i < handler.getUser().getContacts().size();i++){
+        for(int i = 0; i < handler.getContacts().size();i++){
             System.out.print("\n");
             System.out.println("----------- Lista de Contactos ----------");
             System.out.print("\n");
-            String connected = handler.returnState(handler.getUser().getContacts().get(i).getState());
-            System.out.println("Nome: " + handler.getUser().getContacts().get(i).getName() + " Username: " + handler.getUser().getContacts().get(i).getName() + " State: " + connected);
+            String connected = handler.returnState(handler.getContacts().get(i).getState());
+            System.out.println("Contacto --> Nome: " + handler.getContacts().get(i).getName() + " Username: " + handler.getContacts().get(i).getUsername() + " State: " + connected);
         }
     }
 
@@ -439,6 +447,83 @@ public class ClientTextInterface {
 
         handler.deleteContact(username);
 
+    }
+
+    public void uiPendingRequests(){
+
+        System.out.print("\n");
+        System.out.println("---------- Pending Requests ----------");
+        System.out.print("\n");
+        uiListPendingRequests();
+
+        int value;
+        boolean leave = false;
+
+        while(!leave) {
+
+            System.out.print("\n");
+            System.out.println("1 --> Accept Request");
+            System.out.println("2 --> Refuse Request");
+            System.out.println("0 --> Return to Main Menu");
+
+            System.out.print("\n");
+
+            System.out.print("Answer: ");
+            while (!s.hasNextInt()) {
+                s.next();
+            }
+
+            value = s.nextInt();
+
+            switch (value) {
+                case 1 -> uiAcceptRequest();
+                case 2 -> uiRefuseRequest();
+                case 0 -> leave = true;
+                default -> System.out.println("Invalid option");
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public void uiAcceptRequest(){
+
+        String username;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the username of the contact request sender: ");
+        username = sc.nextLine();
+
+        handler.acceptContactRequest(username);
+    }
+
+    public void uiRefuseRequest(){
+        String username;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the username of the contact request sender: ");
+        username = sc.nextLine();
+
+        //handler.refuseContactRequest(username);
+    }
+
+    public void uiListPendingRequests(){
+
+        if(handler.getPendingRequests().size() == 0){
+            System.out.println("You have no Pending Contact Requests");
+        }
+        else{
+            for(int i = 0; i < handler.getPendingRequests().size(); i++){
+                System.out.println("Contact Request from --> [" + handler.getPendingRequests().get(i).getUsername() + "]");
+            }
+        }
     }
 
 

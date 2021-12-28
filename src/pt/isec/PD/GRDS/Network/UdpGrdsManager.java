@@ -135,6 +135,7 @@ public class UdpGrdsManager extends Thread {
         if(rr_index>=TcpPorts.size())
             rr_index=0;
         if(TcpPorts.size() != 0) {
+            System.out.println("Index: " + rr_index + " Size: " + TcpPorts.size());
             String portTcp = String.valueOf(TcpPorts.get(rr_index));
             sendMessage(new Message(Message.Type.SERVER_PORT, portTcp,null), dp.getAddress().getHostAddress(), dp.getPort());
             rr_index++;

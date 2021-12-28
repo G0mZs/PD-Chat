@@ -6,13 +6,13 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TcpServerManager extends Thread{
+public class TcpServerListener extends Thread{
 
     private Server model;
     private int tcpPort;
     ServerSocket server = null;
 
-    public TcpServerManager(Server model) throws IOException {
+    public TcpServerListener(Server model) throws IOException {
 
         this.model = model;
         server = new ServerSocket(0);
@@ -33,7 +33,7 @@ public class TcpServerManager extends Thread{
                 Socket socket;
                 socket = server.accept();
 
-                new Thread(new Authentication(socket,model)).start();
+                new Thread(new TcpServerHandler(socket,model)).start();
 
             }
 

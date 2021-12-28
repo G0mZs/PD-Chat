@@ -9,13 +9,13 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
-public class Authentication extends Thread{
+public class TcpServerHandler extends Thread{
 
     private Server model;
     private Socket socket;
 
 
-    public Authentication(Socket socket, Server model){
+    public TcpServerHandler(Socket socket, Server model){
         this.socket = socket;
         this.model = model;
     }
@@ -64,7 +64,10 @@ public class Authentication extends Thread{
                         sendContactRequest(message.getMessage(),message.getUser().getUsername(),out);
                         break;
                     case DELETE_CONTACT:
-                        removeContact(message.getUser().getUsername(),out);
+                        removeContact(message.getUser().getId(),message.getUser().getUsername(),out);
+                        break;
+                    case CONTACT_ACCEPT:
+                        acceptContact(message.getUser().getId(),message.getUser().getUsername(),out);
                         break;
                 }
             }
@@ -268,49 +271,81 @@ public class Authentication extends Thread{
     public synchronized void sendContactRequest(String sender,String receiver,ObjectOutputStream out){
 
         Message msg;
-
-        if(model.getDbHelper().checkUsername(receiver)){
-            msg = new Message(Message.Type.CONTACT,"Contact Request Failed ! This username is not available");
+        if(sender.equals(receiver)){
+            msg = new Message(Message.Type.CONTACT,"Contact Request Failed ! You cant send a contact request to yourself");
         }
-        else{
-            msg = new Message(Message.Type.CONTACT,"Contact Request Sent !");
+        else {
 
-            for(int i = 0; i < model.getClients().size(); i++){
-                if(model.getClients().get(i).getUser().getUsername().equals(receiver)){
-                    User aux = model.getDbHelper().searchUser(sender);
-                    Message message = new Message(Message.Type.CONTACT_REQUEST,sender + " sent you a contact Request. Please type yes to accept or no to refuse",aux);
+            if (model.getDbHelper().checkUsername(receiver)) {
+                msg = new Message(Message.Type.CONTACT, "Contact Request Failed ! This username is not available");
+            } else {
 
-                    try {
-                        model.getClients().get(i).getOut().writeObject(message);
-                        model.getClients().get(i).getOut().flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                int idSender = model.getDbHelper().getId(sender);
+                int idReceiver = model.getDbHelper().getId(receiver);
+
+                if(model.getDbHelper().checkRequest(idSender,idReceiver)) {
+
+                    model.getDbHelper().createContactRequest(idSender, idReceiver);
+                    msg = new Message(Message.Type.CONTACT, "Contact Request Sent !");
+
+                    for (int i = 0; i < model.getClients().size(); i++) {
+                        if (model.getClients().get(i).getUser().getUsername().equals(receiver)) {
+
+                            //Mandar pedido de contacto(ContactRequest);
+                            User aux = model.getDbHelper().searchUser(sender);
+                            Message message = new Message(Message.Type.CONTACT_REQUEST, sender + " sent you a contact Request.", aux);
+
+                                try {
+                                    model.getClients().get(i).getOut().writeObject(message);
+                                    model.getClients().get(i).getOut().flush();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                        }
                     }
                 }
+                else{
+                    msg = new Message(Message.Type.CONTACT, "There is already a contact request with that data");
+                }
             }
+
         }
         try {
-           out.writeObject(msg);
-           out.flush();
+            out.writeObject(msg);
+            out.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
 
-    public synchronized void removeContact(String username,ObjectOutputStream out){
+    public synchronized void removeContact(int idUser,String username,ObjectOutputStream out){
 
         Message msg;
 
         User auxUser = model.getDbHelper().searchUser(username);
+        int idContact = auxUser.getId();
 
         if(auxUser == null){
             msg = new Message(Message.Type.USER_DONT_EXIST);
         }
+        else if(idContact == idUser){
+            msg = new Message(Message.Type.CONTACT,"You are not apart of your contact list");
+        }
         else{
-            //Fazer alguma coisa na bd?
-            msg = new Message(Message.Type.DELETE_CONTACT,"Contact removed !",new User(auxUser.getId(),auxUser.getUsername(),null,auxUser.getName()));
-            msg.getUser().setConnected(auxUser.getState());
+            //Refazer isto tudo
+
+            boolean remove = model.getDbHelper().removeContact(idUser,idContact);
+
+                if(remove){
+                    msg = new Message(Message.Type.DELETE_CONTACT,"Contact removed !",new User(auxUser.getId(),auxUser.getUsername(),null,auxUser.getName()));
+                    msg.getUser().setConnected(auxUser.getState());
+                }
+                else{
+                    msg = new Message(Message.Type.DELETE_CONTACT,"Contact couldn't be removed because its not on your list !");
+
+                }
+
         }
 
         try {
@@ -321,6 +356,58 @@ public class Authentication extends Thread{
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public synchronized void acceptContact(int idAccepter,String usernameSender,ObjectOutputStream out){
+
+        User auxSender = model.getDbHelper().searchUser(usernameSender);
+        Message msg;
+        Message message;
+        User auxReceiver = model.getDbHelper().getUser(idAccepter);
+
+
+        if(auxSender == null){
+            msg = new Message(Message.Type.USER_DONT_EXIST);
+        }
+        else if(auxSender.getId() == auxReceiver.getId()){
+            msg = new Message(Message.Type.CONTACT,"You can't accept requests from yourself !");
+        }else{
+
+            boolean verifyRequest = model.getDbHelper().checkPendingRequest(auxSender.getId(),idAccepter);
+
+            if(!verifyRequest){
+                msg = new Message(Message.Type.CONTACT,"There are no pending requests from this user");
+            }
+            else {
+                msg = new Message(Message.Type.CONTACT_ACCEPT,"Contact Request Accepted",auxSender);
+                for(int i = 0; i < model.getClients().size(); i++){
+                    if(auxSender.getId() == model.getClients().get(i).getUser().getId()){
+
+                        message = new Message(Message.Type.CONTACT_ACCEPT,auxReceiver.getUsername() + " has accepted your contact request !",auxReceiver);
+
+                        try {
+
+                            model.getClients().get(i).getOut().writeObject(message);
+                            model.getClients().get(i).getOut().flush();
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+            }
+        }
+
+        try {
+
+            out.writeObject(msg);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
