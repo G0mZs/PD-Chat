@@ -67,7 +67,7 @@ public class Authentication extends Thread{
                         listGroups(out);
                         break;
                     case CREATE_GROUP:
-
+                        createGroup(message.getGroup(),out);
                         break;
                     case EDIT_GROUP:
 
@@ -268,6 +268,21 @@ public class Authentication extends Thread{
         ArrayList<Group> listGroups = model.getDbHelper().getAllGroups();
         msg = new Message(Message.Type.LIST_GROUPS, listGroups);
 
+        try {
+            out.writeObject(msg);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void createGroup(Group group, ObjectOutputStream out){
+        Message msg;
+        if (model.getDbHelper().createGroup(group)) {
+            msg = new Message(Message.Type.CREATE_GROUP_COMPLETED);
+        } else {
+            msg = new Message(Message.Type.CREATE_GROUP_FAILED);
+        }
         try {
             out.writeObject(msg);
             out.flush();

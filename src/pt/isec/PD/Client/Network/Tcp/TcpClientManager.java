@@ -15,6 +15,7 @@ public class TcpClientManager extends Thread {
     private ObjectOutputStream out = null;
     private boolean register = false;
     private boolean login = false;
+    private boolean taskCompleted = false;
     private User userData;
 
     public TcpClientManager(ObjectInputStream in, ObjectOutputStream out) {
@@ -45,6 +46,14 @@ public class TcpClientManager extends Thread {
 
     public boolean getRegister(){
         return this.register;
+    }
+
+    public boolean getTaskCompleted(){
+        if(taskCompleted){
+            taskCompleted=false;
+            return  true;
+        }
+        return  taskCompleted;
     }
 
     public void run() {
@@ -109,6 +118,14 @@ public class TcpClientManager extends Thread {
                         case LIST_GROUPS:
                             displayGroupsList(message.getListGroups());
                             break;
+                        case CREATE_GROUP_COMPLETED:
+                            System.out.println("Group created");
+                            taskCompleted=true;
+                            break;
+                        case CREATE_GROUP_FAILED:
+                            System.out.println("Group cannot be created");
+                            taskCompleted=false;
+                            break;
                     }
                 } else {
                     System.err.println("Received unrecognized data on TCP socket! Ignoring...");
@@ -163,10 +180,16 @@ public class TcpClientManager extends Thread {
         System.out.println("");
         System.out.println("---------- List of Groups -----------");
 
+        if(groupList.isEmpty())
+            System.out.println("There are no groups");
         for(Group group : groupList){
-            System.out.println("Nome: "+group.getName());
+            System.out.println("Name: "+group.getName());
             for (User user : group.getMembers())
-                System.out.println("-"+user.getName());
+                if(user.getId()==group.getAdmnistrator().getId())
+                    System.out.println("Admin - "+user.getName());
+                else
+                    System.out.println("- "+user.getName());
+            System.out.println("");
         }
 
         System.out.println("");

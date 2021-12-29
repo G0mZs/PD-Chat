@@ -19,7 +19,11 @@ import java.util.ArrayList;
     private String user;
     private String pass;
     private Connection connection;
+    private Connection connection2;
+    private Connection connection3;
     private Statement statement;
+    private Statement statement2;
+    private Statement statement3;
 
     public DbHelper(String dbAddress, String dbName, String user, String pass) {
 
@@ -36,8 +40,12 @@ import java.util.ArrayList;
             String dbUrl = "jdbc:mysql://" + dbAddress + "/" + dbName;
 
             connection = DriverManager.getConnection(dbUrl, user, pass);
+            connection2 = DriverManager.getConnection(dbUrl, user, pass);
+            connection3 = DriverManager.getConnection(dbUrl, user, pass);
 
             statement = connection.createStatement();
+            statement2 = connection2.createStatement();
+            statement3 = connection3.createStatement();
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -289,12 +297,17 @@ import java.util.ArrayList;
             ResultSet resultSetGroup = statement.executeQuery("select * from Grupo");
 
             while (resultSetGroup.next()){
-                ResultSet resultSetAdmin = statement.executeQuery("select * from utilizador where id="+resultSetGroup.getInt("idAdmnistrador"));
+                int idGrupo = resultSetGroup.getInt("idGrupos");
+                String nomeGrupo = resultSetGroup.getString("nome");
+                System.out.println(nomeGrupo);
+                ResultSet resultSetAdmin = statement2.executeQuery("select * from utilizador where idUtilizadores="+resultSetGroup.getInt("idAdmnistrador"));
+                if(!resultSetAdmin.next())
+                    continue;
                 User admin = new User(resultSetAdmin.getInt("idUtilizadores"),resultSetAdmin.getString("username"),null,resultSetAdmin.getString("nome"));
+                resultSetAdmin.close();
+                Group auxGroup = new Group(idGrupo,admin,nomeGrupo);
 
-                Group auxGroup = new Group(resultSetGroup.getInt("idGrupos"),admin,resultSetGroup.getString("nome"));
-
-                ResultSet resultSetUsers =  statement.executeQuery(
+                ResultSet resultSetUsers =  statement3.executeQuery(
                         "select * " +
                             "from Grupo_has_Utilizador " +
                             "inner join utilizador on Utilizador_idUtilizadores=idUtilizadores "+
@@ -304,14 +317,48 @@ import java.util.ArrayList;
                     User auxUser = new User(resultSetUsers.getInt("idUtilizadores"),resultSetUsers.getString("username"),null,resultSetUsers.getString("nome"));
                     auxGroup.addMember(auxUser);
                 }
+                resultSetUsers.close();
                 groups.add(auxGroup);
             }
+            resultSetGroup.close();
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-
         return groups;
+    }
+
+    public Boolean createGroup(Group group){
+
+        try {
+            ResultSet resultSetGroupExist = statement.executeQuery("select * from Grupo where nome='"+group.getName()+"' and idAdmnistrador='"+group.getAdmnistrator().getId()+"'");
+            if(resultSetGroupExist.next())
+                return false;
+            System.out.println();
+            statement.executeUpdate("INSERT INTO Grupo (idAdmnistrador,nome) Values("+group.getAdmnistrator().getId()+",'"+group.getName()+"')");
+            ResultSet resultSetGroup = statement.executeQuery("select * from Grupo where nome='"+group.getName()+"' and idAdmnistrador='"+group.getAdmnistrator().getId()+"'");
+            resultSetGroup.next();
+            group.setId(resultSetGroup.getInt("idGrupos"));
+            addMember(group.getAdmnistrator(),group);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return  true;
+    }
+
+    public Boolean addMember(User user,Group group){
+
+        try {
+            ResultSet resultSetMemberExist = statement.executeQuery("select * from Grupo_has_Utilizador where Utilizador_idUtilizadores="+user.getId()+" and Grupo_idGrupos="+group.getId());
+            if(resultSetMemberExist.next())
+                return false;
+            statement.executeUpdate("INSERT INTO Grupo_has_Utilizador Values((Select idGrupos from Grupo where idGrupos="+group.getId()+"),(Select idUtilizadores from Utilizador where idUtilizadores="+user.getId()+"),1)");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+
+        return  true;
     }
 
 }

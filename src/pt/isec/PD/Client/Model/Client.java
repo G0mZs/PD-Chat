@@ -3,6 +3,7 @@ package pt.isec.PD.Client.Model;
 import pt.isec.PD.Client.Network.Tcp.TcpClientManager;
 import pt.isec.PD.Client.Network.Udp.UdpClientManager;
 import pt.isec.PD.Data.Constants;
+import pt.isec.PD.Data.Group;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
 
@@ -38,6 +39,10 @@ public class Client {
 
     public boolean getRegisterState(){
         return tcpClientManager.getRegister();
+    }
+
+    public boolean getTaskCompleted(){
+        return tcpClientManager.getTaskCompleted();
     }
 
     public void setRegisterState(boolean state){
@@ -246,6 +251,21 @@ public class Client {
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void createGroup(String name, User admin){
+
+        Group group = new Group(admin,name);
+
+        try {
+
+            output.writeObject(new Message(Message.Type.CREATE_GROUP,group));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
         }
 
     }

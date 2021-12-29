@@ -1,8 +1,9 @@
 package pt.isec.PD.Data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Group {
+public class Group implements Serializable {
 
     private int id;
     private User admnistrator;
@@ -11,6 +12,12 @@ public class Group {
 
     public Group(int id,User admnistrator,String name){
         this.id = id;
+        this.admnistrator = admnistrator;
+        this.name = name;
+        this.members = new ArrayList<>();
+    }
+
+    public Group(User admnistrator,String name){
         this.admnistrator = admnistrator;
         this.name = name;
     }
@@ -35,4 +42,7 @@ public class Group {
 
     public  void addMember(User user){members.add(user); }
 
+    public void setId(int id) {
+        this.id = id;
+    }
 }

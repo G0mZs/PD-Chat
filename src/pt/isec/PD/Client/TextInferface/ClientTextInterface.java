@@ -424,7 +424,7 @@ public class ClientTextInterface {
                     uiListGroups();
                     break;
                 case 2:
-                    //uiCreateGroup();
+                    uiCreateGroup();
                     break;
                 case 3:
                     //uiEditGroup();
@@ -448,7 +448,32 @@ public class ClientTextInterface {
     }
 
     public void uiListGroups() {
+        client.listGroups();
+    }
 
+
+    public void uiCreateGroup() {
+        do {
+
+            Scanner sc = new Scanner(System.in);
+            String name;
+
+            System.out.println("");
+            System.out.println("------ Create new group ------");
+            System.out.println("");
+
+            System.out.println("Enter the group name: ");
+
+            name = sc.nextLine();
+
+            client.createGroup(name,client.getUser());
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }while (client.getTaskCompleted() == false);
     }
 
 
