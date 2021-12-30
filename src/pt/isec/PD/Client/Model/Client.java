@@ -270,18 +270,21 @@ public class Client {
 
     }
 
-    public void editGroup(String name,String newName, User admin){
-
+    public void editGroup(String name,String newName, User user){
         try {
-
-            output.writeObject(new Message(Message.Type.EDIT_GROUP,name,newName,admin));
+            output.writeObject(new Message(Message.Type.EDIT_GROUP,name,newName,user));
             output.flush();
-
         } catch (IOException e) {
             e.printStackTrace();
-
         }
-
+    }
+    public void sendResquestGroup(int idGroup, User user){
+        try {
+            output.writeObject(new Message(Message.Type.GROUP_REQUEST,idGroup,user));
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

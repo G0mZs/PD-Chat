@@ -8,12 +8,12 @@ import java.util.ArrayList;
 public class Message implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private int idMessage;
+    private int idMessage,id;
     private User user;
     private Group group;
     private Timestamp time;
     private Type type;
-    private String message,name,newName;
+    private String message,name,name2;
     private ArrayList<User> usersInfo;
     private ArrayList<Group> listGroups;
 
@@ -47,10 +47,16 @@ public class Message implements Serializable {
         this.type = type;
         this.group = group;
     }
-    public Message(Type type,String name,String newName,User user){
+    public Message(Type type,String name,String name2,User user){
         this.type = type;
         this.name = name;
-        this.newName = newName;
+        this.name2 = name2;
+        this.user = user;
+    }
+
+    public Message(Type type, int id, User user){
+        this.type = type;
+        this.id = id;
         this.user = user;
     }
 
@@ -107,13 +113,17 @@ public class Message implements Serializable {
         return name;
     }
 
-    public String getNewName() {
-        return newName;
+    public String getName2() {
+        return name2;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public enum Type {
         CLIENT_CONNECTION,SERVER_CONNECTION,CLIENT_SERVER_CONNECTION,SERVER_PORT,CONNECT_TCP,TCP_PORT,LOGIN,LOGIN_SUCESS,LOGIN_FAILED,LOGOUT,LOGOUT_COMPLETE,REGISTER,REGISTER_SUCESS,REGISTER_FAILED,CHANGE_PASSWORD,
         CHANGE_USERNAME,CHANGE_NAME,PASSWORD_CHANGED,USERNAME_CHANGED_SUCESS,USERNAME_CHANGED_FAILED,NAME_CHANGED_SUCESS,NAME_CHANGED_FAILED,SEARCH_USER,LIST_USERS,USER_RECEIVED,LIST_RECEIVED,USER_DONT_EXIST,
-        LIST_GROUPS,CREATE_GROUP,EDIT_GROUP,JOIN_GROUP,CREATE_GROUP_COMPLETED,CREATE_GROUP_FAILED,EDIT_GROUP_NAME_COMPLETED,EDIT_GROUP_NAME_FAILED
+        LIST_GROUPS,CREATE_GROUP,EDIT_GROUP,JOIN_GROUP,CREATE_GROUP_COMPLETED,CREATE_GROUP_FAILED,EDIT_GROUP_NAME_COMPLETED,EDIT_GROUP_NAME_FAILED,GROUP_REQUEST, GROUP_REQUEST_COMPLETED, GROUP_REQUEST_FAILED
     }
 }

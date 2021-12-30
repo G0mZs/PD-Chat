@@ -2,7 +2,6 @@ package pt.isec.PD.Client.TextInferface;
 
 import pt.isec.PD.Client.Model.Client;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 public class ClientTextInterface {
@@ -430,7 +429,7 @@ public class ClientTextInterface {
                     uiEditGroup();
                     break;
                 case 4:
-                    //uiJoinGroup();
+                    uiJoinGroup();
                     break;
                 case 0:
                     leave = true;
@@ -502,6 +501,38 @@ public class ClientTextInterface {
                 e.printStackTrace();
             }
         }while (!client.getTaskCompleted());
+    }
+
+    public void uiJoinGroup() {
+        Scanner sc = new Scanner(System.in);
+        String idGroup;
+        int id;
+
+        System.out.println("");
+        System.out.println("------ Join group ------");
+        System.out.println("");
+
+        client.listGroups();
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Enter the id of the group you want to join: ");
+        idGroup = sc.nextLine();
+
+        try{
+            id=Integer.parseInt(idGroup);
+        }catch (Exception e){
+            id=-1;
+        }
+        client.sendResquestGroup(id,client.getUser());
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 

@@ -134,6 +134,12 @@ public class TcpClientManager extends Thread {
                             System.out.println("Group name cannot be edited");
                             taskCompleted=false;
                             break;
+                        case GROUP_REQUEST_COMPLETED:
+                            System.out.println("Group join request sended");
+                            break;
+                        case GROUP_REQUEST_FAILED:
+                            System.out.println("Group join request failed to be sended");
+                            break;
                     }
                 } else {
                     System.err.println("Received unrecognized data on TCP socket! Ignoring...");
@@ -191,12 +197,12 @@ public class TcpClientManager extends Thread {
         if(groupList.isEmpty())
             System.out.println("There are no groups");
         for(Group group : groupList){
-            System.out.println("Name: "+group.getName());
+            System.out.println(group.getId() + " - Name: "+group.getName());
             for (User user : group.getMembers())
                 if(user.getId()==group.getAdmnistrator().getId())
                     System.out.println("Admin - "+user.getName());
                 else
-                    System.out.println("- "+user.getName());
+                    System.out.println(user.getId() + " - "+user.getName());
             System.out.println("");
         }
 

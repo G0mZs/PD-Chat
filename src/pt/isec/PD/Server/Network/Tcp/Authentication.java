@@ -1,10 +1,8 @@
 package pt.isec.PD.Server.Network.Tcp;
 
-import pt.isec.PD.Client.Model.Client;
 import pt.isec.PD.Data.Group;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
-import pt.isec.PD.Server.Database.DbHelper;
 import pt.isec.PD.Server.Model.ClientDetails;
 import pt.isec.PD.Server.Model.Server;
 
@@ -70,10 +68,10 @@ public class Authentication extends Thread{
                         createGroup(message.getGroup(),out);
                         break;
                     case EDIT_GROUP:
-                        editGroupName(message.getName(),message.getNewName(),message.getUser(),out);
+                        editGroupName(message.getName(),message.getName2(),message.getUser(),out);
                         break;
-                    case JOIN_GROUP:
-
+                    case GROUP_REQUEST:
+                        receiveGroupRequest(message.getId(),message.getUser(),out);
                         break;
                 }
             }
@@ -297,6 +295,20 @@ public class Authentication extends Thread{
             msg = new Message(Message.Type.EDIT_GROUP_NAME_COMPLETED);
         } else {
             msg = new Message(Message.Type.EDIT_GROUP_NAME_FAILED);
+        }
+        try {
+            out.writeObject(msg);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public synchronized void receiveGroupRequest(int idGroup, User user, ObjectOutputStream out){
+        Message msg;
+        if (model.getDbHelper().receiveGroupRequest(idGroup,user)) {
+            msg = new Message(Message.Type.GROUP_REQUEST_COMPLETED);
+        } else {
+            msg = new Message(Message.Type.GROUP_REQUEST_FAILED);
         }
         try {
             out.writeObject(msg);
