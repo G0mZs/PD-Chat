@@ -326,10 +326,14 @@ public class ClientTextInterface {
             System.out.print("\n");
             System.out.println("---------- Contacts ----------");
             System.out.print("\n");
-            System.out.println("1 --> Send Contact Request");
-            System.out.println("2 --> List Contacts");
-            System.out.println("3 --> Delete Contact");
-            System.out.println("4 --> Pending Contact Requests");
+            System.out.println("1 --> Pending Contact Requests");
+            System.out.println("2 --> Send Contact Request");
+            System.out.println("3 --> Send Message");
+            System.out.println("4 --> Send File");
+            System.out.println("5 --> Delete Contact");
+            System.out.println("6 --> Delete Message/File Notification");
+            System.out.println("7 --> List Contacts");
+            System.out.println("8 --> List Historic");
             System.out.println("0 --> Return to Main Menu");
 
             System.out.print("\n");
@@ -342,10 +346,14 @@ public class ClientTextInterface {
             value = s.nextInt();
 
             switch (value) {
-                case 1 -> uiContactRequest();
-                case 2 -> uiListContacts();
-                case 3 -> uiDeleteContact();
-                case 4 -> uiPendingRequests();
+                case 1 -> uiPendingRequests();
+                case 2 -> uiContactRequest();
+                case 3 -> uiSendContactMessage();
+                case 4 -> uiSendFile();
+                case 5 -> uiDeleteContact();
+                case 6 -> uiDeleteMessages();
+                case 7 -> uiListContacts();
+                case 8 -> uiChooseHistoric();
                 case 0 -> leave = true;
                 default -> System.out.println("Invalid option");
             }
@@ -426,11 +434,12 @@ public class ClientTextInterface {
     }
 
     public void uiListContacts(){
+        System.out.print("\n");
+        System.out.println("----------- Lista de Contactos ----------");
+        System.out.print("\n");
 
         for(int i = 0; i < handler.getContacts().size();i++){
-            System.out.print("\n");
-            System.out.println("----------- Lista de Contactos ----------");
-            System.out.print("\n");
+
             String connected = handler.returnState(handler.getContacts().get(i).getState());
             System.out.println("Contacto --> Nome: " + handler.getContacts().get(i).getName() + " Username: " + handler.getContacts().get(i).getUsername() + " State: " + connected);
         }
@@ -524,6 +533,72 @@ public class ClientTextInterface {
                 System.out.println("Contact Request from --> [" + handler.getPendingRequests().get(i).getUsername() + "]");
             }
         }
+    }
+
+
+    private void uiDeleteMessages() {
+    }
+
+
+    private void uiChooseHistoric() {
+
+        String username;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the username of the contact request sender: ");
+        username = sc.nextLine();
+
+        uiListHistoric(username);
+
+    }
+
+    private void uiListHistoric(String username){
+
+        if(handler.checkContact(username)){
+
+            int i;
+            for(i = 0; i < handler.getChat().getConversations().size(); i++) {
+                if (handler.getChat().getConversations().get(i).getUser().getUsername().equals(handler.getUser().getUsername()) && handler.getChat().getConversations().get(i).getContact().getUsername().equals(username)) {
+                    int j;
+
+                    System.out.print("\n");
+                    System.out.println("---------- Message Historic For " + username + " ----------");
+                    System.out.print("\n");
+
+                    for (j = 0; j < handler.getChat().getConversations().get(i).getMessages().size(); j++) {
+                        System.out.println("[" + handler.getChat().getConversations().get(i).getMessages().get(j).getState() + "]" + "[" + handler.getChat().getConversations().get(i).getMessages().get(j).getDateTime() + "] " + "---> " + handler.getChat().getConversations().get(i).getMessages().get(j).getUser().getUsername() + ": " + handler.getChat().getConversations().get(i).getMessages().get(j).getMessage());
+                    }
+                }
+            }
+
+        }else{
+            System.out.println("The username you typed is not on your contact list");
+        }
+
+    }
+
+
+
+    private void uiSendFile() {
+    }
+
+    public void uiSendContactMessage(){
+
+        String username,content;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the username of the contact you want to send a message: ");
+        username = sc.nextLine();
+
+        System.out.print("\n");
+        System.out.println("Enter the content of the message: ");
+        content = sc.nextLine();
+
+
+        handler.sendContactMessage(username,content);
+
     }
 
 

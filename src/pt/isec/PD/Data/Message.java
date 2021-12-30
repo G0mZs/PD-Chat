@@ -2,6 +2,7 @@ package pt.isec.PD.Data;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Message implements Serializable {
@@ -10,11 +11,14 @@ public class Message implements Serializable {
     private int idMessage;
     private User user;
     private Group group;
-    private Timestamp time;
+    private LocalDateTime dateTime;
     private Type type;
+    private String typeofMessage;
     private String message;
     private ArrayList<User> usersInfo;
     private Contact contact;
+    private String receiver;
+    private String state;
 
     public Message(Type type,String message,User user){
 
@@ -44,6 +48,16 @@ public class Message implements Serializable {
         this.contact = request;
     }
 
+    public Message(Type type, String message,String typeofMessage, LocalDateTime dateTime,User author,String receiver,String state){
+        this.type = type;
+        this.message = message;
+        this.typeofMessage = typeofMessage;
+        this.dateTime = dateTime;
+        this.user = author;
+        this.receiver = receiver;
+        this.state = state;
+    }
+
 
     public int getIdMessage() {
         return idMessage;
@@ -65,11 +79,21 @@ public class Message implements Serializable {
         this.group = group;
     }
 
-    public Timestamp getTime() {
-        return time;
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 
-    public void setTime(Timestamp time) {this.time = time;}
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public String getTypeofMessage() {
+        return typeofMessage;
+    }
+
+    public void setTypeofMessage(String typeofMessage) {
+        this.typeofMessage = typeofMessage;
+    }
 
     public Type getType() {
         return type;
@@ -99,9 +123,21 @@ public class Message implements Serializable {
         this.contact = contact;
     }
 
+    public String getReceiver() {
+        return receiver;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
     public enum Type {
         CLIENT_CONNECTION,SERVER_CONNECTION,CLIENT_SERVER_CONNECTION,SERVER_PORT,CONNECT_TCP,TCP_PORT,LOGIN,LOGIN_SUCESS,LOGIN_FAILED,LOGOUT,LOGOUT_COMPLETE,REGISTER,REGISTER_SUCESS,REGISTER_FAILED,CHANGE_PASSWORD,
-        CHANGE_USERNAME,CHANGE_NAME,PASSWORD_CHANGED,USERNAME_CHANGED_SUCESS,USERNAME_CHANGED_FAILED,NAME_CHANGED_SUCESS,NAME_CHANGED_FAILED,SEARCH_USER,LIST_USERS,USER_RECEIVED,LIST_RECEIVED,USER_DONT_EXIST,CONTACT_REQUEST,
-        CONTACT,CONTACT_ACCEPT,CONTACT_REFUSED,DELETE_CONTACT,SERVER_CONTACT_REQUEST,SERVER_DELETE_CONTACT,SERVER_ACCEPT_CONTACT,SERVER_REFUSE_CONTACT
+        CHANGE_USERNAME,CHANGE_NAME,PASSWORD_CHANGED,USERNAME_CHANGED_SUCESS,NAME_CHANGED_SUCESS,SEARCH_USER,LIST_USERS,USER_RECEIVED,LIST_RECEIVED,CONTACT_REQUEST,ERROR_MESSAGE,
+        CONTACT_ACCEPT,CONTACT_REFUSED,DELETE_CONTACT,SERVER_CONTACT_REQUEST,SERVER_DELETE_CONTACT,SERVER_ACCEPT_CONTACT,SERVER_REFUSE_CONTACT,MESSAGE_CONTACT,SEND_MESSAGE,RECEIVE_MESSAGE,SERVER_RECEIVE_MESSAGE,HISTORIC_SEEN
     }
 }

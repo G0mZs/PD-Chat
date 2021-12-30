@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class CommunicationHandler {
@@ -303,6 +304,21 @@ public class CommunicationHandler {
         }
     }
 
+    public void sendContactMessage(String contact,String content){
+
+        User author = new User(chat.getUser().getId(),chat.getUser().getUsername(),null,chat.getUser().getName());
+        LocalDateTime lt = LocalDateTime.now();
+
+        try {
+            output.writeObject(new Message(Message.Type.MESSAGE_CONTACT,content,"Message",lt,author,contact,"Não Vista"));
+            output.flush();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
     public String returnState(boolean connected){
         if(connected){
             return "Online";
@@ -312,6 +328,23 @@ public class CommunicationHandler {
         }
     }
 
+    public boolean checkContact(String username){
+
+        if(getUser().getUsername().equals(username)){
+            return false;
+        }
+        else{
+            for(int i = 0; i < getContacts().size(); i++){
+                if(getContacts().get(i).getUsername().equals(username)){
+                    return true;
+                }
+            }
+
+        }
+
+        return false;
+    }
+
     public ArrayList<User> getPendingRequests(){
         return tcpClientManager.getPendingRequests();
     }
@@ -319,4 +352,11 @@ public class CommunicationHandler {
     public ArrayList<User> getContacts(){
         return tcpClientManager.getContacts();
     }
+
+    public Chat getChat() {
+        return chat;
+    }
+
+
+
 }

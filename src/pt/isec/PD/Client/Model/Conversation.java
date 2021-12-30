@@ -8,9 +8,11 @@ import java.util.ArrayList;
 public class Conversation {
     private ArrayList<Message> messages;
     private User user;
+    private User contact;
 
 
-    public Conversation(User user) {
+    public Conversation(User user,User contact) {
+        this.contact = contact;
         this.user = user;
         messages = new ArrayList<>();
     }
@@ -40,4 +42,7 @@ public class Conversation {
         this.user = user;
     }
 
+    public User getContact() {
+        return contact;
+    }
 }

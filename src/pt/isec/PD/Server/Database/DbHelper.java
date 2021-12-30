@@ -3,6 +3,7 @@ package pt.isec.PD.Server.Database;
 import pt.isec.PD.Data.User;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 /**
@@ -400,6 +401,59 @@ import java.util.ArrayList;
         }
 
         return false;
+    }
+
+    public boolean verifyContact(int sender,int receiver){
+
+        try {
+            ResultSet resultSet = statement.executeQuery("select * from utilizador_has_utilizador");
+
+            while (resultSet.next()){
+                if(resultSet.getInt("Utilizador_idUtilizadores") == sender && resultSet.getInt("Utilizador_idUtilizadores1") == receiver && resultSet.getInt("aceite") == 1 || resultSet.getInt("Utilizador_idUtilizadores") == receiver && resultSet.getInt("Utilizador_idUtilizadores1") == sender && resultSet.getInt("aceite") == 1 ){
+
+                    return true;
+                }
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public void addMessage(int idSender, int idReceiver, String type, String message, LocalDateTime localDateTime,String state){
+
+        String dateTime = localDateTime.toString();
+        int idMessage = generateMessageId();
+
+        String combined = idMessage + "," + idSender + "," + idReceiver + "," + "NULL" + ",'" + type + "','" + message + "','" + dateTime + "','" + state + "'";
+
+        try {
+            statement.executeUpdate("INSERT INTO `mydb`.`mensagem`(`idMensagem`,`IdAutor`,`IdReceiver`,`idGrupo`,`tipo`,`mensagem`,`Data`,`estado`) VALUES (" + combined + ");");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+    }
+
+    public int generateMessageId(){
+
+        int lastId = 0;
+        try {
+
+            ResultSet resultSet = statement.executeQuery("select * from mensagem");
+
+            while(resultSet.next()){
+                lastId = resultSet.getInt("idMensagem");
+            }
+
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return lastId + 1;
     }
 
 }
