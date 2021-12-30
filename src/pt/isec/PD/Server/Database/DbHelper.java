@@ -361,5 +361,19 @@ import java.util.ArrayList;
         return  true;
     }
 
+    public Boolean editGroupName(String name, String newName, User user){
+
+        try {
+            ResultSet resultSetIsUserAdmin = statement.executeQuery("select * from Grupo where idAdmnistrador='"+user.getId()+"' and (nome='"+name+"' or nome='"+newName+"')");
+            if(!resultSetIsUserAdmin.next())
+                return false;
+            statement2.executeUpdate("Update Grupo Set nome='"+newName+"' where idGrupos="+resultSetIsUserAdmin.getInt("idGrupos"));
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+        return  true;
+    }
+
 }
 

@@ -427,7 +427,7 @@ public class ClientTextInterface {
                     uiCreateGroup();
                     break;
                 case 3:
-                    //uiEditGroup();
+                    uiEditGroup();
                     break;
                 case 4:
                     //uiJoinGroup();
@@ -473,7 +473,35 @@ public class ClientTextInterface {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }while (client.getTaskCompleted() == false);
+        }while (!client.getTaskCompleted());
+    }
+
+    public void uiEditGroup() {
+        do {
+
+            Scanner sc = new Scanner(System.in);
+            String name,newName;
+
+            System.out.println("");
+            System.out.println("------ Edit group ------");
+            System.out.println("");
+
+            System.out.println("Enter the name of the group you want to edit: ");
+
+            name = sc.nextLine();
+
+            System.out.println("Enter the new name of the group: ");
+
+            newName = sc.nextLine();
+
+            client.editGroup(name,newName,client.getUser());
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }while (!client.getTaskCompleted());
     }
 
 

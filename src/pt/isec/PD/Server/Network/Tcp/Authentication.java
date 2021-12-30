@@ -70,7 +70,7 @@ public class Authentication extends Thread{
                         createGroup(message.getGroup(),out);
                         break;
                     case EDIT_GROUP:
-
+                        editGroupName(message.getName(),message.getNewName(),message.getUser(),out);
                         break;
                     case JOIN_GROUP:
 
@@ -282,6 +282,21 @@ public class Authentication extends Thread{
             msg = new Message(Message.Type.CREATE_GROUP_COMPLETED);
         } else {
             msg = new Message(Message.Type.CREATE_GROUP_FAILED);
+        }
+        try {
+            out.writeObject(msg);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void editGroupName(String name, String newName, User user, ObjectOutputStream out){
+        Message msg;
+        if (model.getDbHelper().editGroupName(name,newName,user)) {
+            msg = new Message(Message.Type.EDIT_GROUP_NAME_COMPLETED);
+        } else {
+            msg = new Message(Message.Type.EDIT_GROUP_NAME_FAILED);
         }
         try {
             out.writeObject(msg);

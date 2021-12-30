@@ -270,5 +270,19 @@ public class Client {
 
     }
 
+    public void editGroup(String name,String newName, User admin){
+
+        try {
+
+            output.writeObject(new Message(Message.Type.EDIT_GROUP,name,newName,admin));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+
+    }
+
 
 }

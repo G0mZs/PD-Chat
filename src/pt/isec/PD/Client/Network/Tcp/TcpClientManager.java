@@ -126,6 +126,14 @@ public class TcpClientManager extends Thread {
                             System.out.println("Group cannot be created");
                             taskCompleted=false;
                             break;
+                        case EDIT_GROUP_NAME_COMPLETED:
+                            System.out.println("Group name edited");
+                            taskCompleted=true;
+                            break;
+                        case EDIT_GROUP_NAME_FAILED:
+                            System.out.println("Group name cannot be edited");
+                            taskCompleted=false;
+                            break;
                     }
                 } else {
                     System.err.println("Received unrecognized data on TCP socket! Ignoring...");
