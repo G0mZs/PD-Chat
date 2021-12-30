@@ -125,7 +125,7 @@ public class TcpClientManager extends Thread {
                         case DELETE_CONTACT:
                             System.out.println("\n" + message.getMessage());
                             removeFromContactList(message.getUser().getUsername());
-                            //remove historic
+                            removeHistoric(message.getUser());
                             break;
                         case ERROR_MESSAGE:
                             System.out.println("\n" + message.getMessage());
@@ -233,6 +233,17 @@ public class TcpClientManager extends Thread {
             if(chat.getConversations().get(i).getUser().getUsername().equals(userData.getUsername()) && chat.getConversations().get(i).getContact().getUsername().equals(msg.getReceiver())){
 
                 chat.getConversations().get(i).addMessage(msg);
+
+            }
+        }
+    }
+
+    public void removeHistoric(User remove){
+        int i;
+        for(i = 0; i < chat.getConversations().size(); i++){
+            if(chat.getConversations().get(i).getUser().getUsername().equals(userData.getUsername()) && chat.getConversations().get(i).getContact().getUsername().equals(remove.getUsername())){
+
+                chat.getConversations().remove(i);
 
             }
         }
