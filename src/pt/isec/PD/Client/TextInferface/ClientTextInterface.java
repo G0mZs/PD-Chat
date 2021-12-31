@@ -448,7 +448,7 @@ public class ClientTextInterface {
                     //uiRemoveMember();
                     break;
                 case 8:
-                    //uiDeleteGroup();
+                    uiDeleteGroup();
                     break;
                 case 0:
                     leave = true;
@@ -471,7 +471,6 @@ public class ClientTextInterface {
 
 
     public void uiCreateGroup() {
-        do {
 
             Scanner sc = new Scanner(System.in);
             String name;
@@ -491,7 +490,6 @@ public class ClientTextInterface {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }while (!client.getTaskCompleted());
     }
 
     public void uiEditGroup() {
@@ -640,6 +638,93 @@ public class ClientTextInterface {
             System.out.println("Invalid option");
         try {
             Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void uiRemoveMember() {
+        Scanner sc = new Scanner(System.in);
+        String idRequest;
+        int num=0;
+        ArrayList<Group> groups=null;
+        System.out.println("");
+        System.out.println("------ Exit group ------");
+        System.out.println("");
+
+        client.listMyGroups();
+        do{
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }while (!client.getTaskCompleted());
+
+        groups=client.getMyGroups();
+        if(groups == null || groups.size()==0){
+            System.out.println("You are not in any group");
+            return;
+        }else
+            for (Group group : groups)
+                System.out.println(group.getId()+" - "+group.getName());
+
+        System.out.println("Enter the id of the group you want to exit:");
+        idRequest = sc.nextLine();
+
+        try{
+            num=Integer.parseInt(idRequest);
+        }catch (Exception e){
+            num=-1;
+        }
+
+        if(-1 != num)
+            client.removeMember(num,client.getUser());
+        else
+            System.out.println("Invalid option");
+    }
+
+    public void uiDeleteGroup() {
+        Scanner sc = new Scanner(System.in);
+        String idRequest;
+        int num=0;
+        ArrayList<Group> groups=null;
+        System.out.println("");
+        System.out.println("------ Delete group ------");
+        System.out.println("");
+
+        client.listMyAdminGroups();
+        do{
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }while (!client.getTaskCompleted());
+
+        groups=client.getMyGroups();
+        if(groups == null || groups.size()==0){
+            System.out.println("You are not admin of any group");
+            return;
+        }else
+            for (Group group : groups)
+                System.out.println(group.getId()+" - "+group.getName());
+
+        System.out.println("Enter the id of the group you want to delete:");
+        idRequest = sc.nextLine();
+
+        try{
+            num=Integer.parseInt(idRequest);
+        }catch (Exception e){
+            num=-1;
+        }
+
+        if(-1 != num)
+            client.deleteGroup(num,client.getUser());
+        else
+            System.out.println("Invalid option");
+        try {
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

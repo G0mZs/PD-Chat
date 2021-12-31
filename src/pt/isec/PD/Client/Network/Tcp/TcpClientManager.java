@@ -171,6 +171,12 @@ public class TcpClientManager extends Thread {
                         case GROUP_EXIT_FAILED:
                             System.out.println("User failed to exit the group");
                             break;
+                        case DELETE_GROUP_COMPLETED:
+                            //System.out.println("User exit the group");
+                            break;
+                        case DELETE_GROUP_FAILED:
+                            System.out.println("Group cannot be deleted");
+                            break;
                     }
                 } else {
                     System.err.println("Received unrecognized data on TCP socket! Ignoring...");

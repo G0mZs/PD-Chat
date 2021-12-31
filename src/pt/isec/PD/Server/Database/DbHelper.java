@@ -480,5 +480,37 @@ import java.util.ArrayList;
         return  groups;
     }
 
+    public ArrayList<Group> getMyAdminGroups(User user){
+
+        ArrayList<Group> groups = new ArrayList<>();
+        try {
+            ResultSet resultSetRequest = statement.executeQuery("select * from grupo where idAdmnistrador="+user.getId());
+            while(resultSetRequest.next()){
+                groups.add(new Group(
+                        resultSetRequest.getInt("idGrupos"),
+                        resultSetRequest.getString("nome")
+                ));
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            groups = new ArrayList<>();
+        }
+        return  groups;
+    }
+
+    public boolean deleteGroup(int id,User user){
+        try {
+            ResultSet resultSetUserIsAdmin = statement.executeQuery("select * from grupo where idGrupos="+id+" and idAdmnistrador="+user.getId());
+            if(!resultSetUserIsAdmin.next())
+                return false;
+            statement.executeUpdate("Delete from grupo_has_utilizador where Grupo_idGrupos="+id);
+            statement.executeUpdate("Delete from grupo where idGrupos="+id);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+        return  true;
+    }
+
 }
 

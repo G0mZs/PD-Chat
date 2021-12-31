@@ -259,9 +259,19 @@ public class Client {
             e.printStackTrace();
         }
     }
+
     public void listMyGroups(){
         try {
             output.writeObject(new Message(Message.Type.LIST_MYGROUPS,user));
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void listMyAdminGroups(){
+        try {
+            output.writeObject(new Message(Message.Type.LIST_MYADMINGROUPS,user));
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -323,6 +333,24 @@ public class Client {
     public void exitGroup(int id, User user){
         try {
             output.writeObject(new Message(Message.Type.GROUP_EXIT,id,user));
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeMember(int id, User user){
+        try {
+            output.writeObject(new Message(Message.Type.REMOVE_MEMBER,id,user));
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteGroup(int id, User user){
+        try {
+            output.writeObject(new Message(Message.Type.DELETE_GROUP,id,user));
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();

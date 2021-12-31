@@ -86,6 +86,12 @@ public class Authentication extends Thread{
                     case LIST_MYGROUPS:
                         getMyGroups(message.getUser(),out);
                         break;
+                    case LIST_MYADMINGROUPS:
+                        getMyAdminGroups(message.getUser(),out);
+                        break;
+                    case DELETE_GROUP:
+                        deleteGroup(message.getId(),message.getUser(),out);
+                        break;
                 }
             }
 
@@ -374,6 +380,31 @@ public class Authentication extends Thread{
 
     public synchronized void getMyGroups(User user, ObjectOutputStream out){
         Message msg = new Message(Message.Type.LIST_MYGROUPS,model.getDbHelper().getMyGroups(user),0);
+        try {
+            out.writeObject(msg);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void getMyAdminGroups(User user, ObjectOutputStream out){
+        Message msg = new Message(Message.Type.LIST_MYGROUPS,model.getDbHelper().getMyAdminGroups(user),0);
+        try {
+            out.writeObject(msg);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void deleteGroup(int id, User user, ObjectOutputStream out){
+        Message msg;
+        if (model.getDbHelper().deleteGroup(id,user)) {
+            msg = new Message(Message.Type.DELETE_GROUP_COMPLETED);
+        } else {
+            msg = new Message(Message.Type.DELETE_GROUP_FAILED);
+        }
         try {
             out.writeObject(msg);
             out.flush();
