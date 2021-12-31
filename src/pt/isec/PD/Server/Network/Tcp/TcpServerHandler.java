@@ -351,9 +351,16 @@ public class TcpServerHandler extends Thread{
 
         User user = msg.getUser();
         User contact = model.getDbHelper().searchUser(msg.getMessage());
-        ArrayList<Message> historic = model.getDbHelper().getHistoric(user.getId(),contact.getId());
 
-        Message message = new Message(Message.Type.LIST_HISTORIC,null,historic);
+        Message message;
+        if(contact == null || contact.getId() == user.getId()){
+            message = new Message(Message.Type.ERROR_MESSAGE,"The username is not valid!");
+        }
+        else{
+            ArrayList<Message> historic = model.getDbHelper().getHistoric(user.getId(),contact.getId());
+            message = new Message(Message.Type.LIST_HISTORIC,null,historic);
+        }
+
         try {
 
             out.writeObject(message);

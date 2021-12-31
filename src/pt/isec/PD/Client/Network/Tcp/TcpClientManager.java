@@ -2,7 +2,6 @@ package pt.isec.PD.Client.Network.Tcp;
 
 
 import pt.isec.PD.Client.Model.Chat;
-import pt.isec.PD.Client.Model.Conversation;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
 
@@ -114,29 +113,25 @@ public class TcpClientManager extends Thread {
                             break;
                         case LIST_HISTORIC:
                             chat.setHistoric(message.getMessagesInfo());
-                            System.out.println(message.getMessagesInfo().get(0).getIdMessage());
                             break;
                         case CONTACT_ACCEPT:
                             System.out.println("\n" + message.getMessage());
-                            createHistoric(message.getUser());
                             break;
                         case CONTACT_REFUSED:
                             System.out.println("\n" + message.getMessage());
                             break;
                         case DELETE_CONTACT:
                             System.out.println("\n" + message.getMessage());
-                            removeHistoric(message.getUser());//falta remover historico na bd
+                            //falta remover historico na bd
                             break;
                         case ERROR_MESSAGE:
                             System.out.println("\n" + message.getMessage());
                             break;
                         case SEND_MESSAGE:
-                            addMessageToHistoricSender(message);
+                            System.out.println("\n" + "Message sent !");
                             break;
                         case RECEIVE_MESSAGE:
                             System.out.println("\n" + "You have received a message from " + message.getUser().getUsername() + ". Consult your historic");
-                            //mostrar msg
-                            addMessageToHistoricReceiver(message);
                             break;
                     }
                 } else {
@@ -153,7 +148,7 @@ public class TcpClientManager extends Thread {
 
     public String checkConnection(boolean connected){
 
-        String state = null;
+        String state;
 
         if(!connected){
             state = "Offline";
@@ -167,9 +162,9 @@ public class TcpClientManager extends Thread {
 
     public void displayUser(boolean connection,int id,String username,String name) {
 
-        System.out.println("");
+        System.out.print("\n");
         System.out.println("The User you searched for:");
-        System.out.println("");
+        System.out.print("\n");
         String connected = checkConnection(connection);
         System.out.println("--> Id: " + id + " Username: " + username + " Name: " + name + " State: " + connected);
 
@@ -177,59 +172,16 @@ public class TcpClientManager extends Thread {
 
     public void displayUsersList(ArrayList<User> usersList){
 
-        System.out.println("");
+        System.out.print("\n");
         System.out.println("---------- List of Users -----------");
 
         for (User user : usersList) {
             String connected = checkConnection(user.getState());
             System.out.println("--> Id: " + user.getId() + " Username: " + user.getUsername() + " Name: " + user.getName() + " State: " + connected);
         }
-        System.out.println("");
+        System.out.print("\n");
     }
 
 
-
-
-    public void createHistoric(User contact){
-
-        Conversation conversation = new Conversation(userData,contact);
-
-        chat.getConversations().add(conversation);
-    }
-
-    public void addMessageToHistoricReceiver(Message msg){
-
-        int i;
-        for(i = 0; i < chat.getConversations().size(); i++){
-            if(chat.getConversations().get(i).getUser().getUsername().equals(userData.getUsername()) && chat.getConversations().get(i).getContact().getUsername().equals(msg.getUser().getUsername())){
-
-                chat.getConversations().get(i).addMessage(msg);
-
-            }
-        }
-    }
-
-    public void addMessageToHistoricSender(Message msg){
-
-        int i;
-        for(i = 0; i < chat.getConversations().size(); i++){
-            if(chat.getConversations().get(i).getUser().getUsername().equals(userData.getUsername()) && chat.getConversations().get(i).getContact().getUsername().equals(msg.getReceiver())){
-
-                chat.getConversations().get(i).addMessage(msg);
-
-            }
-        }
-    }
-
-    public void removeHistoric(User remove){
-        int i;
-        for(i = 0; i < chat.getConversations().size(); i++){
-            if(chat.getConversations().get(i).getUser().getUsername().equals(userData.getUsername()) && chat.getConversations().get(i).getContact().getUsername().equals(remove.getUsername())){
-
-                chat.getConversations().remove(i);
-
-            }
-        }
-    }
 
 }
