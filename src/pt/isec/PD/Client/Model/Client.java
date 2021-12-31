@@ -43,9 +43,12 @@ public class Client {
         return tcpClientManager.getTaskCompleted();
     }
 
-
     public ArrayList<Request> getRequestForGroups(){
         return  tcpClientManager.getRequestForGroups();
+    }
+
+    public ArrayList<Group> getMyGroups(){
+        return  tcpClientManager.getMyGroups();
     }
 
     public void setRegisterState(boolean state){
@@ -258,7 +261,7 @@ public class Client {
     }
     public void listMyGroups(){
         try {
-            output.writeObject(new Message(Message.Type.LIST_MYGROUPS));
+            output.writeObject(new Message(Message.Type.LIST_MYGROUPS,user));
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -298,6 +301,7 @@ public class Client {
             e.printStackTrace();
         }
     }
+
     public void sendResquestGroup(int idGroup, User user){
         try {
             output.writeObject(new Message(Message.Type.GROUP_REQUEST,idGroup,user));
@@ -306,9 +310,19 @@ public class Client {
             e.printStackTrace();
         }
     }
+
     public void sendResquestResponse(Request request, User user){
         try {
             output.writeObject(new Message(Message.Type.GROUP_REQUEST_RESPONSE,request,user));
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void exitGroup(int id, User user){
+        try {
+            output.writeObject(new Message(Message.Type.GROUP_EXIT,id,user));
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();

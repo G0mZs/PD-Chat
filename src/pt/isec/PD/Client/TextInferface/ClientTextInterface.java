@@ -1,6 +1,7 @@
 package pt.isec.PD.Client.TextInferface;
 
 import pt.isec.PD.Client.Model.Client;
+import pt.isec.PD.Data.Group;
 import pt.isec.PD.Data.Request;
 
 import java.util.ArrayList;
@@ -441,7 +442,7 @@ public class ClientTextInterface {
                     uiAcceptGroup();
                     break;
                 case 6:
-                    //uiExitGroup();
+                    uiExitGroup();
                     break;
                 case 7:
                     //uiRemoveMember();
@@ -590,6 +591,51 @@ public class ClientTextInterface {
 
         if(-1 < num && num<requests.size())
             client.sendResquestResponse(requests.get(num),client.getUser());
+        else
+            System.out.println("Invalid option");
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public void uiExitGroup() {
+        Scanner sc = new Scanner(System.in);
+        String idRequest;
+        int num=0;
+        ArrayList<Group> groups=null;
+        System.out.println("");
+        System.out.println("------ Exit group ------");
+        System.out.println("");
+
+        client.listMyGroups();
+        do{
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }while (!client.getTaskCompleted());
+
+        groups=client.getMyGroups();
+        if(groups == null || groups.size()==0){
+            System.out.println("You are not in any group");
+            return;
+        }else
+            for (Group group : groups)
+                System.out.println(group.getId()+" - "+group.getName());
+
+        System.out.println("Enter the id of the group you want to exit: (-1 to exit)");
+        idRequest = sc.nextLine();
+
+        try{
+            num=Integer.parseInt(idRequest);
+        }catch (Exception e){
+            num=-1;
+        }
+
+        if(-1 != num)
+            client.exitGroup(num,client.getUser());
         else
             System.out.println("Invalid option");
         try {

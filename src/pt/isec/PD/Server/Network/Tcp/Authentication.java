@@ -80,6 +80,12 @@ public class Authentication extends Thread{
                     case LIST_REQUEST:
                         getListRequest(message.getUser(),out);
                         break;
+                    case GROUP_EXIT:
+                        exitGroup(message.getId(),message.getUser(),out);
+                        break;
+                    case LIST_MYGROUPS:
+                        getMyGroups(message.getUser(),out);
+                        break;
                 }
             }
 
@@ -343,6 +349,31 @@ public class Authentication extends Thread{
 
     public synchronized void getListRequest(User user, ObjectOutputStream out){
         Message msg = new Message(Message.Type.LIST_REQUEST,model.getDbHelper().getListRequest(user));
+        try {
+            out.writeObject(msg);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void exitGroup(int id, User user, ObjectOutputStream out){
+        Message msg;
+        if (model.getDbHelper().exitGroup(id,user)) {
+            msg = new Message(Message.Type.GROUP_EXIT_COMPLETED);
+        } else {
+            msg = new Message(Message.Type.GROUP_RESPONSE_FAILED);
+        }
+        try {
+            out.writeObject(msg);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void getMyGroups(User user, ObjectOutputStream out){
+        Message msg = new Message(Message.Type.LIST_MYGROUPS,model.getDbHelper().getMyGroups(user),0);
         try {
             out.writeObject(msg);
             out.flush();

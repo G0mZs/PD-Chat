@@ -16,6 +16,11 @@ public class Group implements Serializable {
         this.name = name;
         this.members = new ArrayList<>();
     }
+    public Group(int id,String name){
+        this.id = id;
+        this.name = name;
+        this.members = new ArrayList<>();
+    }
 
     public Group(User admnistrator,String name){
         this.admnistrator = admnistrator;

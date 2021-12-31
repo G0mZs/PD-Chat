@@ -19,6 +19,7 @@ public class TcpClientManager extends Thread {
     private boolean taskCompleted = false;
     private User userData;
     private ArrayList<Request> requests;
+    private ArrayList<Group> myGroups;
 
     public TcpClientManager(ObjectInputStream in, ObjectOutputStream out) {
 
@@ -60,6 +61,10 @@ public class TcpClientManager extends Thread {
 
     public ArrayList<Request> getRequestForGroups(){
         return requests;
+    }
+
+    public ArrayList<Group> getMyGroups(){
+        return myGroups;
     }
 
     public void run() {
@@ -156,7 +161,16 @@ public class TcpClientManager extends Thread {
                             requests = message.getRequests();
                             taskCompleted=true;
                             break;
-
+                        case LIST_MYGROUPS:
+                            myGroups = message.getListGroups();
+                            taskCompleted=true;
+                            break;
+                        case GROUP_EXIT_COMPLETED:
+                            //System.out.println("User exit the group");
+                            break;
+                        case GROUP_EXIT_FAILED:
+                            System.out.println("User failed to exit the group");
+                            break;
                     }
                 } else {
                     System.err.println("Received unrecognized data on TCP socket! Ignoring...");

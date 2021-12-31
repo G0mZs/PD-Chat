@@ -449,5 +449,36 @@ import java.util.ArrayList;
         return  requests;
     }
 
+    public boolean exitGroup(int id,User user){
+        try {
+            ResultSet resultSetUserIsAdmin = statement.executeQuery("select * from grupo where idGrupos="+id+" and idAdmnistrador="+user.getId());
+            if(resultSetUserIsAdmin.next())
+                return false;
+            statement.executeUpdate("Delete from grupo_has_utilizador where Grupo_idGrupos="+id+" and Utilizador_idUtilizadores="+user.getId());
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+        return  true;
+    }
+
+    public ArrayList<Group> getMyGroups(User user){
+
+        ArrayList<Group> groups = new ArrayList<>();
+        try {
+            ResultSet resultSetRequest = statement.executeQuery("select * from grupo_has_utilizador Inner Join grupo on idGrupos=Grupo_idGrupos Inner Join utilizador on idUtilizadores=Utilizador_idUtilizadores where aceite=1 and idUtilizadores="+user.getId());
+            while(resultSetRequest.next()){
+                groups.add(new Group(
+                        resultSetRequest.getInt("idGrupos"),
+                        resultSetRequest.getString("nome")
+                ));
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            groups = new ArrayList<>();
+        }
+        return  groups;
+    }
+
 }
 
