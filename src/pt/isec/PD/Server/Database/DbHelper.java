@@ -1,6 +1,7 @@
 package pt.isec.PD.Server.Database;
 
 import pt.isec.PD.Data.Group;
+import pt.isec.PD.Data.Request;
 import pt.isec.PD.Data.User;
 
 import java.sql.*;
@@ -339,20 +340,20 @@ import java.util.ArrayList;
             ResultSet resultSetGroup = statement.executeQuery("select * from Grupo where nome='"+group.getName()+"' and idAdmnistrador='"+group.getAdmnistrator().getId()+"'");
             resultSetGroup.next();
             group.setId(resultSetGroup.getInt("idGrupos"));
-            addMember(group.getAdmnistrator().getId(),group.getId(),true);
+            addAdmin(group.getAdmnistrator().getId(),group.getId());
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         return  true;
     }
 
-    public Boolean addMember(int userId,int groupId,boolean join){
+    public Boolean addAdmin(int userId, int groupId){
 
         try {
             ResultSet resultSetMemberExist = statement.executeQuery("select * from Grupo_has_Utilizador where Utilizador_idUtilizadores="+userId+" and Grupo_idGrupos="+groupId);
             if(resultSetMemberExist.next())
                 return false;
-            statement.executeUpdate("INSERT INTO Grupo_has_Utilizador Values((Select idGrupos from Grupo where idGrupos="+groupId+"),(Select idUtilizadores from Utilizador where idUtilizadores="+userId+"),"+ (join? 1 : 0) +")");
+            statement.executeUpdate("INSERT INTO Grupo_has_Utilizador Values((Select idGrupos from Grupo where idGrupos="+groupId+"),(Select idUtilizadores from Utilizador where idUtilizadores="+userId+"),1)");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return false;
@@ -375,8 +376,6 @@ import java.util.ArrayList;
         return  true;
     }
 
-
-
     public Boolean receiveGroupRequest(int idGroup, User user){
 
         try {
@@ -386,12 +385,68 @@ import java.util.ArrayList;
             ResultSet resultSetUserIsMember = statement.executeQuery("select * from grupo_has_utilizador where Utilizador_idUtilizadores="+user.getId()+" and Grupo_idGrupos="+idGroup);
             if(resultSetUserIsMember.next())
                 return false;
-            addMember(user.getId(),idGroup,false);
+            addGroupRequest(user.getId(),idGroup);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
             return false;
         }
         return  true;
+    }
+
+    public Boolean addGroupRequest(int userId, int groupId){
+
+        try {
+            ResultSet resultSetMemberExist = statement.executeQuery("select * from Grupo_has_Utilizador where Utilizador_idUtilizadores="+userId+" and Grupo_idGrupos="+groupId);
+            if(resultSetMemberExist.next())
+                return false;
+            statement.executeUpdate("INSERT INTO Grupo_has_Utilizador Values((Select idGrupos from Grupo where idGrupos="+groupId+"),(Select idUtilizadores from Utilizador where idUtilizadores="+userId+"),0)");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+
+        return  true;
+    }
+
+    public Boolean receiveGroupRequestResponse(Request request, User user){
+
+        try {
+            /*ResultSet resultSetUserIsAdmin = statement.executeQuery("select * from grupo where  idGrupos="+request.getIdUser());
+            resultSetUserIsAdmin.next();
+            System.out.println(resultSetUserIsAdmin.getInt("idGrupos"));
+            if(!resultSetUserIsAdmin.next())
+                return false;
+            System.out.println("ola");
+            ResultSet resultSetUserHasRequest = statement.executeQuery("select * from grupo_has_utilizador where Utilizador_idUtilizadores="+request.getIdUser()+" and Grupo_idGrupos="+request.getIdUser()+" and aceite=0");
+            System.out.println("select * from grupo_has_utilizador where Utilizador_idUtilizadores="+request.getIdUser()+" and Grupo_idGrupos="+request.getIdUser()+" and aceite=0");
+            if(!resultSetUserHasRequest.next())
+                return false;*/
+            statement.executeUpdate("Update Grupo_has_Utilizador  Set aceite=1 where Utilizador_idUtilizadores="+request.getIdUser()+" and Grupo_idGrupos="+request.getIdGroup());
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+        return  true;
+    }
+
+    public ArrayList<Request> getListRequest(User user){
+
+        ArrayList<Request> requests = new ArrayList<>();
+        try {
+            ResultSet resultSetRequest = statement.executeQuery("select * from grupo_has_utilizador Inner Join grupo on idGrupos=Grupo_idGrupos Inner Join utilizador on idUtilizadores=Utilizador_idUtilizadores where aceite=0 and idAdmnistrador="+user.getId());
+            while(resultSetRequest.next()){
+                requests.add(new Request(
+                                            resultSetRequest.getInt("Utilizador_idUtilizadores"),
+                                            resultSetRequest.getInt("Grupo_idGrupos"),
+                                            resultSetRequest.getString("utilizador.nome"),
+                                            resultSetRequest.getString("grupo.nome")
+                        ));
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            requests = new ArrayList<>();
+        }
+        return  requests;
     }
 
 }

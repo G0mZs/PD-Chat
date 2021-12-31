@@ -3,6 +3,7 @@ package pt.isec.PD.Client.Network.Tcp;
 
 import pt.isec.PD.Data.Group;
 import pt.isec.PD.Data.Message;
+import pt.isec.PD.Data.Request;
 import pt.isec.PD.Data.User;
 
 import java.io.*;
@@ -17,6 +18,7 @@ public class TcpClientManager extends Thread {
     private boolean login = false;
     private boolean taskCompleted = false;
     private User userData;
+    private ArrayList<Request> requests;
 
     public TcpClientManager(ObjectInputStream in, ObjectOutputStream out) {
 
@@ -54,6 +56,10 @@ public class TcpClientManager extends Thread {
             return  true;
         }
         return  taskCompleted;
+    }
+
+    public ArrayList<Request> getRequestForGroups(){
+        return requests;
     }
 
     public void run() {
@@ -140,6 +146,17 @@ public class TcpClientManager extends Thread {
                         case GROUP_REQUEST_FAILED:
                             System.out.println("Group join request failed to be sended");
                             break;
+                        case GROUP_RESPONSE_COMPLETED:
+                            System.out.println("User join the group");
+                            break;
+                        case GROUP_RESPONSE_FAILED:
+                            System.out.println("Error processing request to join group");
+                            break;
+                        case LIST_REQUEST:
+                            requests = message.getRequests();
+                            taskCompleted=true;
+                            break;
+
                     }
                 } else {
                     System.err.println("Received unrecognized data on TCP socket! Ignoring...");

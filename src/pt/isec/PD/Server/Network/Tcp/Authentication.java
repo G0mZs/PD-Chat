@@ -2,6 +2,7 @@ package pt.isec.PD.Server.Network.Tcp;
 
 import pt.isec.PD.Data.Group;
 import pt.isec.PD.Data.Message;
+import pt.isec.PD.Data.Request;
 import pt.isec.PD.Data.User;
 import pt.isec.PD.Server.Model.ClientDetails;
 import pt.isec.PD.Server.Model.Server;
@@ -72,6 +73,12 @@ public class Authentication extends Thread{
                         break;
                     case GROUP_REQUEST:
                         receiveGroupRequest(message.getId(),message.getUser(),out);
+                        break;
+                    case GROUP_REQUEST_RESPONSE:
+                        receiveGroupRequestResponse(message.getRequest(),message.getUser(),out);
+                        break;
+                    case LIST_REQUEST:
+                        getListRequest(message.getUser(),out);
                         break;
                 }
             }
@@ -264,7 +271,7 @@ public class Authentication extends Thread{
     public synchronized void listGroups(ObjectOutputStream out){
         Message msg;
         ArrayList<Group> listGroups = model.getDbHelper().getAllGroups();
-        msg = new Message(Message.Type.LIST_GROUPS, listGroups);
+        msg = new Message(Message.Type.LIST_GROUPS, listGroups,0);
 
         try {
             out.writeObject(msg);
@@ -303,6 +310,7 @@ public class Authentication extends Thread{
             e.printStackTrace();
         }
     }
+
     public synchronized void receiveGroupRequest(int idGroup, User user, ObjectOutputStream out){
         Message msg;
         if (model.getDbHelper().receiveGroupRequest(idGroup,user)) {
@@ -310,6 +318,31 @@ public class Authentication extends Thread{
         } else {
             msg = new Message(Message.Type.GROUP_REQUEST_FAILED);
         }
+        try {
+            out.writeObject(msg);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void receiveGroupRequestResponse(Request request, User user, ObjectOutputStream out){
+        Message msg;
+        if (model.getDbHelper().receiveGroupRequestResponse(request,user)) {
+            msg = new Message(Message.Type.GROUP_RESPONSE_COMPLETED);
+        } else {
+            msg = new Message(Message.Type.GROUP_RESPONSE_FAILED);
+        }
+        try {
+            out.writeObject(msg);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void getListRequest(User user, ObjectOutputStream out){
+        Message msg = new Message(Message.Type.LIST_REQUEST,model.getDbHelper().getListRequest(user));
         try {
             out.writeObject(msg);
             out.flush();

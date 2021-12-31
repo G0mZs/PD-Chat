@@ -2,16 +2,14 @@ package pt.isec.PD.Client.Model;
 
 import pt.isec.PD.Client.Network.Tcp.TcpClientManager;
 import pt.isec.PD.Client.Network.Udp.UdpClientManager;
-import pt.isec.PD.Data.Constants;
-import pt.isec.PD.Data.Group;
-import pt.isec.PD.Data.Message;
-import pt.isec.PD.Data.User;
+import pt.isec.PD.Data.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Client {
 
@@ -43,6 +41,11 @@ public class Client {
 
     public boolean getTaskCompleted(){
         return tcpClientManager.getTaskCompleted();
+    }
+
+
+    public ArrayList<Request> getRequestForGroups(){
+        return  tcpClientManager.getRequestForGroups();
     }
 
     public void setRegisterState(boolean state){
@@ -178,7 +181,7 @@ public class Client {
 
         try {
 
-            output.writeObject(new Message(Message.Type.CHANGE_PASSWORD,null,auxUser));
+            output.writeObject(new Message(Message.Type.CHANGE_PASSWORD,auxUser));
             output.flush();
 
         } catch (IOException e) {
@@ -253,6 +256,23 @@ public class Client {
             e.printStackTrace();
         }
     }
+    public void listMyGroups(){
+        try {
+            output.writeObject(new Message(Message.Type.LIST_MYGROUPS));
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void listRequest(){
+        try {
+            output.writeObject(new Message(Message.Type.LIST_REQUEST,user));
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void createGroup(String name, User admin){
 
@@ -281,6 +301,14 @@ public class Client {
     public void sendResquestGroup(int idGroup, User user){
         try {
             output.writeObject(new Message(Message.Type.GROUP_REQUEST,idGroup,user));
+            output.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void sendResquestResponse(Request request, User user){
+        try {
+            output.writeObject(new Message(Message.Type.GROUP_REQUEST_RESPONSE,request,user));
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();

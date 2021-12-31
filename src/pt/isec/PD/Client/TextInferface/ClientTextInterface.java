@@ -1,7 +1,9 @@
 package pt.isec.PD.Client.TextInferface;
 
 import pt.isec.PD.Client.Model.Client;
+import pt.isec.PD.Data.Request;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ClientTextInterface {
@@ -405,8 +407,12 @@ public class ClientTextInterface {
             System.out.println("");
             System.out.println("1 --> List your Groups");
             System.out.println("2 --> Create Group");
-            System.out.println("3 --> Edit Group"); // menu com alterar o nome de um grupo,expulsar membros e extinguir grupo
+            System.out.println("3 --> Edit Group"); // expulsar membros e extinguir grupo
             System.out.println("4 --> Join Group");
+            System.out.println("5 --> Accept members");
+            System.out.println("6 --> Exit Group");
+            System.out.println("7 --> Remove member from Group");
+            System.out.println("8 --> Delete Group");
             System.out.println("0 --> Return to Main Menu");
 
             System.out.println("");
@@ -430,6 +436,18 @@ public class ClientTextInterface {
                     break;
                 case 4:
                     uiJoinGroup();
+                    break;
+                case 5:
+                    uiAcceptGroup();
+                    break;
+                case 6:
+                    //uiExitGroup();
+                    break;
+                case 7:
+                    //uiRemoveMember();
+                    break;
+                case 8:
+                    //uiDeleteGroup();
                     break;
                 case 0:
                     leave = true;
@@ -528,6 +546,52 @@ public class ClientTextInterface {
         }
         client.sendResquestGroup(id,client.getUser());
 
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void uiAcceptGroup() {
+        Scanner sc = new Scanner(System.in);
+        String idRequest;
+        int num=0;
+        ArrayList<Request> requests=null;
+        System.out.println("");
+        System.out.println("------ Accept new members ------");
+        System.out.println("");
+
+        client.listRequest();
+        do{
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }while (!client.getTaskCompleted());
+
+        requests=client.getRequestForGroups();
+        if(requests == null || requests.size()==0){
+            System.out.println("No request available");
+            return;
+        }else
+            for (Request request : requests)
+                System.out.println(num+" - "+request.getUserName()+" want to join "+request.getGroupName());
+
+        System.out.println("Enter the number of request you want to accept: (-1 to exit)");
+        idRequest = sc.nextLine();
+
+        try{
+            num=Integer.parseInt(idRequest);
+        }catch (Exception e){
+            num=-1;
+        }
+
+        if(-1 < num && num<requests.size())
+            client.sendResquestResponse(requests.get(num),client.getUser());
+        else
+            System.out.println("Invalid option");
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
