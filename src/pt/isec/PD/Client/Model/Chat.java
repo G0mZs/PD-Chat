@@ -12,7 +12,7 @@ public class Chat {
 
     private ArrayList<User> contacts;
     private ArrayList<User> pendingRequests;
-    private ArrayList<Message> messages;
+    private ArrayList<Message> historic;
     private ArrayList<Conversation> conversations;
 
     private File saveLocation;
@@ -26,7 +26,7 @@ public class Chat {
     public Chat() {
 
         this.contacts = new ArrayList<>();
-        this.messages = new ArrayList<>();
+        this.historic = new ArrayList<>();
         this.conversations = new ArrayList<>();
     }
 
@@ -95,32 +95,14 @@ public class Chat {
         this.saveLocation = saveLocation;
     }
 
-    public ArrayList<Message> getMessages() {
-        return messages;
+    public ArrayList<Message> getHistoric() {
+        return historic;
     }
 
-    public void setMessages(ArrayList<Message> messages) {
-        this.messages = messages;
+    public void setHistoric(ArrayList<Message> historic) {
+        this.historic = historic;
     }
 
-
-    public void addMessage(Message message) {
-        this.messages.add(message);
-    }
-
-
-    public Message getLastMessage() {
-        if (messages.size() < 1)
-            return null;
-
-        Message last = messages.get(messages.size() - 1);
-        return last;
-    }
-
-
-    public void addConversation(Conversation conversation) {
-        conversations.add(conversation);
-    }
 }
 
 

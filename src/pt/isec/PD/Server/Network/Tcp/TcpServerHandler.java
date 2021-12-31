@@ -71,6 +71,9 @@ public class TcpServerHandler extends Thread{
                     case LIST_PENDING_REQUESTS:
                         getPendingRequests(message,out);
                         break;
+                    case LIST_HISTORIC:
+                        getHistoric(message,out);
+                        break;
                     case CONTACT_REQUEST:
                         sendContactRequest(message.getMessage(),message.getUser().getUsername(),out);
                         break;
@@ -87,7 +90,7 @@ public class TcpServerHandler extends Thread{
                         sendContactMessage(message,out);
                         break;
                     case MESSAGE_SEEN:
-                        updateHistoric(message,out);
+                        updateHistoric(message);
                         break;
                     case SERVER_CONTACT_REQUEST:
                         sendRequestToClient(message.getMessage(), message.getContactRequest());
@@ -333,15 +336,33 @@ public class TcpServerHandler extends Thread{
         User user = msg.getUser();
         ArrayList<User> pendingRequests = model.getDbHelper().getPendingRequests(user.getId());
 
-        msg = new Message(Message.Type.LIST_PENDING_REQUESTS,pendingRequests);
+        Message message = new Message(Message.Type.LIST_PENDING_REQUESTS,pendingRequests);
         try {
 
-            out.writeObject(msg);
+            out.writeObject(message);
             out.flush();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public synchronized void getHistoric(Message msg,ObjectOutputStream out){
+
+        User user = msg.getUser();
+        User contact = model.getDbHelper().searchUser(msg.getMessage());
+        ArrayList<Message> historic = model.getDbHelper().getHistoric(user.getId(),contact.getId());
+
+        Message message = new Message(Message.Type.LIST_HISTORIC,null,historic);
+        try {
+
+            out.writeObject(message);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public synchronized void sendContactRequest(String sender,String receiver,ObjectOutputStream out){
@@ -620,44 +641,12 @@ public class TcpServerHandler extends Thread{
 
     }
 
-    public void updateHistoric(Message msg,ObjectOutputStream out){
+    public void updateHistoric(Message msg){
 
         User sender = msg.getUser();
         User receiver = model.getDbHelper().searchUser(msg.getMessage());
 
-        Message message;
-
         model.getDbHelper().updateHistoric(sender.getId(),receiver.getId());
-        //Atualizar todas as mensagens entre estes users para vistas.
-
-        message = new Message(Message.Type.MESSAGE_SEEN);
-
-            for(int i = 0; i < model.getClients().size(); i++) {
-                if(receiver.getId() == model.getClients().get(i).getUser().getId()){
-
-                    Message message1 = new Message(Message.Type.MESSAGE_SEEN);
-
-                    try {
-                        model.getClients().get(i).getOut().writeObject(message1);
-                        model.getClients().get(i).getOut().flush();
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-
-        contactServers(new Message(Message.Type.SERVER_MESSAGE_SEEN,receiver));
-
-        try {
-            out.writeObject(message);
-            out.flush();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
 
     }
 

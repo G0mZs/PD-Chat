@@ -1,9 +1,11 @@
 package pt.isec.PD.Server.Database;
 
+import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 /**
@@ -269,8 +271,8 @@ import java.util.ArrayList;
     public User getUser(int id){
 
         try {
-
-            ResultSet resultSet = statement.executeQuery("select * from utilizador");
+            Statement st1 = connection.createStatement();
+            ResultSet resultSet = st1.executeQuery("select * from utilizador");
 
             while (resultSet.next()) {
                 if (id == resultSet.getInt("idUtilizadores")) {
@@ -279,7 +281,7 @@ import java.util.ArrayList;
                     return auxUser;
                 }
             }
-
+            st1.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -469,6 +471,49 @@ import java.util.ArrayList;
 
         return pendingRequests;
 
+    }
+
+    public ArrayList<Message> getHistoric(int id1,int id2){
+
+
+        ArrayList<Message> historic = new ArrayList<>();
+
+        try {
+
+            ResultSet resultSet = statement.executeQuery("select * from mensagem");
+
+            while(resultSet.next()){
+                if(resultSet.getInt("IdAutor") == id1 && resultSet.getInt("IdReceiver") == id2){
+
+                    User author = getUser(resultSet.getInt("IdAutor"));
+
+                    String data = resultSet.getString("Data");
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    LocalDateTime dateTime = LocalDateTime.parse(data,formatter);
+
+                    Message msg = new Message(resultSet.getInt("idMensagem"),author,resultSet.getString("tipo"),resultSet.getString("mensagem"),dateTime,resultSet.getString("estado"));
+
+                    historic.add(msg);
+                }else if(resultSet.getInt("IdAutor") == id2 && resultSet.getInt("IdReceiver") == id1){
+
+                    User author = getUser(resultSet.getInt("IdAutor"));
+
+                    String data = resultSet.getString("Data");
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    LocalDateTime dateTime = LocalDateTime.parse(data,formatter);
+
+                    Message msg = new Message(resultSet.getInt("idMensagem"),author,resultSet.getString("tipo"),resultSet.getString("mensagem"),dateTime,resultSet.getString("estado"));
+
+                    historic.add(msg);
+                }
+            }
+
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return historic;
     }
 
     public boolean removeContact(int idUser,int idContact){

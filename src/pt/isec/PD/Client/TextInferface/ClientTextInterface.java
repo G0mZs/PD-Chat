@@ -566,32 +566,34 @@ public class ClientTextInterface {
         System.out.println("Enter the username of the contact request sender: ");
         username = sc.nextLine();
 
+
         uiListHistoric(username);
 
     }
 
     private void uiListHistoric(String username){
 
-        if(handler.checkContact(username)){
 
-            int i;
-            for(i = 0; i < handler.getChat().getConversations().size(); i++) {
-                if (handler.getChat().getConversations().get(i).getUser().getUsername().equals(handler.getUser().getUsername()) && handler.getChat().getConversations().get(i).getContact().getUsername().equals(username)) {
-                    int j;
-                    handler.updateHistoric(username);
-                    System.out.print("\n");
-                    System.out.println("---------- Message Historic For " + username + " ----------");
-                    System.out.print("\n");
+        handler.listHistoric(username);
 
-                    for (j = 0; j < handler.getChat().getConversations().get(i).getMessages().size(); j++) {
-                        System.out.println("[" + handler.getChat().getConversations().get(i).getMessages().get(j).getState() + "]" + "[" + handler.getChat().getConversations().get(i).getMessages().get(j).getDateTime() + "] " + "---> " + handler.getChat().getConversations().get(i).getMessages().get(j).getUser().getUsername() + ": " + handler.getChat().getConversations().get(i).getMessages().get(j).getMessage());
-                    }
-                }
-            }
-
-        }else{
-            System.out.println("The username you typed is not on your contact list");
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+
+
+        System.out.print("\n");
+        System.out.println("---------- Message Historic For " + username + " ----------");
+        System.out.print("\n");
+
+        int i;
+        for (i = 0; i < handler.getChat().getHistoric().size(); i++) {
+            System.out.println("[" + handler.getChat().getHistoric().get(i).getIdMessage() + "][" + handler.getChat().getHistoric().get(i).getState() + "][" + handler.getChat().getHistoric().get(i).getDateTime() + "] ---> " + handler.getChat().getHistoric().get(i).getUser().getUsername() + ": " + handler.getChat().getHistoric().get(i).getMessage());
+        }
+
+
+        handler.updateHistoric(username);
 
     }
 

@@ -260,6 +260,19 @@ public class CommunicationHandler {
         }
     }
 
+    public void listHistoric(String username){
+
+        try {
+
+            output.writeObject(new Message(Message.Type.LIST_HISTORIC,username,getUser()));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
     public void listPendingRequests(){
 
         try {

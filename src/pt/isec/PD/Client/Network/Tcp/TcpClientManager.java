@@ -112,6 +112,10 @@ public class TcpClientManager extends Thread {
                         case LIST_PENDING_REQUESTS:
                             chat.setPendingRequests(message.getUsersInfo());
                             break;
+                        case LIST_HISTORIC:
+                            chat.setHistoric(message.getMessagesInfo());
+                            System.out.println(message.getMessagesInfo().get(0).getIdMessage());
+                            break;
                         case CONTACT_ACCEPT:
                             System.out.println("\n" + message.getMessage());
                             createHistoric(message.getUser());
@@ -121,7 +125,7 @@ public class TcpClientManager extends Thread {
                             break;
                         case DELETE_CONTACT:
                             System.out.println("\n" + message.getMessage());
-                            removeHistoric(message.getUser());
+                            removeHistoric(message.getUser());//falta remover historico na bd
                             break;
                         case ERROR_MESSAGE:
                             System.out.println("\n" + message.getMessage());
