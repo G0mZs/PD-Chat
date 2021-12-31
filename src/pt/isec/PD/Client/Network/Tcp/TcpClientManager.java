@@ -18,16 +18,13 @@ public class TcpClientManager extends Thread {
     private boolean login = false;
     private Chat chat;
     private User userData;
-    private ArrayList<User> pendingRequests;
-    private ArrayList<User> contacts;
+
 
     public TcpClientManager(Chat chat,ObjectInputStream in, ObjectOutputStream out) {
 
         this.chat = chat;
         this.in = in;
         this.out = out;
-        this.pendingRequests = new ArrayList<>();
-        this.contacts = new ArrayList<>();
     }
 
     public User getUserData() {
@@ -54,9 +51,7 @@ public class TcpClientManager extends Thread {
         return this.register;
     }
 
-    public ArrayList<User> getPendingRequests() {return pendingRequests;}
 
-    public ArrayList<User> getContacts() {return contacts;}
 
     public void run() {
 
@@ -110,21 +105,22 @@ public class TcpClientManager extends Thread {
                             break;
                         case CONTACT_REQUEST:
                             System.out.println("\n" + message.getMessage());
-                            pendingRequests.add(message.getUser());
+                            break;
+                        case LIST_CONTACTS:
+                            chat.setContacts(message.getUsersInfo());
+                            break;
+                        case LIST_PENDING_REQUESTS:
+                            chat.setPendingRequests(message.getUsersInfo());
                             break;
                         case CONTACT_ACCEPT:
                             System.out.println("\n" + message.getMessage());
-                            contacts.add(message.getUser());
-                            removePendingRequest(message.getUser().getUsername());
                             createHistoric(message.getUser());
                             break;
                         case CONTACT_REFUSED:
                             System.out.println("\n" + message.getMessage());
-                            removePendingRequest(message.getUser().getUsername());
                             break;
                         case DELETE_CONTACT:
                             System.out.println("\n" + message.getMessage());
-                            removeFromContactList(message.getUser().getUsername());
                             removeHistoric(message.getUser());
                             break;
                         case ERROR_MESSAGE:
@@ -187,25 +183,8 @@ public class TcpClientManager extends Thread {
         System.out.println("");
     }
 
-    public void removePendingRequest(String username){
 
-        int i;
-        for(i = 0; i < pendingRequests.size(); i++){
-            if(username.equals(pendingRequests.get(i).getUsername())){
-                pendingRequests.remove(i);
-            }
-        }
-    }
 
-    public void removeFromContactList(String username){
-
-        int i;
-        for(i = 0; i < contacts.size(); i++){
-            if(username.equals(contacts.get(i).getUsername())){
-                contacts.remove(i);
-            }
-        }
-    }
 
     public void createHistoric(User contact){
 

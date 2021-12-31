@@ -247,6 +247,32 @@ public class CommunicationHandler {
 
     }
 
+    public void listContacts(){
+
+        try {
+
+            output.writeObject(new Message(Message.Type.LIST_CONTACTS,getUser()));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
+    public void listPendingRequests(){
+
+        try {
+
+            output.writeObject(new Message(Message.Type.LIST_PENDING_REQUESTS,getUser()));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
     public void sendContactRequest(String username){
 
         User aux = new User(0,username,null,null);
@@ -334,8 +360,8 @@ public class CommunicationHandler {
             return false;
         }
         else{
-            for(int i = 0; i < getContacts().size(); i++){
-                if(getContacts().get(i).getUsername().equals(username)){
+            for(int i = 0; i < getChat().getContacts().size(); i++){
+                if(chat.getContacts().get(i).getUsername().equals(username)){
                     return true;
                 }
             }
@@ -345,12 +371,16 @@ public class CommunicationHandler {
         return false;
     }
 
-    public ArrayList<User> getPendingRequests(){
-        return tcpClientManager.getPendingRequests();
-    }
+    public void updateHistoric(String username){
 
-    public ArrayList<User> getContacts(){
-        return tcpClientManager.getContacts();
+        try {
+            output.writeObject(new Message(Message.Type.MESSAGE_SEEN,username,getUser()));
+            output.flush();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+
+        }
     }
 
     public Chat getChat() {

@@ -434,14 +434,23 @@ public class ClientTextInterface {
     }
 
     public void uiListContacts(){
+
+        handler.listContacts();
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         System.out.print("\n");
         System.out.println("----------- Lista de Contactos ----------");
         System.out.print("\n");
 
-        for(int i = 0; i < handler.getContacts().size();i++){
+        for(int i = 0; i < handler.getChat().getContacts().size();i++){
 
-            String connected = handler.returnState(handler.getContacts().get(i).getState());
-            System.out.println("Contacto --> Nome: " + handler.getContacts().get(i).getName() + " Username: " + handler.getContacts().get(i).getUsername() + " State: " + connected);
+            String connected = handler.returnState(handler.getChat().getContacts().get(i).getState());
+            System.out.println("Contacto --> Nome: " + handler.getChat().getContacts().get(i).getName() + " Username: " + handler.getChat().getContacts().get(i).getUsername() + " State: " + connected);
         }
     }
 
@@ -459,6 +468,14 @@ public class ClientTextInterface {
     }
 
     public void uiPendingRequests(){
+
+        handler.listPendingRequests();
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         System.out.print("\n");
         System.out.println("---------- Pending Requests ----------");
@@ -525,12 +542,12 @@ public class ClientTextInterface {
 
     public void uiListPendingRequests(){
 
-        if(handler.getPendingRequests().size() == 0){
+        if(handler.getChat().getPendingRequests().size() == 0){
             System.out.println("You have no Pending Contact Requests");
         }
         else{
-            for(int i = 0; i < handler.getPendingRequests().size(); i++){
-                System.out.println("Contact Request from --> [" + handler.getPendingRequests().get(i).getUsername() + "]");
+            for(int i = 0; i < handler.getChat().getPendingRequests().size(); i++){
+                System.out.println("Contact Request from --> [" + handler.getChat().getPendingRequests().get(i).getUsername() + "]");
             }
         }
     }
@@ -561,7 +578,7 @@ public class ClientTextInterface {
             for(i = 0; i < handler.getChat().getConversations().size(); i++) {
                 if (handler.getChat().getConversations().get(i).getUser().getUsername().equals(handler.getUser().getUsername()) && handler.getChat().getConversations().get(i).getContact().getUsername().equals(username)) {
                     int j;
-
+                    handler.updateHistoric(username);
                     System.out.print("\n");
                     System.out.println("---------- Message Historic For " + username + " ----------");
                     System.out.print("\n");

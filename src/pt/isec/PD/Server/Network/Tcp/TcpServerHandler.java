@@ -65,6 +65,12 @@ public class TcpServerHandler extends Thread{
                     case LIST_USERS:
                         sendUsersList(out);
                         break;
+                    case LIST_CONTACTS:
+                        getContacts(message,out);
+                        break;
+                    case LIST_PENDING_REQUESTS:
+                        getPendingRequests(message,out);
+                        break;
                     case CONTACT_REQUEST:
                         sendContactRequest(message.getMessage(),message.getUser().getUsername(),out);
                         break;
@@ -79,6 +85,9 @@ public class TcpServerHandler extends Thread{
                         break;
                     case MESSAGE_CONTACT:
                         sendContactMessage(message,out);
+                        break;
+                    case MESSAGE_SEEN:
+                        updateHistoric(message,out);
                         break;
                     case SERVER_CONTACT_REQUEST:
                         sendRequestToClient(message.getMessage(), message.getContactRequest());
@@ -98,6 +107,10 @@ public class TcpServerHandler extends Thread{
                         break;
                     case SERVER_RECEIVE_MESSAGE:
                         sendContactMessageToClient(message);
+                        running = false;
+                        break;
+                    case SERVER_MESSAGE_SEEN:
+                        sendMessageSeenToClient(message);
                         running = false;
                         break;
 
@@ -286,8 +299,7 @@ public class TcpServerHandler extends Thread{
         Message msg;
         ArrayList<User> listUsers;
         listUsers = model.getDbHelper().getAllUsers();
-        msg = new Message(Message.Type.LIST_RECEIVED,new User(0,null,null,null));
-        msg.setUsersInfo(listUsers);
+        msg = new Message(Message.Type.LIST_RECEIVED,listUsers);
 
         try {
 
@@ -298,6 +310,38 @@ public class TcpServerHandler extends Thread{
             e.printStackTrace();
         }
 
+    }
+
+    public synchronized void getContacts(Message msg,ObjectOutputStream out){
+
+        User user = msg.getUser();
+        ArrayList<User> contacts = model.getDbHelper().getContacts(user.getId());
+
+        msg = new Message(Message.Type.LIST_CONTACTS,contacts);
+        try {
+
+            out.writeObject(msg);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void getPendingRequests(Message msg,ObjectOutputStream out){
+
+        User user = msg.getUser();
+        ArrayList<User> pendingRequests = model.getDbHelper().getPendingRequests(user.getId());
+
+        msg = new Message(Message.Type.LIST_PENDING_REQUESTS,pendingRequests);
+        try {
+
+            out.writeObject(msg);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public synchronized void sendContactRequest(String sender,String receiver,ObjectOutputStream out){
@@ -326,7 +370,7 @@ public class TcpServerHandler extends Thread{
 
 
                     for (int i = 0; i < model.getClients().size(); i++) {
-                        if (model.getClients().get(i).getUser().getUsername().equals(receiver)) {
+                        if (model.getClients().get(i).getUser().getId() == idReceiver) {
 
 
                             Message message = new Message(Message.Type.CONTACT_REQUEST, sender + " sent you a contact Request.", request.getSender());
@@ -382,7 +426,7 @@ public class TcpServerHandler extends Thread{
                     Message message = new Message(Message.Type.DELETE_CONTACT,"You have been removed from " + user.getUsername() + " contact list",user);
 
                     for(int i = 0; i < model.getClients().size(); i++){
-                        if(username.equals(model.getClients().get(i).getUser().getUsername())){
+                        if(contactUser.getId() == model.getClients().get(i).getUser().getId()){
 
                             try {
                                 model.getClients().get(i).getOut().writeObject(message);
@@ -435,7 +479,7 @@ public class TcpServerHandler extends Thread{
                 Contact request = new Contact(auxSender,auxReceiver);
                 msg = new Message(Message.Type.CONTACT_ACCEPT,"Contact Request Accepted",request.getSender());
                 for(int i = 0; i < model.getClients().size(); i++){
-                    if(auxSender.getUsername().equals(model.getClients().get(i).getUser().getUsername())){
+                    if(auxSender.getId() == model.getClients().get(i).getUser().getId()){
 
                         message = new Message(Message.Type.CONTACT_ACCEPT,auxReceiver.getUsername() + " has accepted your contact request !",request.getReceiver());
 
@@ -486,7 +530,7 @@ public class TcpServerHandler extends Thread{
             else {
                 msg = new Message(Message.Type.CONTACT_REFUSED,"Contact Request Refused",auxSender);
                 for(int i = 0; i < model.getClients().size(); i++){
-                    if(auxSender.getUsername().equals(model.getClients().get(i).getUser().getUsername())){
+                    if(auxSender.getId() == model.getClients().get(i).getUser().getId()){
 
                         message = new Message(Message.Type.ERROR_MESSAGE,auxRefuser.getUsername() + " has refused your contact request !");
 
@@ -540,7 +584,7 @@ public class TcpServerHandler extends Thread{
                         //verifica no mesmo server se há um cliente com o username do contact, se houver manda msg para ele.
                         for(int i = 0; i < model.getClients().size(); i++){
 
-                            if(contact.getUsername().equals(model.getClients().get(i).getUser().getUsername())){
+                            if(contact.getId() == model.getClients().get(i).getUser().getId()){
 
                                 Message message1 = new Message(Message.Type.RECEIVE_MESSAGE,msg.getMessage(),msg.getTypeofMessage(),msg.getDateTime(),sender,contact.getUsername(),"Não vista");
 
@@ -576,6 +620,47 @@ public class TcpServerHandler extends Thread{
 
     }
 
+    public void updateHistoric(Message msg,ObjectOutputStream out){
+
+        User sender = msg.getUser();
+        User receiver = model.getDbHelper().searchUser(msg.getMessage());
+
+        Message message;
+
+        model.getDbHelper().updateHistoric(sender.getId(),receiver.getId());
+        //Atualizar todas as mensagens entre estes users para vistas.
+
+        message = new Message(Message.Type.MESSAGE_SEEN);
+
+            for(int i = 0; i < model.getClients().size(); i++) {
+                if(receiver.getId() == model.getClients().get(i).getUser().getId()){
+
+                    Message message1 = new Message(Message.Type.MESSAGE_SEEN);
+
+                    try {
+                        model.getClients().get(i).getOut().writeObject(message1);
+                        model.getClients().get(i).getOut().flush();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+
+        contactServers(new Message(Message.Type.SERVER_MESSAGE_SEEN,receiver));
+
+        try {
+            out.writeObject(message);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
     public void contactServers(Message msg){
 
         for(int i = 0; i < model.getCommunication().getActiveServers().size(); i++){
@@ -603,7 +688,7 @@ public class TcpServerHandler extends Thread{
 
         for (int i = 0; i < model.getClients().size(); i++) {
 
-            if (model.getClients().get(i).getUser().getUsername().equals(request.getReceiver().getUsername())) {
+            if (model.getClients().get(i).getUser().getId() == request.getReceiver().getId()) {
 
 
                 Message message = new Message(Message.Type.CONTACT_REQUEST, msg, request.getSender());
@@ -621,7 +706,7 @@ public class TcpServerHandler extends Thread{
     public void sendDeleteContactToClient(String msg,Contact request){
         for (int i = 0; i < model.getClients().size(); i++) {
 
-            if (model.getClients().get(i).getUser().getUsername().equals(request.getReceiver().getUsername())) {
+            if (model.getClients().get(i).getUser().getId() == request.getReceiver().getId()) {
 
 
                 Message message = new Message(Message.Type.DELETE_CONTACT, msg, request.getSender());
@@ -640,7 +725,7 @@ public class TcpServerHandler extends Thread{
 
         for (int i = 0; i < model.getClients().size(); i++) {
 
-            if (model.getClients().get(i).getUser().getUsername().equals(request.getSender().getUsername())) {
+            if (model.getClients().get(i).getUser().getId() == request.getSender().getId()) {
 
                 Message message = new Message(Message.Type.CONTACT_ACCEPT, msg, request.getReceiver());
 
@@ -658,7 +743,7 @@ public class TcpServerHandler extends Thread{
 
         for (int i = 0; i < model.getClients().size(); i++) {
 
-            if (model.getClients().get(i).getUser().getUsername().equals(sender.getUsername())) {
+            if (model.getClients().get(i).getUser().getId() == sender.getId()) {
 
                 Message message = new Message(Message.Type.ERROR_MESSAGE, msg);
 
@@ -679,6 +764,24 @@ public class TcpServerHandler extends Thread{
             if (model.getClients().get(i).getUser().getUsername().equals(msg.getReceiver())) {
 
                 Message message = new Message(Message.Type.RECEIVE_MESSAGE,msg.getMessage(),msg.getTypeofMessage(),msg.getDateTime(),msg.getUser(),msg.getReceiver(),"Não vista");
+
+                try {
+                    model.getClients().get(i).getOut().writeObject(message);
+                    model.getClients().get(i).getOut().flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void sendMessageSeenToClient(Message msg){
+
+        for (int i = 0; i < model.getClients().size(); i++) {
+
+            if (model.getClients().get(i).getUser().getId() == msg.getUser().getId()) {
+
+                Message message = new Message(Message.Type.MESSAGE_SEEN);
 
                 try {
                     model.getClients().get(i).getOut().writeObject(message);

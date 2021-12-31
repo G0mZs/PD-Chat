@@ -10,7 +10,8 @@ import java.util.ArrayList;
 public class Chat {
     private User user;
 
-    private ArrayList<User> users;
+    private ArrayList<User> contacts;
+    private ArrayList<User> pendingRequests;
     private ArrayList<Message> messages;
     private ArrayList<Conversation> conversations;
 
@@ -24,7 +25,7 @@ public class Chat {
 
     public Chat() {
 
-        this.users = new ArrayList<>();
+        this.contacts = new ArrayList<>();
         this.messages = new ArrayList<>();
         this.conversations = new ArrayList<>();
     }
@@ -59,13 +60,13 @@ public class Chat {
     }
 
 
-    public ArrayList<User> getUsers() {
-        return users;
+    public ArrayList<User> getContacts() {
+        return contacts;
     }
 
 
-    public void setUsers(ArrayList<User> users) {
-        this.users = users;
+    public void setContacts(ArrayList<User> users) {
+        this.contacts = users;
     }
 
 
@@ -77,6 +78,13 @@ public class Chat {
         this.user = user;
     }
 
+    public ArrayList<User> getPendingRequests() {
+        return pendingRequests;
+    }
+
+    public void setPendingRequests(ArrayList<User> pendingRequests) {
+        this.pendingRequests = pendingRequests;
+    }
 
     public File getSaveLocation() {
         return saveLocation;
