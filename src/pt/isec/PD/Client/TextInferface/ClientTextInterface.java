@@ -3,6 +3,7 @@ package pt.isec.PD.Client.TextInferface;
 import pt.isec.PD.Client.Model.Client;
 import pt.isec.PD.Data.Group;
 import pt.isec.PD.Data.Request;
+import pt.isec.PD.Data.User;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -445,7 +446,7 @@ public class ClientTextInterface {
                     uiExitGroup();
                     break;
                 case 7:
-                    //uiRemoveMember();
+                    uiRemoveMember();
                     break;
                 case 8:
                     uiDeleteGroup();
@@ -646,10 +647,10 @@ public class ClientTextInterface {
     public void uiRemoveMember() {
         Scanner sc = new Scanner(System.in);
         String idRequest;
-        int num=0;
+        int num=0,num2;
         ArrayList<Group> groups=null;
         System.out.println("");
-        System.out.println("------ Exit group ------");
+        System.out.println("------ Remove Member ------");
         System.out.println("");
 
         client.listMyGroups();
@@ -663,13 +664,17 @@ public class ClientTextInterface {
 
         groups=client.getMyGroups();
         if(groups == null || groups.size()==0){
-            System.out.println("You are not in any group");
+            System.out.println("You are not admin of any group");
             return;
         }else
-            for (Group group : groups)
+            for (Group group : groups){
                 System.out.println(group.getId()+" - "+group.getName());
+                for(User user : group.getMembers())
+                    if(user.getId()!=client.getUser().getId())
+                        System.out.println(user.getId()+" - "+user.getName());
+            }
 
-        System.out.println("Enter the id of the group you want to exit:");
+        System.out.println("Enter the id of the group from where you want to remove a member:");
         idRequest = sc.nextLine();
 
         try{
@@ -677,9 +682,17 @@ public class ClientTextInterface {
         }catch (Exception e){
             num=-1;
         }
+        System.out.println("Enter the id of the member you want to remove:");
+        idRequest = sc.nextLine();
 
-        if(-1 != num)
-            client.removeMember(num,client.getUser());
+        try{
+            num2=Integer.parseInt(idRequest);
+        }catch (Exception e){
+            num2=-1;
+        }
+
+        if(-1 != num || -1!=num2)
+            client.removeMember(num,num2,client.getUser());
         else
             System.out.println("Invalid option");
     }

@@ -339,9 +339,9 @@ public class Client {
         }
     }
 
-    public void removeMember(int id, User user){
+    public void removeMember(int groupId, int userId, User user){
         try {
-            output.writeObject(new Message(Message.Type.REMOVE_MEMBER,id,user));
+            output.writeObject(new Message(Message.Type.REMOVE_MEMBER,groupId,userId,user));
             output.flush();
         } catch (IOException e) {
             e.printStackTrace();

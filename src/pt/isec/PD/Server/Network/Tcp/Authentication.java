@@ -84,7 +84,7 @@ public class Authentication extends Thread{
                         exitGroup(message.getId(),message.getUser(),out);
                         break;
                     case LIST_MYGROUPS:
-                        getMyGroups(message.getUser(),out);
+                        getMyGroups(out);
                         break;
                     case LIST_MYADMINGROUPS:
                         getMyAdminGroups(message.getUser(),out);
@@ -92,6 +92,8 @@ public class Authentication extends Thread{
                     case DELETE_GROUP:
                         deleteGroup(message.getId(),message.getUser(),out);
                         break;
+                    case REMOVE_MEMBER:
+                        removeMember(message.getId(),message.getId2(), message.getUser(),out);
                 }
             }
 
@@ -378,8 +380,8 @@ public class Authentication extends Thread{
         }
     }
 
-    public synchronized void getMyGroups(User user, ObjectOutputStream out){
-        Message msg = new Message(Message.Type.LIST_MYGROUPS,model.getDbHelper().getMyGroups(user),0);
+    public synchronized void getMyGroups(ObjectOutputStream out){
+        Message msg = new Message(Message.Type.LIST_MYGROUPS,model.getDbHelper().getAllGroups(),0);
         try {
             out.writeObject(msg);
             out.flush();
@@ -389,7 +391,7 @@ public class Authentication extends Thread{
     }
 
     public synchronized void getMyAdminGroups(User user, ObjectOutputStream out){
-        Message msg = new Message(Message.Type.LIST_MYGROUPS,model.getDbHelper().getMyAdminGroups(user),0);
+        Message msg = new Message(Message.Type.LIST_MYGROUPS,model.getDbHelper().getMyGroups(user),0);
         try {
             out.writeObject(msg);
             out.flush();
@@ -404,6 +406,21 @@ public class Authentication extends Thread{
             msg = new Message(Message.Type.DELETE_GROUP_COMPLETED);
         } else {
             msg = new Message(Message.Type.DELETE_GROUP_FAILED);
+        }
+        try {
+            out.writeObject(msg);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void removeMember(int groupId,int userId, User user, ObjectOutputStream out){
+        Message msg;
+        if (model.getDbHelper().removeMember(userId,groupId,user)) {
+            msg = new Message(Message.Type.REMOVE_MEMBER_COMPLETED);
+        } else {
+            msg = new Message(Message.Type.REMOVE_MEMBER_FAILED);
         }
         try {
             out.writeObject(msg);

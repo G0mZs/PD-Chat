@@ -8,7 +8,14 @@ import java.util.ArrayList;
 public class Message implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private int idMessage,id;
+    private int idMessage;
+    private int id;
+
+    public int getId2() {
+        return id2;
+    }
+
+    private int id2;
     private User user;
     private Group group;
     private Request request;
@@ -59,6 +66,13 @@ public class Message implements Serializable {
     public Message(Type type, int id, User user){
         this.type = type;
         this.id = id;
+        this.user = user;
+    }
+
+    public Message(Type type, int id, int id2, User user){
+        this.type = type;
+        this.id = id;
+        this.id2 = id2;
         this.user = user;
     }
 
