@@ -366,58 +366,7 @@ public class ClientTextInterface {
         }
     }
 
-    public void uiGroups(){
 
-        int value;
-        boolean leave = false;
-
-        while(!leave) {
-
-            System.out.print("\n");
-            System.out.println("---------- Groups ----------");
-            System.out.print("\n");
-            System.out.println("1 --> List your Groups");
-            System.out.println("2 --> Create Group");
-            System.out.println("3 --> Edit Group"); // menu com alterar o nome de um grupo,expulsar membros e extinguir grupo
-            System.out.println("4 --> Join Group");
-            System.out.println("0 --> Return to Main Menu");
-
-            System.out.print("\n");
-
-            System.out.print("Answer: ");
-            while (!s.hasNextInt()) {
-                s.next();
-            }
-
-            value = s.nextInt();
-
-            switch (value) {
-                case 1:
-                    //uiListGroups();
-                    break;
-                case 2:
-                    //uiCreateGroup();
-                    break;
-                case 3:
-                    //uiEditGroup();
-                    break;
-                case 4:
-                    //uiJoinGroup();
-                    break;
-                case 0:
-                    leave = true;
-                    break;
-                default:
-                    System.out.println("Invalid option");
-            }
-
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     public void uiContactRequest(){
 
@@ -554,6 +503,19 @@ public class ClientTextInterface {
 
 
     private void uiDeleteMessages() {
+
+        int id;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the id of the message you want to delete: ");
+        while (!sc.hasNextInt()) {
+            sc.next();
+        }
+
+        id = sc.nextInt();
+
+        handler.deleteMessage(id);
     }
 
 
@@ -563,7 +525,7 @@ public class ClientTextInterface {
         Scanner sc = new Scanner(System.in);
 
         System.out.print("\n");
-        System.out.println("Enter the username of the contact request sender: ");
+        System.out.println("Enter the username of the contact you want to see the historic for: ");
         username = sc.nextLine();
 
 
@@ -618,6 +580,113 @@ public class ClientTextInterface {
 
         handler.sendContactMessage(username,content);
 
+    }
+
+    public void uiGroups(){
+
+        int value;
+        boolean leave = false;
+
+        while(!leave) {
+
+            System.out.print("\n");
+            System.out.println("---------- Groups ----------");
+            System.out.print("\n");
+            System.out.println("1 --> Pending Group Requests"); //Fazer
+            System.out.println("2 --> Send Group Request"); //Fazer
+            System.out.println("3 --> Send Message"); //Fazer
+            System.out.println("4 --> Send File"); //Fazer
+            System.out.println("5 --> Create Group"); // Feito
+            System.out.println("6 --> Edit Group"); // menu com alterar o nome de um grupo,expulsar membros e extinguir grupo // Feito
+            System.out.println("7 --> List Groups"); // Feito
+            System.out.println("8 --> List Historic"); // Fazer
+            System.out.println("9 --> Delete Message/File Notification"); // Fazer
+            System.out.println("0 --> Return to Main Menu");
+
+            System.out.print("\n");
+
+            System.out.print("Answer: ");
+            while (!s.hasNextInt()) {
+                s.next();
+            }
+
+            value = s.nextInt();
+
+            switch (value) {
+                case 1:
+
+                    break;
+                case 2:
+
+                    break;
+                case 3:
+
+                    break;
+                case 4:
+
+                    break;
+                case 5:
+                    uiCreateGroup();
+                    break;
+                case 7:
+                    uiListGroups();
+                    break;
+                case 0:
+                    leave = true;
+                    break;
+                default:
+                    System.out.println("Invalid option");
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void uiListGroups(){
+
+        handler.getGroups();
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.print("\n");
+        System.out.println("------------------- Groups List ------------------");
+        System.out.print("\n");
+
+        int i;
+        for(i = 0; i < handler.getChat().getGroups().size(); i++){
+            System.out.println(" --> Group: " + handler.getChat().getGroups().get(i).getId() + " Name: " + handler.getChat().getGroups().get(i).getName() + " Admin: " + handler.getChat().getGroups().get(i).getAdmnistrator().getUsername());
+
+            int j;
+            System.out.println(" --- Members for Group " + handler.getChat().getGroups().get(i).getId() + " ---");
+            System.out.println("     --> Username: " + handler.getChat().getGroups().get(i).getAdmnistrator().getUsername() + " Name: " + handler.getChat().getGroups().get(i).getAdmnistrator().getName() + " -------> [Admin]");
+            for(j = 0; j < handler.getChat().getGroups().get(i).getMembers().size(); j++){
+                System.out.println("     --> Username: " + handler.getChat().getGroups().get(i).getMembers().get(j).getUsername() + " Name: " + handler.getChat().getGroups().get(i).getMembers().get(j).getName() + " -------> [Member]");
+            }
+
+            System.out.print("\n");
+        }
+
+
+    }
+
+    public void uiCreateGroup(){
+
+        String name;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the name of the group you want to create: ");
+        name = sc.nextLine();
+
+        handler.createGroup(name);
     }
 
 

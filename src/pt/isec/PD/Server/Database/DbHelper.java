@@ -1,6 +1,8 @@
 package pt.isec.PD.Server.Database;
 
+import pt.isec.PD.Data.Group;
 import pt.isec.PD.Data.Message;
+import pt.isec.PD.Data.Request;
 import pt.isec.PD.Data.User;
 
 import java.sql.*;
@@ -14,6 +16,7 @@ import java.util.ArrayList;
      * @author
      * @version $Id: $Id
      */
+    @SuppressWarnings("ALL")
     public class DbHelper {
 
     private String dbAddress;
@@ -626,6 +629,329 @@ import java.util.ArrayList;
             throwables.printStackTrace();
         }
     }
+
+    public boolean checkMessageId(String idMessage){
+
+        int idMsg = Integer.parseInt(idMessage);
+
+        try {
+
+            ResultSet resultSet = statement.executeQuery("select * from mensagem");
+
+            while (resultSet.next()) {
+                if (resultSet.getInt("idMensagem") == idMsg){
+                    return true;
+                }
+            }
+
+        }catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean checkMessageAuthor(String idMessage,int idAuthor){
+
+        int idMsg = Integer.parseInt(idMessage);
+
+        try {
+
+            ResultSet resultSet = statement.executeQuery("select * from mensagem");
+
+            while (resultSet.next()) {
+                if (resultSet.getInt("idMensagem") == idMsg && resultSet.getInt("IdAutor") == idAuthor){
+                    return true;
+                }
+            }
+
+        }catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public void deleteMessage(String idMessage){
+
+        int idMsg = Integer.parseInt(idMessage);
+
+        try{
+
+            statement.executeUpdate("DELETE FROM mydb.mensagem WHERE idMensagem = " + idMsg);
+
+        }catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public ArrayList<Group> getAllGroups(){
+
+        ArrayList<Group> groups = new ArrayList<>();
+        int idGrupo;
+        String nomeGrupo;
+
+        try {
+
+            Statement statement2 = connection.createStatement();
+            Statement statement3 = connection.createStatement();
+            ResultSet resultSetGroup = statement.executeQuery("select * from Grupo");
+
+            while (resultSetGroup.next()){
+
+                idGrupo = resultSetGroup.getInt("idGrupos");
+                nomeGrupo = resultSetGroup.getString("nome");
+
+                ResultSet resultSetAdmin = statement2.executeQuery("select * from utilizador where idUtilizadores="+resultSetGroup.getInt("idAdmnistrador"));
+                if(!resultSetAdmin.next())
+                    continue;
+
+                User admin = new User(resultSetAdmin.getInt("idUtilizadores"),resultSetAdmin.getString("username"),null,resultSetAdmin.getString("nome"));
+                resultSetAdmin.close();
+                Group group = new Group(idGrupo,admin,nomeGrupo);
+
+                ResultSet resultSetUsers =  statement3.executeQuery(
+                        "select * " +
+                                "from Grupo_has_Utilizador " +
+                                "inner join utilizador on Utilizador_idUtilizadores=idUtilizadores "+
+                                "where Grupo_idGrupos="+ group.getId() +" and "+
+                                "aceite=1");
+
+                while (resultSetUsers.next()){
+                    User member = new User(resultSetUsers.getInt("idUtilizadores"),resultSetUsers.getString("username"),null,resultSetUsers.getString("nome"));
+                    group.addMember(member);
+                }
+                resultSetUsers.close();
+                groups.add(group);
+            }
+            resultSetGroup.close();
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return groups;
+    }
+
+    public boolean checkGroupName(int idAdmin,String name){
+
+        try{
+
+            ResultSet resultSet = statement.executeQuery("select * from grupo");
+
+            while (resultSet.next()){
+                if(resultSet.getInt("idAdmnistrador") == idAdmin && resultSet.getString("nome").equals(name)){
+                    return false;
+                }
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return true;
+    }
+
+    public void createGroup(int idAdmin,String name){
+
+        int idGroup = generateGroupId();
+
+        try{
+
+            statement.executeUpdate("INSERT INTO Grupo (idGrupos,idAdmnistrador,nome) Values(" + idGroup + ","+ idAdmin +",'" + name + "')");
+
+        }catch (SQLException throwables) {
+        throwables.printStackTrace();
+        }
+    }
+
+    public int generateGroupId(){
+
+        int lastId = 0;
+        try {
+
+            ResultSet resultSet = statement.executeQuery("select * from grupo");
+
+            while(resultSet.next()){
+                lastId = resultSet.getInt("idGrupos");
+            }
+
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return lastId + 1;
+    }
+
+   /* public Boolean createGroup(Group group){
+
+        try {
+            ResultSet resultSetGroupExist = statement.executeQuery("select * from Grupo where nome='"+group.getName()+"' and idAdmnistrador='"+group.getAdmnistrator().getId()+"'");
+            if(resultSetGroupExist.next())
+                return false;
+            System.out.println();
+            statement.executeUpdate("INSERT INTO Grupo (idAdmnistrador,nome) Values("+group.getAdmnistrator().getId()+",'"+group.getName()+"')");
+            ResultSet resultSetGroup = statement.executeQuery("select * from Grupo where nome='"+group.getName()+"' and idAdmnistrador='"+group.getAdmnistrator().getId()+"'");
+            resultSetGroup.next();
+            group.setId(resultSetGroup.getInt("idGrupos"));
+            addAdmin(group.getAdmnistrator().getId(),group.getId());
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return  true;
+    }
+
+    public Boolean addAdmin(int userId, int groupId){
+
+        try {
+            ResultSet resultSetMemberExist = statement.executeQuery("select * from Grupo_has_Utilizador where Utilizador_idUtilizadores="+userId+" and Grupo_idGrupos="+groupId);
+            if(resultSetMemberExist.next())
+                return false;
+            statement.executeUpdate("INSERT INTO Grupo_has_Utilizador Values((Select idGrupos from Grupo where idGrupos="+groupId+"),(Select idUtilizadores from Utilizador where idUtilizadores="+userId+"),1)");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+
+        return  true;
+    }
+
+    public Boolean editGroupName(String name, String newName, User user){
+
+        try {
+            ResultSet resultSetIsUserAdmin = statement.executeQuery("select * from Grupo where idAdmnistrador='"+user.getId()+"' and (nome='"+name+"' or nome='"+newName+"')");
+            if(!resultSetIsUserAdmin.next())
+                return false;
+            statement2.executeUpdate("Update Grupo Set nome='"+newName+"' where idGrupos="+resultSetIsUserAdmin.getInt("idGrupos"));
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+        return  true;
+    }
+
+    public Boolean receiveGroupRequest(int idGroup, User user){
+
+        try {
+            ResultSet resultSetGrupo = statement.executeQuery("select * from Grupo where idGrupos="+idGroup);
+            if(!resultSetGrupo.next())
+                return false;
+            ResultSet resultSetUserIsMember = statement.executeQuery("select * from grupo_has_utilizador where Utilizador_idUtilizadores="+user.getId()+" and Grupo_idGrupos="+idGroup);
+            if(resultSetUserIsMember.next())
+                return false;
+            addGroupRequest(user.getId(),idGroup);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+        return  true;
+    }
+
+    public Boolean addGroupRequest(int userId, int groupId){
+
+        try {
+            ResultSet resultSetMemberExist = statement.executeQuery("select * from Grupo_has_Utilizador where Utilizador_idUtilizadores="+userId+" and Grupo_idGrupos="+groupId);
+            if(resultSetMemberExist.next())
+                return false;
+            statement.executeUpdate("INSERT INTO Grupo_has_Utilizador Values((Select idGrupos from Grupo where idGrupos="+groupId+"),(Select idUtilizadores from Utilizador where idUtilizadores="+userId+"),0)");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+
+        return  true;
+    }
+
+    public Boolean receiveGroupRequestResponse(Request request, User user){
+
+        try {
+            statement.executeUpdate("Update Grupo_has_Utilizador  Set aceite=1 where Utilizador_idUtilizadores="+request.getIdUser()+" and Grupo_idGrupos="+request.getIdGroup());
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+        return  true;
+    }
+
+    public ArrayList<Request> getListRequest(User user){
+
+        ArrayList<Request> requests = new ArrayList<>();
+        try {
+            ResultSet resultSetRequest = statement.executeQuery("select * from grupo_has_utilizador Inner Join grupo on idGrupos=Grupo_idGrupos Inner Join utilizador on idUtilizadores=Utilizador_idUtilizadores where aceite=0 and idAdmnistrador="+user.getId());
+            while(resultSetRequest.next()){
+                requests.add(new Request(
+                        resultSetRequest.getInt("Utilizador_idUtilizadores"),
+                        resultSetRequest.getInt("Grupo_idGrupos"),
+                        resultSetRequest.getString("utilizador.nome"),
+                        resultSetRequest.getString("grupo.nome")
+                ));
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            requests = new ArrayList<>();
+        }
+        return  requests;
+    }
+
+    public boolean exitGroup(int id,User user){
+        try {
+            ResultSet resultSetUserIsAdmin = statement.executeQuery("select * from grupo where idGrupos="+id+" and idAdmnistrador="+user.getId());
+            if(resultSetUserIsAdmin.next())
+                return false;
+            statement.executeUpdate("Delete from grupo_has_utilizador where Grupo_idGrupos="+id+" and Utilizador_idUtilizadores="+user.getId());
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+        return  true;
+    }
+
+    public ArrayList<Group> getMyGroups(User user){
+
+        ArrayList<Group> groups = new ArrayList<>();
+        try {
+            ResultSet resultSetRequest = statement.executeQuery("select * from grupo_has_utilizador Inner Join grupo on idGrupos=Grupo_idGrupos Inner Join utilizador on idUtilizadores=Utilizador_idUtilizadores where aceite=1 and idUtilizadores="+user.getId());
+            while(resultSetRequest.next()){
+                groups.add(new Group(
+                        resultSetRequest.getInt("idGrupos"),
+                        resultSetRequest.getString("nome")
+                ));
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            groups = new ArrayList<>();
+        }
+        return  groups;
+    }
+
+    public boolean deleteGroup(int id,User user){
+        try {
+            ResultSet resultSetUserIsAdmin = statement.executeQuery("select * from grupo where idGrupos="+id+" and idAdmnistrador="+user.getId());
+            if(!resultSetUserIsAdmin.next())
+                return false;
+            statement.executeUpdate("Delete from grupo_has_utilizador where Grupo_idGrupos="+id);
+            statement.executeUpdate("Delete from grupo where idGrupos="+id);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+        return  true;
+    }
+
+    public boolean removeMember(int userId,int groupId,User user){
+        try {
+            ResultSet resultSetUserIsAdmin = statement.executeQuery("select * from grupo where idGrupos="+groupId+" and idAdmnistrador="+user.getId());
+            System.out.println("select * from grupo where idGrupos="+groupId+" and idAdmnistrador="+user.getId());
+            if(!resultSetUserIsAdmin.next())
+                return false;
+            statement.executeUpdate("Delete from grupo_has_utilizador where Grupo_idGrupos="+groupId+" and Utilizador_idUtilizadores="+userId);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+        return  true;
+    }*/
+
 
 }
 

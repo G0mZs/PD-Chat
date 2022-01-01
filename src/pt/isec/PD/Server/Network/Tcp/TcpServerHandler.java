@@ -1,9 +1,6 @@
 package pt.isec.PD.Server.Network.Tcp;
 
-import pt.isec.PD.Data.Constants;
-import pt.isec.PD.Data.Contact;
-import pt.isec.PD.Data.Message;
-import pt.isec.PD.Data.User;
+import pt.isec.PD.Data.*;
 import pt.isec.PD.Server.Model.ClientDetails;
 import pt.isec.PD.Server.Model.Server;
 
@@ -74,6 +71,12 @@ public class TcpServerHandler extends Thread{
                     case LIST_HISTORIC:
                         getHistoric(message,out);
                         break;
+                    case LIST_GROUPS:
+                        getGroups(out);
+                        break;
+                    case CREATE_GROUP:
+                        createGroup(message,out);
+                        break;
                     case CONTACT_REQUEST:
                         sendContactRequest(message.getMessage(),message.getUser().getUsername(),out);
                         break;
@@ -91,6 +94,9 @@ public class TcpServerHandler extends Thread{
                         break;
                     case MESSAGE_SEEN:
                         updateHistoric(message);
+                        break;
+                    case DELETE_MESSAGE:
+                        deleteMessage(message,out);
                         break;
                     case SERVER_CONTACT_REQUEST:
                         sendRequestToClient(message.getMessage(), message.getContactRequest());
@@ -448,10 +454,10 @@ public class TcpServerHandler extends Thread{
             boolean remove = model.getDbHelper().removeContact(idUser,contactUser.getId());
 
                 if(remove){
-                    msg = new Message(Message.Type.DELETE_CONTACT,"Contact removed !",contactUser);
-                    msg.getUser().setConnected(contactUser.getState());
+                    msg = new Message(Message.Type.DELETE_CONTACT,"Contact removed !");
+                    //remover histórico de mensagens com o contacto na bd.
                     Contact contact = new Contact(user,contactUser);
-                    Message message = new Message(Message.Type.DELETE_CONTACT,"You have been removed from " + user.getUsername() + " contact list",user);
+                    Message message = new Message(Message.Type.DELETE_CONTACT,"You have been removed from " + user.getUsername() + " contact list");
 
                     for(int i = 0; i < model.getClients().size(); i++){
                         if(contactUser.getId() == model.getClients().get(i).getUser().getId()){
@@ -648,12 +654,79 @@ public class TcpServerHandler extends Thread{
 
     }
 
+    public void deleteMessage(Message msg,ObjectOutputStream out){
+
+        Message message;
+
+        if(!model.getDbHelper().checkMessageId(msg.getMessage())){
+
+            message = new Message(Message.Type.ERROR_MESSAGE,"There are no messages with the specified Id");
+
+        }else{
+
+            if(!model.getDbHelper().checkMessageAuthor(msg.getMessage(),msg.getUser().getId())){
+                message = new Message(Message.Type.ERROR_MESSAGE,"You can't delete this message because you are not the author");
+            }
+            else{
+
+                model.getDbHelper().deleteMessage(msg.getMessage());
+                message = new Message(Message.Type.DELETE_MESSAGE,"Your message has been deleted !");
+            }
+        }
+
+        try {
+            out.writeObject(message);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void updateHistoric(Message msg){
 
         User sender = msg.getUser();
         User receiver = model.getDbHelper().searchUser(msg.getMessage());
 
         model.getDbHelper().updateHistoric(sender.getId(),receiver.getId());
+
+    }
+
+    public synchronized void getGroups(ObjectOutputStream out){
+
+        Message msg;
+        ArrayList<Group> listGroups = model.getDbHelper().getAllGroups();
+
+        msg = new Message(Message.Type.LIST_GROUPS, listGroups,0);
+
+        try {
+            out.writeObject(msg);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void createGroup(Message msg,ObjectOutputStream out){
+
+        Message message;
+
+
+        if(model.getDbHelper().checkGroupName(msg.getUser().getId(),msg.getMessage())){
+
+            model.getDbHelper().createGroup(msg.getUser().getId(),msg.getMessage());
+            message = new Message(Message.Type.CREATE_GROUP,"The Group was created successfully");
+        }
+        else{
+            message = new Message(Message.Type.ERROR_MESSAGE,"You already have a group with the same name!");
+        }
+
+        try {
+            out.writeObject(message);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -788,6 +861,7 @@ public class TcpServerHandler extends Thread{
             }
         }
     }
+
 
 
 }

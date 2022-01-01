@@ -114,6 +114,9 @@ public class TcpClientManager extends Thread {
                         case LIST_HISTORIC:
                             chat.setHistoric(message.getMessagesInfo());
                             break;
+                        case CREATE_GROUP:
+                            System.out.println("\n" + message.getMessage());
+                            break;
                         case CONTACT_ACCEPT:
                             System.out.println("\n" + message.getMessage());
                             break;
@@ -126,12 +129,19 @@ public class TcpClientManager extends Thread {
                             break;
                         case ERROR_MESSAGE:
                             System.out.println("\n" + message.getMessage());
+                            System.out.println("heheheeh");
                             break;
                         case SEND_MESSAGE:
                             System.out.println("\n" + "Message sent !");
                             break;
                         case RECEIVE_MESSAGE:
                             System.out.println("\n" + "You have received a message from " + message.getUser().getUsername() + ". Consult your historic");
+                            break;
+                        case DELETE_MESSAGE:
+                            System.out.println("\n" + message.getMessage());
+                            break;
+                        case LIST_GROUPS:
+                            chat.setGroups(message.getGroupsInfo());
                             break;
                     }
                 } else {

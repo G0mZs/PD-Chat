@@ -1,5 +1,6 @@
 package pt.isec.PD.Client.Model;
 
+import pt.isec.PD.Data.Group;
 import pt.isec.PD.Data.Message;
 import pt.isec.PD.Data.User;
 import pt.isec.PD.Data.Utils;
@@ -14,6 +15,7 @@ public class Chat {
     private ArrayList<User> pendingRequests;
     private ArrayList<Message> historic;
     private ArrayList<Conversation> conversations;
+    private ArrayList<Group> groups;
 
     private File saveLocation;
 
@@ -27,9 +29,17 @@ public class Chat {
 
         this.contacts = new ArrayList<>();
         this.historic = new ArrayList<>();
+        this.groups = new ArrayList<>();
         this.conversations = new ArrayList<>();
     }
 
+    public ArrayList<Group> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(ArrayList<Group> groups) {
+        this.groups = groups;
+    }
 
     public File getSharedFolder() {
         return sharedFolder;

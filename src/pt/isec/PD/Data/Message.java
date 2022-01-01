@@ -20,6 +20,7 @@ public class Message implements Serializable {
     private ArrayList<Message> messagesInfo;
     private Contact contact;
     private Group group;
+    private ArrayList<Group> groupsInfo;
 
 
     public Message(int idMessage,User author,String typeofMessage,String message,LocalDateTime dateTime,String state){
@@ -80,6 +81,20 @@ public class Message implements Serializable {
         this.state = state;
     }
 
+    public Message(Type type, ArrayList<Group> listGroups1,int i) {
+        this.type = type;
+        this.groupsInfo = listGroups1;
+
+    }
+
+
+    public ArrayList<Group> getGroupsInfo() {
+        return groupsInfo;
+    }
+
+    public void setGroupsInfo(ArrayList<Group> groupsInfo) {
+        this.groupsInfo = groupsInfo;
+    }
 
     public int getIdMessage() {
         return idMessage;
@@ -169,6 +184,6 @@ public class Message implements Serializable {
         CLIENT_CONNECTION,SERVER_CONNECTION,CLIENT_SERVER_CONNECTION,SERVER_PORT,CONNECT_TCP,TCP_PORT,LOGIN,LOGIN_SUCESS,LOGIN_FAILED,LOGOUT,LOGOUT_COMPLETE,REGISTER,REGISTER_SUCESS,REGISTER_FAILED,CHANGE_PASSWORD,
         CHANGE_USERNAME,CHANGE_NAME,PASSWORD_CHANGED,USERNAME_CHANGED_SUCESS,NAME_CHANGED_SUCESS,SEARCH_USER,LIST_USERS,USER_RECEIVED,LIST_RECEIVED,CONTACT_REQUEST,ERROR_MESSAGE,
         CONTACT_ACCEPT,CONTACT_REFUSED,DELETE_CONTACT,SERVER_CONTACT_REQUEST,SERVER_DELETE_CONTACT,SERVER_ACCEPT_CONTACT,SERVER_REFUSE_CONTACT,MESSAGE_CONTACT,SEND_MESSAGE,RECEIVE_MESSAGE,SERVER_RECEIVE_MESSAGE,MESSAGE_SEEN,
-        SERVER_MESSAGE_SEEN,LIST_CONTACTS,LIST_PENDING_REQUESTS,LIST_HISTORIC
+        SERVER_MESSAGE_SEEN,LIST_CONTACTS,LIST_PENDING_REQUESTS,LIST_HISTORIC,DELETE_MESSAGE,LIST_GROUPS,CREATE_GROUP
     }
 }

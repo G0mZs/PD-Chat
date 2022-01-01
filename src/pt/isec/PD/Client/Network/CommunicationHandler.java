@@ -367,27 +367,53 @@ public class CommunicationHandler {
         }
     }
 
-    public boolean checkContact(String username){
-
-        if(getUser().getUsername().equals(username)){
-            return false;
-        }
-        else{
-            for(int i = 0; i < getChat().getContacts().size(); i++){
-                if(chat.getContacts().get(i).getUsername().equals(username)){
-                    return true;
-                }
-            }
-
-        }
-
-        return false;
-    }
 
     public void updateHistoric(String username){
 
         try {
             output.writeObject(new Message(Message.Type.MESSAGE_SEEN,username,getUser()));
+            output.flush();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
+    public void deleteMessage(int idMsg){
+
+        User user = getUser();
+        String idMessage = String.valueOf(idMsg);
+
+        try {
+            output.writeObject(new Message(Message.Type.DELETE_MESSAGE,idMessage,user));
+            output.flush();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+
+        }
+
+    }
+
+    public void getGroups(){
+
+        try {
+            output.writeObject(new Message(Message.Type.LIST_GROUPS));
+            output.flush();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
+    public void createGroup(String name){
+
+        User admin = getUser();
+
+        try {
+            output.writeObject(new Message(Message.Type.CREATE_GROUP,name,admin));
             output.flush();
 
         }catch (IOException e) {
