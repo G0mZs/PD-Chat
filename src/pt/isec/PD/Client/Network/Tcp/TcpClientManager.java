@@ -129,7 +129,6 @@ public class TcpClientManager extends Thread {
                             break;
                         case ERROR_MESSAGE:
                             System.out.println("\n" + message.getMessage());
-                            System.out.println("heheheeh");
                             break;
                         case SEND_MESSAGE:
                             System.out.println("\n" + "Message sent !");
@@ -142,6 +141,12 @@ public class TcpClientManager extends Thread {
                             break;
                         case LIST_GROUPS:
                             chat.setGroups(message.getGroupsInfo());
+                            break;
+                        case CHANGE_GROUP_NAME:
+                            System.out.println("\n" + message.getMessage());
+                            break;
+                        case GROUP_REQUEST:
+                            System.out.println("\n" + message.getMessage());
                             break;
                     }
                 } else {

@@ -77,6 +77,18 @@ public class TcpServerHandler extends Thread{
                     case CREATE_GROUP:
                         createGroup(message,out);
                         break;
+                    case CHANGE_GROUP_NAME:
+                        changeGroupName(message,out);
+                        break;
+                    case GROUP_REQUEST:
+                        sendGroupRequest(message.getRequest(),out);
+                        break;
+                    case GROUP_ACCEPT:
+
+                        break;
+                    case GROUP_REFUSE:
+
+                        break;
                     case CONTACT_REQUEST:
                         sendContactRequest(message.getMessage(),message.getUser().getUsername(),out);
                         break;
@@ -122,7 +134,10 @@ public class TcpServerHandler extends Thread{
                         sendMessageSeenToClient(message);
                         running = false;
                         break;
-
+                    case SERVER_GROUP_REQUEST:
+                        sendGroupRequestToClient(message);
+                        running = false;
+                        break;
                 }
             }
 
@@ -613,14 +628,14 @@ public class TcpServerHandler extends Thread{
 
                         model.getDbHelper().addMessage(sender.getId(),contact.getId(),msg.getTypeofMessage(),msg.getMessage(),msg.getDateTime(),msg.getState());
 
-                        message = new Message(Message.Type.SEND_MESSAGE,msg.getMessage(),msg.getTypeofMessage(),msg.getDateTime(),sender,contact.getUsername(),"Não vista");
+                        message = new Message(Message.Type.SEND_MESSAGE);
 
                         //verifica no mesmo server se há um cliente com o username do contact, se houver manda msg para ele.
                         for(int i = 0; i < model.getClients().size(); i++){
 
                             if(contact.getId() == model.getClients().get(i).getUser().getId()){
 
-                                Message message1 = new Message(Message.Type.RECEIVE_MESSAGE,msg.getMessage(),msg.getTypeofMessage(),msg.getDateTime(),sender,contact.getUsername(),"Não vista");
+                                Message message1 = new Message(Message.Type.RECEIVE_MESSAGE,msg.getMessage(),sender);
 
                                 try {
                                     model.getClients().get(i).getOut().writeObject(message1);
@@ -654,7 +669,7 @@ public class TcpServerHandler extends Thread{
 
     }
 
-    public void deleteMessage(Message msg,ObjectOutputStream out){
+    public synchronized void deleteMessage(Message msg,ObjectOutputStream out){
 
         Message message;
 
@@ -683,7 +698,7 @@ public class TcpServerHandler extends Thread{
         }
     }
 
-    public void updateHistoric(Message msg){
+    public synchronized void updateHistoric(Message msg){
 
         User sender = msg.getUser();
         User receiver = model.getDbHelper().searchUser(msg.getMessage());
@@ -719,6 +734,94 @@ public class TcpServerHandler extends Thread{
         }
         else{
             message = new Message(Message.Type.ERROR_MESSAGE,"You already have a group with the same name!");
+        }
+
+        try {
+            out.writeObject(message);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public synchronized void changeGroupName(Message msg,ObjectOutputStream out){
+
+        Message message;
+
+        if(model.getDbHelper().checkGroupExistence(msg.getGroup().getAdmnistrator().getId(),msg.getGroup().getName())){
+
+            if(msg.getGroup().getName().equals(msg.getMessage())){
+
+                message = new Message(Message.Type.ERROR_MESSAGE,"Name Change Failed! The name you typed is already the name of the group");
+
+            }else{
+
+                model.getDbHelper().changeGroupName(msg.getGroup().getAdmnistrator().getId(),msg.getGroup().getName(),msg.getMessage());
+                message = new Message(Message.Type.CHANGE_GROUP_NAME,"You changed your group name successfully");
+            }
+
+        }else{
+
+            message = new Message(Message.Type.ERROR_MESSAGE,"The Group does not exist or you are not his admnistrator!");
+        }
+
+        try {
+            out.writeObject(message);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public synchronized void sendGroupRequest(Request request,ObjectOutputStream out){
+
+        Message message;
+        User requester = model.getDbHelper().getUser(request.getIdUser());
+        request.setUserName(requester.getUsername());
+
+        if(model.getDbHelper().checkGroupId(request.getIdGroup())){ // verifica se o id do grupo é valido
+
+            int idAdmin = model.getDbHelper().getAdminId(request.getIdGroup()); // vai buscar o id do admin associado ao grupo
+
+            if(idAdmin != request.getIdUser()){ // Verifica se o utilizador está a mandar pedidos para si mesmo
+
+                if(model.getDbHelper().checkGroupRequests(request.getIdGroup(),request.getIdUser())){ // Verifica se já existe um pedido entre o user e o grupo aceite ou pendente
+
+                    model.getDbHelper().addGroupRequest(request.getIdGroup(),request.getIdUser());
+                    message = new Message(Message.Type.GROUP_REQUEST,"The request was sent to the admin of the group!");
+
+                    for(int i = 0; i < model.getClients().size(); i++){
+
+                        if(idAdmin == model.getClients().get(i).getUser().getId()){
+
+                            Message message1 = new Message(Message.Type.GROUP_REQUEST,requester.getUsername() + " sent you a group request for the group with the id [" + request.getIdGroup() + "]. Please answer the request in the pending group requests menu.");
+
+                            try {
+                                model.getClients().get(i).getOut().writeObject(message1);
+                                model.getClients().get(i).getOut().flush();
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    contactServers(new Message(Message.Type.SERVER_GROUP_REQUEST, String.valueOf(idAdmin),request));
+
+                }
+                else{
+                    message = new Message(Message.Type.ERROR_MESSAGE,"There is already a group request with that data");
+                }
+
+            }else{
+                message = new Message(Message.Type.ERROR_MESSAGE,"You can't send requests to yourself");
+            }
+
+
+        }else{
+            message = new Message(Message.Type.ERROR_MESSAGE,"The group doesn't exist!");
         }
 
         try {
@@ -832,7 +935,7 @@ public class TcpServerHandler extends Thread{
 
             if (model.getClients().get(i).getUser().getUsername().equals(msg.getReceiver())) {
 
-                Message message = new Message(Message.Type.RECEIVE_MESSAGE,msg.getMessage(),msg.getTypeofMessage(),msg.getDateTime(),msg.getUser(),msg.getReceiver(),"Não vista");
+                Message message = new Message(Message.Type.RECEIVE_MESSAGE,msg.getUser());
 
                 try {
                     model.getClients().get(i).getOut().writeObject(message);
@@ -851,6 +954,26 @@ public class TcpServerHandler extends Thread{
             if (model.getClients().get(i).getUser().getId() == msg.getUser().getId()) {
 
                 Message message = new Message(Message.Type.MESSAGE_SEEN);
+
+                try {
+                    model.getClients().get(i).getOut().writeObject(message);
+                    model.getClients().get(i).getOut().flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void sendGroupRequestToClient(Message msg){
+
+        int idAdmin = Integer.parseInt(msg.getMessage());
+
+        for (int i = 0; i < model.getClients().size(); i++) {
+
+            if (model.getClients().get(i).getUser().getId() == idAdmin) {
+
+                Message message = new Message(Message.Type.GROUP_REQUEST,msg.getRequest().getUserName() + " sent you a group request for the group with the id [" + msg.getRequest().getIdGroup() + "]. Please answer the request in the pending group requests menu.");
 
                 try {
                     model.getClients().get(i).getOut().writeObject(message);

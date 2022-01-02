@@ -593,14 +593,15 @@ public class ClientTextInterface {
             System.out.println("---------- Groups ----------");
             System.out.print("\n");
             System.out.println("1 --> Pending Group Requests"); //Fazer
-            System.out.println("2 --> Send Group Request"); //Fazer
+            System.out.println("2 --> Send Group Request");
             System.out.println("3 --> Send Message"); //Fazer
             System.out.println("4 --> Send File"); //Fazer
-            System.out.println("5 --> Create Group"); // Feito
+            System.out.println("5 --> Create Group");
             System.out.println("6 --> Edit Group"); // menu com alterar o nome de um grupo,expulsar membros e extinguir grupo // Feito
-            System.out.println("7 --> List Groups"); // Feito
+            System.out.println("7 --> List Groups");
             System.out.println("8 --> List Historic"); // Fazer
             System.out.println("9 --> Delete Message/File Notification"); // Fazer
+            System.out.println("10 -> Leave Group");
             System.out.println("0 --> Return to Main Menu");
 
             System.out.print("\n");
@@ -614,22 +615,34 @@ public class ClientTextInterface {
 
             switch (value) {
                 case 1:
-
+                    //2
                     break;
                 case 2:
-
+                    uiSendGroupRequest();
                     break;
                 case 3:
-
+                    //3
                     break;
                 case 4:
-
+                    //ultimo
                     break;
                 case 5:
                     uiCreateGroup();
                     break;
+                case 6:
+                    uiEditGroup();
+                    break;
                 case 7:
                     uiListGroups();
+                    break;
+                case 8:
+                    //4
+                    break;
+                case 9:
+                    //5
+                    break;
+                case 10:
+                    //Eliminar o pedido aceite de adesão ao grupo, e eliminar as suas mensagens/listas do seu histórico
                     break;
                 case 0:
                     leave = true;
@@ -683,10 +696,92 @@ public class ClientTextInterface {
         Scanner sc = new Scanner(System.in);
 
         System.out.print("\n");
-        System.out.println("Enter the name of the group you want to create: ");
+        System.out.println("Enter the [name] of the group you want to create: ");
         name = sc.nextLine();
 
         handler.createGroup(name);
+    }
+
+    public void uiEditGroup(){
+
+        int value;
+        boolean leave = false;
+
+        while(!leave) {
+
+
+            System.out.println("---------- Edit Group ----------");
+            System.out.print("\n");
+            System.out.println("1 --> Change Group Name"); //Fazer
+            System.out.println("2 --> Kick Members"); //Fazer
+            System.out.println("3 --> Delete Group");
+            System.out.println("4 --> Return to Groups Menu");
+
+            System.out.print("\n");
+
+            System.out.print("Answer: ");
+            while (!s.hasNextInt()) {
+                s.next();
+            }
+
+            value = s.nextInt();
+
+            switch (value) {
+                case 1:
+                    uiChangeGroupName();
+                    break;
+                case 2:
+                    //uiKickMember();
+                    break;
+                case 3:
+                    //uiDeleteGroup();
+                case 4:
+                    leave = true;
+                    break;
+                default:
+                    System.out.println("Invalid option");
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void uiChangeGroupName(){
+
+        String name,newName;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the name of the group you want to change the name: ");
+        name = sc.nextLine();
+
+        System.out.print("\n");
+        System.out.println("Enter the [new name] of the group you want to create: ");
+        newName = sc.nextLine();
+
+        handler.changeGroupName(name,newName);
+
+    }
+
+    public void uiSendGroupRequest(){
+
+        int id;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the id/number of the group you want to send a request: ");
+        while (!sc.hasNextInt()) {
+            sc.next();
+        }
+
+        id = sc.nextInt();
+
+        handler.sendGroupRequest(id);
+
     }
 
 

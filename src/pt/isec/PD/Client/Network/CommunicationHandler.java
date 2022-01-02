@@ -3,9 +3,7 @@ package pt.isec.PD.Client.Network;
 import pt.isec.PD.Client.Model.Chat;
 import pt.isec.PD.Client.Network.Tcp.TcpClientManager;
 import pt.isec.PD.Client.Network.Udp.UdpClientManager;
-import pt.isec.PD.Data.Constants;
-import pt.isec.PD.Data.Message;
-import pt.isec.PD.Data.User;
+import pt.isec.PD.Data.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -414,6 +412,36 @@ public class CommunicationHandler {
 
         try {
             output.writeObject(new Message(Message.Type.CREATE_GROUP,name,admin));
+            output.flush();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
+    public void changeGroupName(String name,String newName){
+
+        Group group = new Group(getUser(),name);
+
+        try {
+            output.writeObject(new Message(Message.Type.CHANGE_GROUP_NAME,group,newName));
+            output.flush();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+
+        }
+
+    }
+
+    public void sendGroupRequest(int idGroup){
+
+        Request request = new Request(getUser().getId(),idGroup);
+
+
+        try {
+            output.writeObject(new Message(Message.Type.GROUP_REQUEST,request));
             output.flush();
 
         }catch (IOException e) {
