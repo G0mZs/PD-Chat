@@ -450,6 +450,48 @@ public class CommunicationHandler {
         }
     }
 
+    public void acceptGroupRequest(String username,int idGroup){
+
+        Request request = new Request(username,idGroup);
+
+        try {
+            output.writeObject(new Message(Message.Type.GROUP_ACCEPT,getUser().getUsername(),request));
+            output.flush();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+
+        }
+
+    }
+
+    public void refuseGroupRequest(String username,int idGroup){
+
+        Request request = new Request(username,idGroup);
+
+        try {
+            output.writeObject(new Message(Message.Type.GROUP_REFUSE,getUser().getUsername(),request));
+            output.flush();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
+    public void listPendingGroupRequests(){
+
+        try {
+            output.writeObject(new Message(Message.Type.LIST_GROUP_REQUESTS,String.valueOf(getUser().getId())));
+            output.flush();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+
+        }
+
+    }
+
     public Chat getChat() {
         return chat;
     }

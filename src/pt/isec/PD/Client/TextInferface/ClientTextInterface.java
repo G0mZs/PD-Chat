@@ -57,7 +57,7 @@ public class ClientTextInterface {
 
     public void uiLogin(){
 
-        do {
+
 
             Scanner sc = new Scanner(System.in);
 
@@ -83,16 +83,16 @@ public class ClientTextInterface {
                 e.printStackTrace();
             }
 
-        }while(!handler.getLoginState());
-
-        handler.setInfoUser();
-        uiUser();
+           if(handler.getLoginState());
+            {
+                handler.setInfoUser();
+                uiUser();
+            }
 
     }
 
     public void uiRegister() {
 
-        do {
 
             Scanner sc = new Scanner(System.in);
             String username,password,name;
@@ -122,11 +122,6 @@ public class ClientTextInterface {
                 e.printStackTrace();
             }
 
-
-        }while (!handler.getRegisterState());
-
-
-        handler.setRegisterState(false);
 
     }
 
@@ -615,33 +610,34 @@ public class ClientTextInterface {
 
             switch (value) {
                 case 1:
-                    //2
+                    uiPendingGroupRequests();
                     break;
                 case 2:
                     uiSendGroupRequest();
                     break;
                 case 3:
-                    //3
+                    //uiSendGroupMessage();
                     break;
                 case 4:
-                    //ultimo
+                    //uiSendGroupFile();
                     break;
                 case 5:
                     uiCreateGroup();
                     break;
                 case 6:
-                    uiEditGroup();
+                    uiEditGroup();//Falta expulsar membro e apagar grupo
                     break;
                 case 7:
                     uiListGroups();
                     break;
                 case 8:
-                    //4
+                    //uiListGroupHistoric();
                     break;
                 case 9:
-                    //5
+                    //uiDeleteGroupMessages();
                     break;
                 case 10:
+                    //uiLeaveGroup();
                     //Eliminar o pedido aceite de adesão ao grupo, e eliminar as suas mensagens/listas do seu histórico
                     break;
                 case 0:
@@ -715,7 +711,7 @@ public class ClientTextInterface {
             System.out.println("1 --> Change Group Name"); //Fazer
             System.out.println("2 --> Kick Members"); //Fazer
             System.out.println("3 --> Delete Group");
-            System.out.println("4 --> Return to Groups Menu");
+            System.out.println("0 --> Return to Groups Menu");
 
             System.out.print("\n");
 
@@ -735,7 +731,8 @@ public class ClientTextInterface {
                     break;
                 case 3:
                     //uiDeleteGroup();
-                case 4:
+                    break;
+                case 0:
                     leave = true;
                     break;
                 default:
@@ -782,6 +779,105 @@ public class ClientTextInterface {
 
         handler.sendGroupRequest(id);
 
+    }
+
+    public void uiPendingGroupRequests(){
+
+        int value;
+        boolean leave = false;
+
+        while(!leave) {
+
+
+            System.out.println("---------- Pending Group Requests ----------");
+            System.out.print("\n");
+
+            handler.listPendingGroupRequests();
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+
+            int i;
+            for(i = 0; i < handler.getChat().getPendingGroupRequests().size(); i++){
+                System.out.println("Request: [" + handler.getChat().getPendingGroupRequests().get(i).getUserName() +"] ----------> Group: [" + handler.getChat().getPendingGroupRequests().get(i).getGroupName() + "] Id/Number: " + handler.getChat().getPendingGroupRequests().get(i).getIdGroup());
+            }
+
+            System.out.print("\n");
+            System.out.println("1 --> Accept Group Request"); //Fazer
+            System.out.println("2 --> Refuse Group Request"); //Fazer
+            System.out.println("0 --> Return to Groups Menu");
+
+
+            System.out.print("\n");
+
+            System.out.print("Answer: ");
+            while (!s.hasNextInt()) {
+                s.next();
+            }
+
+            value = s.nextInt();
+
+            switch (value) {
+                case 1 -> uiAcceptGroupRequest();
+                case 2 -> uiRefuseGroupRequest();
+                case 0 -> leave = true;
+                default -> System.out.println("Invalid option");
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void uiAcceptGroupRequest(){
+
+        String name;
+        int idGroup;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the name of the person you want to accept the request: ");
+        name = sc.nextLine();
+
+        System.out.print("\n");
+        System.out.println("Enter the [number/id] of the group in the request: ");
+
+        while (!s.hasNextInt()) {
+            s.next();
+        }
+
+        idGroup = s.nextInt();
+
+        handler.acceptGroupRequest(name,idGroup);
+    }
+
+    public void uiRefuseGroupRequest(){
+
+        String name;
+        int idGroup;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the name of the person you want to refuse the request: ");
+        name = sc.nextLine();
+
+        System.out.print("\n");
+        System.out.println("Enter the [number/id] of the group in the request: ");
+
+        while (!s.hasNextInt()) {
+            s.next();
+        }
+
+        idGroup = s.nextInt();
+
+        handler.refuseGroupRequest(name,idGroup);
     }
 
 

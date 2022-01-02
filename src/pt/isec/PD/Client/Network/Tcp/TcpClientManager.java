@@ -148,6 +148,15 @@ public class TcpClientManager extends Thread {
                         case GROUP_REQUEST:
                             System.out.println("\n" + message.getMessage());
                             break;
+                        case GROUP_ACCEPT:
+                            System.out.println("\n" + message.getMessage());
+                            break;
+                        case GROUP_REFUSE:
+                            System.out.println("\n" + message.getMessage());
+                            break;
+                        case LIST_GROUP_REQUESTS:
+                            chat.setPendingGroupRequests(message.getPendingGroupRequests());
+                            break;
                     }
                 } else {
                     System.err.println("Received unrecognized data on TCP socket! Ignoring...");

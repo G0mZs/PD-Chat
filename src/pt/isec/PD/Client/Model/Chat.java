@@ -1,9 +1,6 @@
 package pt.isec.PD.Client.Model;
 
-import pt.isec.PD.Data.Group;
-import pt.isec.PD.Data.Message;
-import pt.isec.PD.Data.User;
-import pt.isec.PD.Data.Utils;
+import pt.isec.PD.Data.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,6 +13,7 @@ public class Chat {
     private ArrayList<Message> historic;
     private ArrayList<Conversation> conversations;
     private ArrayList<Group> groups;
+    private ArrayList<Request> pendingGroupRequests;
 
     private File saveLocation;
 
@@ -31,6 +29,7 @@ public class Chat {
         this.historic = new ArrayList<>();
         this.groups = new ArrayList<>();
         this.conversations = new ArrayList<>();
+        this.pendingGroupRequests = new ArrayList<>();
     }
 
     public ArrayList<Group> getGroups() {
@@ -113,6 +112,13 @@ public class Chat {
         this.historic = historic;
     }
 
+    public ArrayList<Request> getPendingGroupRequests() {
+        return pendingGroupRequests;
+    }
+
+    public void setPendingGroupRequests(ArrayList<Request> pendingGroupRequests) {
+        this.pendingGroupRequests = pendingGroupRequests;
+    }
 }
 
 

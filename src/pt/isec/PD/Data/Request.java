@@ -18,6 +18,11 @@ public class Request implements Serializable {
         this.groupName = groupName;
     }
 
+    public Request(String username,int idGroup){
+        this.userName = username;
+        this.idGroup = idGroup;
+    }
+
     public String getUserName() {
         return userName;
     }

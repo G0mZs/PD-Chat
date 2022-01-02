@@ -74,6 +74,9 @@ public class TcpServerHandler extends Thread{
                     case LIST_GROUPS:
                         getGroups(out);
                         break;
+                    case LIST_GROUP_REQUESTS:
+                        getGroupRequests(message,out);
+                        break;
                     case CREATE_GROUP:
                         createGroup(message,out);
                         break;
@@ -84,10 +87,10 @@ public class TcpServerHandler extends Thread{
                         sendGroupRequest(message.getRequest(),out);
                         break;
                     case GROUP_ACCEPT:
-
+                        acceptGroupRequest(message,out);
                         break;
                     case GROUP_REFUSE:
-
+                        refuseGroupRequest(message,out);
                         break;
                     case CONTACT_REQUEST:
                         sendContactRequest(message.getMessage(),message.getUser().getUsername(),out);
@@ -823,6 +826,168 @@ public class TcpServerHandler extends Thread{
         }else{
             message = new Message(Message.Type.ERROR_MESSAGE,"The group doesn't exist!");
         }
+
+        try {
+            out.writeObject(message);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public synchronized void acceptGroupRequest(Message msg,ObjectOutputStream out){
+
+        Request request = msg.getRequest();
+        User requester = model.getDbHelper().searchUser(request.getUserName());
+        String adminUsername = msg.getMessage();
+        User admin = model.getDbHelper().searchUser(adminUsername);
+        Message message;
+
+        if(msg.getRequest().getUserName().equals(adminUsername)){
+
+            message = new Message(Message.Type.ERROR_MESSAGE,"This user is not valid!");
+
+        }else if(requester == null){
+
+            message = new Message(Message.Type.ERROR_MESSAGE,"This user doesn't exist");
+        }else{
+
+            if(model.getDbHelper().checkGroupId(request.getIdGroup())){
+
+                if(model.getDbHelper().checkAdmin(admin.getId(),request.getIdGroup())){//Verificar se o grupo pertence ao admin
+
+                    if(model.getDbHelper().verifyGroupRequest(requester.getId(),request.getIdGroup())){ //Verificar se existe um pedido com o id do grupo e id do requester
+
+                        model.getDbHelper().acceptGroupRequest(requester.getId(),request.getIdGroup());
+                        message = new Message(Message.Type.GROUP_ACCEPT,"Sucess!");
+
+                        for(int i = 0; i < model.getClients().size(); i++) {
+
+                            if (requester.getId() == model.getClients().get(i).getUser().getId()) {
+
+                                Message message1 = new Message(Message.Type.GROUP_ACCEPT, adminUsername + " has accepted your Group Request !");
+
+                                try {
+                                    model.getClients().get(i).getOut().writeObject(message1);
+                                    model.getClients().get(i).getOut().flush();
+
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
+                        //contactServers()
+
+                    }else{
+
+                        message = new Message(Message.Type.ERROR_MESSAGE,"Theres no pending group request with that data");
+                    }
+
+
+                }else{
+                    message = new Message(Message.Type.ERROR_MESSAGE,"This group does not belong to you");
+                }
+
+            }else{
+
+                message = new Message(Message.Type.ERROR_MESSAGE,"This group doesn't exist");
+            }
+
+
+        }
+
+
+        try {
+            out.writeObject(message);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public synchronized void refuseGroupRequest(Message msg,ObjectOutputStream out){
+
+        Request request = msg.getRequest();
+        User requester = model.getDbHelper().searchUser(request.getUserName());
+        String adminUsername = msg.getMessage();
+        User admin = model.getDbHelper().searchUser(adminUsername);
+        Message message;
+
+        if(msg.getRequest().getUserName().equals(adminUsername)){
+
+            message = new Message(Message.Type.ERROR_MESSAGE,"This user is not valid!");
+
+        }else if(requester == null){
+
+            message = new Message(Message.Type.ERROR_MESSAGE,"This user doesn't exist");
+        }else{
+
+            if(model.getDbHelper().checkGroupId(request.getIdGroup())){
+
+                if(model.getDbHelper().checkAdmin(admin.getId(),request.getIdGroup())){//Verificar se o grupo pertence ao admin
+
+                    if(model.getDbHelper().verifyGroupRequest(requester.getId(),request.getIdGroup())){ //Verificar se existe um pedido com o id do grupo e id do requester
+
+
+                        model.getDbHelper().refuseGroupRequest(requester.getId(),request.getIdGroup());
+                        message = new Message(Message.Type.GROUP_REFUSE,"Sucess!");
+
+                        for(int i = 0; i < model.getClients().size(); i++) {
+
+                            if (requester.getId() == model.getClients().get(i).getUser().getId()) {
+
+                                Message message1 = new Message(Message.Type.GROUP_REFUSE,adminUsername + " has refused your Group Request !");
+
+                                try {
+                                    model.getClients().get(i).getOut().writeObject(message1);
+                                    model.getClients().get(i).getOut().flush();
+
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
+                        //contactServers()
+
+
+                    }else{
+
+                        message = new Message(Message.Type.ERROR_MESSAGE,"Theres no pending group request with that data");
+                    }
+
+
+                }else{
+                    message = new Message(Message.Type.ERROR_MESSAGE,"This group does not belong to you");
+                }
+
+            }else{
+
+                message = new Message(Message.Type.ERROR_MESSAGE,"This group doesn't exist");
+            }
+
+
+        }
+
+
+        try {
+            out.writeObject(message);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void getGroupRequests(Message msg,ObjectOutputStream out){
+
+        int idAdmin = Integer.parseInt(msg.getMessage());
+
+        ArrayList<Request> groupRequests = model.getDbHelper().getGroupRequests(idAdmin);
+
+        Message message = new Message(Message.Type.LIST_GROUP_REQUESTS,0,groupRequests);
 
         try {
             out.writeObject(message);
