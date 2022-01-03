@@ -97,7 +97,7 @@ public class CommunicationHandler {
         this.input = new ObjectInputStream(s.getInputStream());
 
 
-        output.writeObject(new Message(Message.Type.CONNECT_TCP,"Client Connected"));
+        output.writeObject(new Message(Message.Type.CONNECT_TCP,"Client Connected " ));
         output.flush();
 
     }
