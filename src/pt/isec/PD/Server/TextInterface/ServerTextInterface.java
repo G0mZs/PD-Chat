@@ -33,6 +33,7 @@ public class ServerTextInterface {
         handler.startTCP();
         handler.startUDP();
 
+        System.out.println("\nServer Initialized");
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

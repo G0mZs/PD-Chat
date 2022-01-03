@@ -169,9 +169,6 @@ public class UdpGrdsManager extends Thread {
             sendMessage(new Message(Message.Type.SERVER_PORT, portTcp), dp.getAddress().getHostAddress(), dp.getPort());
             rr_index++;
         }
-        else{
-            System.out.println("heyo");
-        }
 
     }
 

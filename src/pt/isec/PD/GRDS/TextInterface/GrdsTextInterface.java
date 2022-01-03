@@ -13,6 +13,8 @@ public class GrdsTextInterface {
     }
 
     public void uiMain(){
+
+        System.out.println("\nGrds Initialized");
         grds.UdpThread();
     }
 }
