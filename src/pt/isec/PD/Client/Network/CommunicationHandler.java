@@ -538,6 +538,47 @@ public class CommunicationHandler {
         }
     }
 
+    public void deleteGroup(String name){
+        try {
+
+            output.writeObject(new Message(Message.Type.DELETE_GROUP,name,getUser()));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
+    public void leaveGroup(int id){
+
+        try {
+
+            output.writeObject(new Message(Message.Type.LEAVE_GROUP,String.valueOf(id),getUser()));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
+    public void kickMember(String groupName,String username){
+
+        Group group = new Group(getUser(),groupName);
+
+        try {
+
+            output.writeObject(new Message(Message.Type.KICK_MEMBER,group,username));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
+
     public Chat getChat() {
         return chat;
     }

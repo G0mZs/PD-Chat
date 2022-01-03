@@ -14,6 +14,8 @@ public class ClientTextInterface {
     public ClientTextInterface(CommunicationHandler handler){
         this.handler = handler;
         this.s = new Scanner(System.in, StandardCharsets.UTF_8);
+
+
     }
 
     public void uiMain(){
@@ -27,6 +29,15 @@ public class ClientTextInterface {
             e.printStackTrace();
         }
         handler.startConnection();
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+
+                handler.setLoginState(false);
+                handler.disconnect();
+            }
+        });
 
         while(!exit){
 
@@ -625,7 +636,7 @@ public class ClientTextInterface {
                     uiCreateGroup();
                     break;
                 case 6:
-                    uiEditGroup();//Falta expulsar membro e apagar grupo
+                    uiEditGroup();//Falta expulsar membro
                     break;
                 case 7:
                     uiListGroups();
@@ -637,8 +648,7 @@ public class ClientTextInterface {
                     uiDeleteGroupMessages();
                     break;
                 case 10:
-                    //uiLeaveGroup();
-                    //Eliminar o pedido aceite de adesão ao grupo, e eliminar as suas mensagens/listas do seu histórico
+                    uiLeaveGroup();
                     break;
                 case 0:
                     leave = true;
@@ -653,6 +663,21 @@ public class ClientTextInterface {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void uiLeaveGroup(){
+
+        int id;
+
+        System.out.print("\n");
+        System.out.println("Enter the [number/id] of the group you want to leave: ");
+        while (!s.hasNextInt()) {
+            s.next();
+        }
+
+        id = s.nextInt();
+
+        handler.leaveGroup(id);
     }
 
     public void uiListGroups(){
@@ -727,10 +752,10 @@ public class ClientTextInterface {
                     uiChangeGroupName();
                     break;
                 case 2:
-                    //uiKickMember();
+                    uiKickMember();
                     break;
                 case 3:
-                    //uiDeleteGroup();
+                    uiDeleteGroup();
                     break;
                 case 0:
                     leave = true;
@@ -745,6 +770,34 @@ public class ClientTextInterface {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void uiKickMember(){
+
+        String groupName,username;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the name of the group: ");
+        groupName = sc.nextLine();
+
+        System.out.print("\n");
+        System.out.println("Enter the name of the member you want to kick: ");
+        username = sc.nextLine();
+
+        handler.kickMember(groupName,username);
+    }
+
+    public void uiDeleteGroup(){
+
+        String name;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the name of the group you want to delete: ");
+        name = sc.nextLine();
+
+        handler.deleteGroup(name);
     }
 
     public void uiChangeGroupName(){

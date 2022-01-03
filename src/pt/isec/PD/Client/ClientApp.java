@@ -16,5 +16,6 @@ public class ClientApp {
         clientTextInterface = new ClientTextInterface(handler);
         clientTextInterface.uiMain();
 
+
     }
 }

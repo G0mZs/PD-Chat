@@ -72,4 +72,17 @@ public class CommunicationHandler {
     }
 
     public ArrayList<Integer> getActiveServers() {return udpServerListener.getActiveServers();}
+
+    public void warnClients(){
+
+
+        for(int i = 0; i < server.getClients().size(); i++){
+            sendTCPMessage(server.getClients().get(i),new Message(Message.Type.SERVER_DISCONNECTED));
+            server.getDbHelper().serverDisconnect(server.getClients().get(i).getUser().getId());
+        }
+
+
+    }
+
+
 }

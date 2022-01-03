@@ -79,7 +79,7 @@ public class UdpClientManager extends Thread {
         initializeGrdsClientConnection();
 
 
-        while (running) {
+        while (chat.isRunning()) {
 
             try {
                 Arrays.fill(buffer, (byte) 0);

@@ -11,6 +11,7 @@ public class ServerApp {
         serverTextInterface = new ServerTextInterface();
         serverTextInterface.uiMain();
 
+
     }
 
 }

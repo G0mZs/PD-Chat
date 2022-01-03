@@ -1,7 +1,9 @@
 package pt.isec.PD.Server.TextInterface;
 
 import pt.isec.PD.Data.Constants;
+import pt.isec.PD.Data.Message;
 import pt.isec.PD.Server.Database.DbHelper;
+import pt.isec.PD.Server.Model.ClientDetails;
 import pt.isec.PD.Server.Model.Server;
 import pt.isec.PD.Server.Network.CommunicationHandler;
 
@@ -31,5 +33,14 @@ public class ServerTextInterface {
         handler.startTCP();
         handler.startUDP();
 
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                handler.warnClients();
+                helper.close();
+            }
+        });
     }
 }
+

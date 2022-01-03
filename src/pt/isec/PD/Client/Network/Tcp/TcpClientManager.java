@@ -56,7 +56,7 @@ public class TcpClientManager extends Thread {
 
         try {
 
-            while (true) {
+            while (chat.isRunning()) {
 
                 Object readObject = in.readObject();
                 if (readObject instanceof Message) {
@@ -167,6 +167,21 @@ public class TcpClientManager extends Thread {
                         case DELETE_GROUP_MESSAGE:
                             System.out.println("\n" + message.getMessage());
                             break;
+                        case DELETE_GROUP:
+                            System.out.println("\n" + message.getMessage());
+                            break;
+                        case KICK_MEMBER:
+                            System.out.println("\n" + message.getMessage());
+                            break;
+                        case LEAVE_GROUP:
+                            System.out.println("\n" + message.getMessage());
+                            break;
+                        case SERVER_DISCONNECTED:
+                            System.out.println("The server was closed. Exiting...");
+                            chat.setRunning(false);
+                            System.exit(0);
+                            break;
+
 
                     }
                 } else {

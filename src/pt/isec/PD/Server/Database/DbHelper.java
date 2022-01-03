@@ -11,7 +11,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 
-
     public class DbHelper {
 
     private String dbAddress;
@@ -591,6 +590,29 @@ import java.util.ArrayList;
         return false;
     }
 
+    public void removeContactMessages(int idUser,int idContact){
+
+        try {
+            ResultSet resultSet = statement.executeQuery("select * from mensagem");
+
+            while (resultSet.next()){
+                if(resultSet.getInt("IdAutor") == idUser){
+                    Statement st1 = connection.createStatement();
+                    st1.executeUpdate("DELETE FROM mydb.mensagem WHERE IdAutor = " + idUser + ";");
+                    st1.close();
+                }else if(resultSet.getInt("IdAutor") == idContact){
+                    Statement st1 = connection.createStatement();
+                    st1.executeUpdate("DELETE FROM mydb.mensagem WHERE IdAutor = " + idContact + ";");
+                    st1.close();
+                }
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+    }
+
     public void addMessage(int idSender, int idReceiver, String type, String message, LocalDateTime localDateTime,String state){
 
         String dateTime = localDateTime.toString();
@@ -1155,53 +1177,133 @@ import java.util.ArrayList;
             return false;
         }
 
+        public int getGroupId(int idAdmin,String groupName){
 
-    /*
+            try{
+
+                ResultSet resultSet = statement.executeQuery("select * from grupo");
+
+                while(resultSet.next()){
+                    if(resultSet.getInt("idAdmnistrador") == idAdmin && resultSet.getString("nome").equals(groupName)){
+                        int groupId = resultSet.getInt("idGrupos");
+                        return groupId;
+                    }
+                }
 
 
-    public boolean exitGroup(int id,User user){
-        try {
-            ResultSet resultSetUserIsAdmin = statement.executeQuery("select * from grupo where idGrupos="+id+" and idAdmnistrador="+user.getId());
-            if(resultSetUserIsAdmin.next())
-                return false;
-            statement.executeUpdate("Delete from grupo_has_utilizador where Grupo_idGrupos="+id+" and Utilizador_idUtilizadores="+user.getId());
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+
+            return 0;
+        }
+
+        public void deleteGroupRequests(int idGroup){
+
+            try{
+
+
+                statement.executeUpdate("DELETE FROM grupo_has_utilizador WHERE Grupo_idGrupos= "+ idGroup + ";");
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+
+        public void deleteGroupHistoric(int idGroup){
+            try{
+
+
+                statement.executeUpdate("DELETE FROM mensagem WHERE idGrupo = " + idGroup + ";");
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+
+        public void deleteGroup(int idGroup){
+
+            try{
+
+
+                statement.executeUpdate("DELETE FROM grupo WHERE idGrupos = " + idGroup + ";");
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+
+        public void kickMember(int idGroup,int idKicked){
+
+                try{
+
+
+                    statement.executeUpdate("DELETE FROM grupo_has_utilizador WHERE Grupo_idGrupos = " + idGroup + " AND Utilizador_idUtilizadores = " + idKicked + ";");
+
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+
+        public void serverDisconnect(int id){
+
+            try{
+
+
+                statement.executeUpdate("UPDATE mydb.utilizador SET conectado = 0 WHERE idUtilizadores = " + id + ";");
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+
+        }
+
+
+        public void close() {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (Exception ignore) {
+                }
+            }
+        }
+
+        public boolean checkMember(int idUser,int idGroup){
+
+            try{
+
+                ResultSet resultSet = statement.executeQuery("select * from grupo_has_utilizador");
+
+                while(resultSet.next()){
+                    if(resultSet.getInt("Grupo_idGrupos") == idGroup && resultSet.getInt("Utilizador_idUtilizadores") == idUser && resultSet.getInt("aceite") == 1){
+                        return true;
+                    }
+                }
+
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+
             return false;
         }
-        return  true;
+
+        public void deleteRequest(int idUser,int idGroup){
+
+
+            try{
+
+
+                statement.executeUpdate("DELETE FROM mydb.grupo_has_utilizador WHERE Grupo_idGrupos = " + idGroup + " AND Utilizador_idUtilizadores = " + idUser + " AND aceite = 1;");
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+
+
     }
 
 
 
-    public boolean deleteGroup(int id,User user){
-        try {
-            ResultSet resultSetUserIsAdmin = statement.executeQuery("select * from grupo where idGrupos="+id+" and idAdmnistrador="+user.getId());
-            if(!resultSetUserIsAdmin.next())
-                return false;
-            statement.executeUpdate("Delete from grupo_has_utilizador where Grupo_idGrupos="+id);
-            statement.executeUpdate("Delete from grupo where idGrupos="+id);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            return false;
-        }
-        return  true;
-    }
-
-    public boolean removeMember(int userId,int groupId,User user){
-        try {
-            ResultSet resultSetUserIsAdmin = statement.executeQuery("select * from grupo where idGrupos="+groupId+" and idAdmnistrador="+user.getId());
-            System.out.println("select * from grupo where idGrupos="+groupId+" and idAdmnistrador="+user.getId());
-            if(!resultSetUserIsAdmin.next())
-                return false;
-            statement.executeUpdate("Delete from grupo_has_utilizador where Grupo_idGrupos="+groupId+" and Utilizador_idUtilizadores="+userId);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-            return false;
-        }
-        return  true;
-    }*/
-
-
-}
 

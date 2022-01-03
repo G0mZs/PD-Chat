@@ -116,11 +116,20 @@ public class TcpServerHandler extends Thread{
                     case GROUP_MESSAGE:
                         sendGroupMessage(message,out);
                         break;
+                    case DELETE_GROUP:
+                        deleteGroup(message,out);
+                        break;
                     case MESSAGE_GROUP_SEEN:
                         updateGroupHistoric(message);
                         break;
                     case DELETE_GROUP_MESSAGE:
                         deleteGroupMessage(message,out);
+                        break;
+                    case LEAVE_GROUP:
+                        leaveGroup(message,out);
+                        break;
+                    case KICK_MEMBER:
+                        kickMember(message,out);
                         break;
                     case SERVER_CONTACT_REQUEST:
                         sendRequestToClient(message.getMessage(), message.getContactRequest());
@@ -150,12 +159,38 @@ public class TcpServerHandler extends Thread{
                         sendGroupRequestToClient(message);
                         running = false;
                         break;
+                    case SERVER_KICK_MEMBER:
+                        sendKickMemberToClient(message);
+                        running = false;
+                        break;
+                    case SERVER_LEAVE_GROUP:
+                        sendLeaveGroupToClient(message);
+                        running = false;
+                        break;
+                    case SERVER_ACCEPT_RQUEST:
+
+                        running = false;
+                        break;
+                    case SERVER_REFUSE_REQUEST:
+
+                        running = false;
+                        break;
                 }
             }
 
+        } catch (EOFException e) {
+            // Client disconnected
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
+        }finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
+
     }
 
     public synchronized void checkLogin(boolean login,ObjectOutputStream out,Message message){
@@ -484,7 +519,7 @@ public class TcpServerHandler extends Thread{
 
                 if(remove){
                     msg = new Message(Message.Type.DELETE_CONTACT,"Contact removed !");
-                    //remover histórico de mensagens com o contacto na bd.
+                    model.getDbHelper().removeContactMessages(user.getId(),contactUser.getId());
                     Contact contact = new Contact(user,contactUser);
                     Message message = new Message(Message.Type.DELETE_CONTACT,"You have been removed from " + user.getUsername() + " contact list");
 
@@ -759,6 +794,84 @@ public class TcpServerHandler extends Thread{
 
     }
 
+    public synchronized void deleteGroup(Message msg,ObjectOutputStream out){
+
+        Message message;
+
+        if(model.getDbHelper().checkGroupName(msg.getUser().getId(),msg.getMessage())){
+
+            message = new Message(Message.Type.ERROR_MESSAGE,"Delete Group failed. You introduced incorrect data");
+
+        }else{
+
+            int idGroup = model.getDbHelper().getGroupId(msg.getUser().getId(),msg.getMessage());
+
+            model.getDbHelper().deleteGroupRequests(idGroup);
+            model.getDbHelper().deleteGroupHistoric(idGroup);
+            model.getDbHelper().deleteGroup(idGroup);
+            message = new Message(Message.Type.DELETE_GROUP,"Group has been deleted!");
+
+        }
+
+        try {
+            out.writeObject(message);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void kickMember(Message msg,ObjectOutputStream out){
+
+            int idAdmin = msg.getGroup().getAdmnistrator().getId();
+            String groupName = msg.getGroup().getName();
+            int idGroup = model.getDbHelper().getGroupId(msg.getGroup().getAdmnistrator().getId(),msg.getGroup().getName());
+            User userKicked = model.getDbHelper().searchUser(msg.getMessage());
+            Message message;
+
+            if(userKicked == null){
+                message = new Message(Message.Type.ERROR_MESSAGE,"This username doesn't exist");
+            }else {
+
+                if (model.getDbHelper().checkGroupName(idAdmin, groupName)) {
+
+                    message = new Message(Message.Type.ERROR_MESSAGE, "The group doesn't exist or you are not the admin");
+
+                } else {
+
+                    message = new Message(Message.Type.KICK_MEMBER, "The member was removed");
+                    model.getDbHelper().kickMember(idGroup,userKicked.getId());
+
+                    for(int i = 0; i < model.getClients().size(); i++) {
+
+                        if (userKicked.getId() == model.getClients().get(i).getUser().getId()) {
+
+                            Message message1 = new Message(Message.Type.KICK_MEMBER,"You got kicked from the group: " + groupName);
+
+                            try {
+                                model.getClients().get(i).getOut().writeObject(message1);
+                                model.getClients().get(i).getOut().flush();
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    contactServers(new Message(Message.Type.SERVER_KICK_MEMBER,"You got kicked from the group: " + groupName,userKicked));
+
+                }
+            }
+
+        try {
+            out.writeObject(message);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public synchronized void changeGroupName(Message msg,ObjectOutputStream out){
 
         Message message;
@@ -889,7 +1002,6 @@ public class TcpServerHandler extends Thread{
                             }
                         }
 
-                        //contactServers()
 
                     }else{
 
@@ -962,7 +1074,6 @@ public class TcpServerHandler extends Thread{
                             }
                         }
 
-                        //contactServers()
 
 
                     }else{
@@ -1009,7 +1120,63 @@ public class TcpServerHandler extends Thread{
 
     }
 
-    public void sendGroupMessage(Message msg,ObjectOutputStream out){
+    public synchronized void leaveGroup(Message msg,ObjectOutputStream out){
+
+        User user = msg.getUser();
+        Group group = model.getDbHelper().getGroup(Integer.parseInt(msg.getMessage()));
+        Message message;
+
+        if(group == null){
+            message = new Message(Message.Type.ERROR_MESSAGE,"The id of the group is not valid");
+        }
+        else{
+
+            if(model.getDbHelper().checkAdmin(user.getId(),group.getId())){
+                message = new Message(Message.Type.ERROR_MESSAGE,"You can't leave your own group");
+            }else{
+
+                if(model.getDbHelper().checkMember(user.getId(),group.getId())){
+
+                    message = new Message(Message.Type.LEAVE_GROUP,"You left the group");
+
+                    model.getDbHelper().deleteRequest(user.getId(),group.getId());
+
+                    int idAdmin = model.getDbHelper().getAdminId(group.getId());
+
+                    for(int i = 0; i < model.getClients().size(); i++) {
+
+                        if (idAdmin == model.getClients().get(i).getUser().getId()) {
+
+                            Message message1 = new Message(Message.Type.LEAVE_GROUP,user.getUsername() + " has left your group " + group.getId());
+
+                            try {
+                                model.getClients().get(i).getOut().writeObject(message1);
+                                model.getClients().get(i).getOut().flush();
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    contactServers(new Message(Message.Type.SERVER_LEAVE_GROUP,user.getUsername() + " has left your group " + group.getId(),new User(idAdmin,null,null,null)));
+
+
+                }else{
+                    message = new Message(Message.Type.ERROR_MESSAGE,"You are not a member of this group");
+                }
+            }
+        }
+
+        try {
+            out.writeObject(message);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void sendGroupMessage(Message msg,ObjectOutputStream out){
 
         User user = msg.getUser();
         int idGroup = msg.getGroup().getId();
@@ -1022,11 +1189,10 @@ public class TcpServerHandler extends Thread{
             if(model.getDbHelper().checkMemberOrAdmin(user.getId(),idGroup)){
 
                 model.getDbHelper().addGroupMessage(msg);
-                //obter os ids todos dos membros e admin e mandar msg.
+
                 message = new Message(Message.Type.GROUP_MESSAGE,"Message Sent");
 
-                //mandar msg aos do mm servidor
-                //ContactServers
+
 
             }else{
                 message = new Message(Message.Type.ERROR_MESSAGE,"You are not a member of this group");
@@ -1257,6 +1423,43 @@ public class TcpServerHandler extends Thread{
             if (model.getClients().get(i).getUser().getId() == idAdmin) {
 
                 Message message = new Message(Message.Type.GROUP_REQUEST,msg.getRequest().getUserName() + " sent you a group request for the group with the id [" + msg.getRequest().getIdGroup() + "]. Please answer the request in the pending group requests menu.");
+
+                try {
+                    model.getClients().get(i).getOut().writeObject(message);
+                    model.getClients().get(i).getOut().flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void sendKickMemberToClient(Message msg){
+
+        for (int i = 0; i < model.getClients().size(); i++) {
+
+            if (model.getClients().get(i).getUser().getId() == msg.getUser().getId()) {
+
+                Message message = new Message(Message.Type.KICK_MEMBER,msg.getMessage());
+
+                try {
+                    model.getClients().get(i).getOut().writeObject(message);
+                    model.getClients().get(i).getOut().flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void sendLeaveGroupToClient(Message msg){
+
+
+        for (int i = 0; i < model.getClients().size(); i++) {
+
+            if (model.getClients().get(i).getUser().getId() == msg.getUser().getId()) {
+
+                Message message = new Message(Message.Type.LEAVE_GROUP,msg.getMessage());
 
                 try {
                     model.getClients().get(i).getOut().writeObject(message);
