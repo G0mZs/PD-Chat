@@ -546,7 +546,7 @@ public class ClientTextInterface {
 
         int i;
         for (i = 0; i < handler.getChat().getHistoric().size(); i++) {
-            System.out.println("[" + handler.getChat().getHistoric().get(i).getIdMessage() + "][" + handler.getChat().getHistoric().get(i).getState() + "][" + handler.getChat().getHistoric().get(i).getDateTime() + "] ---> " + handler.getChat().getHistoric().get(i).getUser().getUsername() + ": " + handler.getChat().getHistoric().get(i).getMessage());
+            System.out.println("[Index: " + handler.getChat().getHistoric().get(i).getIdMessage() + "][" + handler.getChat().getHistoric().get(i).getState() + "][" + handler.getChat().getHistoric().get(i).getDateTime() + "] ---> " + handler.getChat().getHistoric().get(i).getUser().getUsername() + ": " + handler.getChat().getHistoric().get(i).getMessage());
         }
 
 
@@ -616,7 +616,7 @@ public class ClientTextInterface {
                     uiSendGroupRequest();
                     break;
                 case 3:
-                    //uiSendGroupMessage();
+                    uiSendGroupMessage();
                     break;
                 case 4:
                     //uiSendGroupFile();
@@ -631,10 +631,10 @@ public class ClientTextInterface {
                     uiListGroups();
                     break;
                 case 8:
-                    //uiListGroupHistoric();
+                    uiChooseGroupHistoric();
                     break;
                 case 9:
-                    //uiDeleteGroupMessages();
+                    uiDeleteGroupMessages();
                     break;
                 case 10:
                     //uiLeaveGroup();
@@ -879,6 +879,85 @@ public class ClientTextInterface {
 
         handler.refuseGroupRequest(name,idGroup);
     }
+
+    public void uiSendGroupMessage(){
+
+        int id;
+        String content;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the id/number of the group you want to send a message: ");
+        while (!s.hasNextInt()) {
+            s.next();
+        }
+
+        id = s.nextInt();
+
+        System.out.print("\n");
+        System.out.println("Enter the content of the message: ");
+        content = sc.nextLine();
+
+        handler.sendGroupMessage(id,content);
+
+    }
+
+    public void uiChooseGroupHistoric(){
+
+        int id;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the id/number of the group you want to send a message: ");
+        while (!sc.hasNextInt()) {
+            sc.next();
+        }
+
+        id = sc.nextInt();
+
+        uiListGroupHistoric(id);
+
+    }
+
+    public void uiListGroupHistoric(int id){
+
+        handler.listGroupHistoric(id);
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+        System.out.print("\n");
+        System.out.println("---------- Message Historic For Group" + id + " ----------");
+        System.out.print("\n");
+
+        int i;
+        for (i = 0; i < handler.getChat().getGroupHistoric().size(); i++) {
+            System.out.println("[Index: " + handler.getChat().getGroupHistoric().get(i).getIdMessage() + "][" + handler.getChat().getGroupHistoric().get(i).getState() + "][" + handler.getChat().getGroupHistoric().get(i).getDateTime() + "] ---> " + handler.getChat().getGroupHistoric().get(i).getUser().getUsername() + ": " + handler.getChat().getGroupHistoric().get(i).getMessage());
+        }
+
+
+        handler.updateGroupHistoric(id);
+
+    }
+
+    public void uiDeleteGroupMessages(){
+        int id;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("\n");
+        System.out.println("Enter the id/number of the message you want to delete: ");
+        while (!sc.hasNextInt()) {
+            sc.next();
+        }
+        id = sc.nextInt();
+
+        handler.deleteGroupMessage(id);
+    }
+
 
 
 }

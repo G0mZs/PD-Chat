@@ -514,6 +514,37 @@ import java.util.ArrayList;
         return historic;
     }
 
+    public ArrayList<Message> getGroupHistoric(int idGroup){
+
+        ArrayList<Message> historic = new ArrayList<>();
+
+        try {
+
+            ResultSet resultSet = statement.executeQuery("select * from mensagem");
+
+            while(resultSet.next()) {
+                if(resultSet.getInt("idGrupo") == idGroup){
+
+                    User author = getUser(resultSet.getInt("IdAutor"));
+
+                    String data = resultSet.getString("Data");
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    LocalDateTime dateTime = LocalDateTime.parse(data,formatter);
+
+                    Message msg = new Message(resultSet.getInt("idMensagem"),author,resultSet.getString("tipo"),resultSet.getString("mensagem"),dateTime,resultSet.getString("estado"));
+
+                    historic.add(msg);
+                }
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return historic;
+
+    }
+
     public boolean removeContact(int idUser,int idContact){
 
         try {
@@ -994,6 +1025,136 @@ import java.util.ArrayList;
 
             return null;
         }
+
+        public Group getGroup(int id){
+
+
+            try{
+
+                ResultSet resultSet = statement.executeQuery("select * from grupo");
+
+                while(resultSet.next()){
+                    if(resultSet.getInt("idGrupos") == id){
+                        Group group = new Group(id,new User(resultSet.getInt("idAdmnistrador"),null,null,null),resultSet.getString("nome"));
+                        return group;
+                    }
+                }
+
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+
+            return null;
+        }
+
+        public boolean checkMemberOrAdmin(int idUser,int idGroup){
+
+            try{
+
+                ResultSet resultSet = statement.executeQuery("select * from grupo");
+
+                while(resultSet.next()){
+                    if(resultSet.getInt("idGrupos") == idGroup && resultSet.getInt("idAdmnistrador") == idUser){
+                        return true;
+                    }
+                }
+
+                ResultSet resultSet1 = statement.executeQuery("select * from grupo_has_utilizador");
+                while(resultSet1.next()){
+                    if(resultSet1.getInt("Grupo_idGrupos") == idGroup && resultSet1.getInt("Utilizador_idUtilizadores") == idUser && resultSet1.getInt("aceite") == 1){
+                        return true;
+                    }
+                }
+
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+
+            return false;
+        }
+
+        public void addGroupMessage(Message msg){
+
+            String dateTime = msg.getDateTime().toString();
+            int idMessage = generateMessageId();
+
+            String combined = idMessage + "," + msg.getUser().getId() + "," + "NULL" + "," + msg.getGroup().getId() + ",'" + msg.getTypeofMessage() + "','" + msg.getMessage() + "','" + dateTime + "','" + msg.getState() + "'";
+
+            try {
+                statement.executeUpdate("INSERT INTO `mydb`.`mensagem`(`idMensagem`,`IdAutor`,`IdReceiver`,`idGrupo`,`tipo`,`mensagem`,`Data`,`estado`) VALUES (" + combined + ");");
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+
+        }
+
+        public void updateGroupHistoric(int idUser,int idGroup){
+
+            try {
+
+                ResultSet resultSet = statement.executeQuery("select * from mensagem");
+
+                while (resultSet.next()){
+
+                    if(resultSet.getInt("IdAutor") != idUser && resultSet.getInt("idGrupo") == idGroup){
+
+                        seenGroupMessage(idUser,idGroup);
+
+                    }
+                }
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+
+        public void seenGroupMessage(int idUser,int idGroup){
+
+            try {
+                Statement st = connection.createStatement();
+                st.executeUpdate("UPDATE mensagem SET estado = 'Vista' WHERE NOT IdAutor = " + idUser + " AND idGrupo = " + idGroup + ";");
+                st.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+
+        public void deleteGroupMessage(int idUser,String idMsg){
+
+            int idMessage = Integer.parseInt(idMsg);
+
+            try{
+
+                statement.executeUpdate("DELETE FROM mydb.mensagem WHERE idMensagem = " + idMessage + " AND idGrupo IS NOT NULL");
+
+            }catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+
+        public boolean messageIsFromGroup(String idMsg){
+
+            int idMessage = Integer.parseInt(idMsg);
+
+            try{
+
+                ResultSet resultSet = statement.executeQuery("select * from mensagem");
+
+                while(resultSet.next()){
+                    if(resultSet.getInt("idMensagem") == idMessage && resultSet.getInt("idGrupo") != 0){
+                        return true;
+                    }
+                }
+
+            }catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+
+            return false;
+        }
+
 
     /*
 

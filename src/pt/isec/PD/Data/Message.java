@@ -34,6 +34,15 @@ public class Message implements Serializable {
         this.state = state;
     }
 
+    public Message(int idMessage,User author,String typeofMessage,Group group,LocalDateTime dateTime,String state){
+        this.idMessage = idMessage;
+        this.user = author;
+        this.typeofMessage = typeofMessage;
+        this.group = group;
+        this.dateTime = dateTime;
+        this.state = state;
+    }
+
     public Message(Type type,String message,User user){
 
         this.type = type;
@@ -85,6 +94,16 @@ public class Message implements Serializable {
         this.dateTime = dateTime;
         this.user = author;
         this.receiver = receiver;
+        this.state = state;
+    }
+
+    public Message(Type type, String message,String typeofMessage, LocalDateTime dateTime,User author,Group group,String state){
+        this.type = type;
+        this.message = message;
+        this.typeofMessage = typeofMessage;
+        this.dateTime = dateTime;
+        this.user = author;
+        this.group = group;
         this.state = state;
     }
 
@@ -221,8 +240,9 @@ public class Message implements Serializable {
 
     public enum Type {
         CLIENT_CONNECTION,SERVER_CONNECTION,CLIENT_SERVER_CONNECTION,SERVER_PORT,CONNECT_TCP,TCP_PORT,LOGIN,LOGIN_SUCESS,LOGIN_FAILED,LOGOUT,LOGOUT_COMPLETE,REGISTER,REGISTER_SUCESS,REGISTER_FAILED,CHANGE_PASSWORD,
-        CHANGE_USERNAME,CHANGE_NAME,PASSWORD_CHANGED,USERNAME_CHANGED_SUCESS,NAME_CHANGED_SUCESS,SEARCH_USER,LIST_USERS,USER_RECEIVED,LIST_RECEIVED,CONTACT_REQUEST,ERROR_MESSAGE,LIST_GROUP_REQUESTS,
+        CHANGE_USERNAME,CHANGE_NAME,PASSWORD_CHANGED,USERNAME_CHANGED_SUCESS,NAME_CHANGED_SUCESS,SEARCH_USER,LIST_USERS,USER_RECEIVED,LIST_RECEIVED,CONTACT_REQUEST,ERROR_MESSAGE,LIST_GROUP_REQUESTS,LIST_GROUP_HISTORIC,
         CONTACT_ACCEPT,CONTACT_REFUSED,DELETE_CONTACT,SERVER_CONTACT_REQUEST,SERVER_DELETE_CONTACT,SERVER_ACCEPT_CONTACT,SERVER_REFUSE_CONTACT,MESSAGE_CONTACT,SEND_MESSAGE,RECEIVE_MESSAGE,SERVER_RECEIVE_MESSAGE,MESSAGE_SEEN,
-        SERVER_MESSAGE_SEEN,LIST_CONTACTS,LIST_PENDING_REQUESTS,LIST_HISTORIC,DELETE_MESSAGE,LIST_GROUPS,CREATE_GROUP,CHANGE_GROUP_NAME,GROUP_REQUEST,GROUP_ACCEPT,GROUP_REFUSE,SERVER_GROUP_REQUEST,
+        SERVER_MESSAGE_SEEN,LIST_CONTACTS,LIST_PENDING_REQUESTS,LIST_HISTORIC,DELETE_MESSAGE,LIST_GROUPS,CREATE_GROUP,CHANGE_GROUP_NAME,GROUP_REQUEST,GROUP_ACCEPT,GROUP_REFUSE,SERVER_GROUP_REQUEST,GROUP_MESSAGE,MESSAGE_GROUP_SEEN,
+        DELETE_GROUP_MESSAGE,
     }
 }

@@ -36,9 +36,6 @@ public class TcpServerHandler extends Thread{
                         System.out.println(message.getMessage());
                         break;
                     case LOGIN:
-                        for(int i = 0; i < model.getCommunication().getActiveServers().size(); i++){
-                            System.out.println(model.getCommunication().getActiveServers().get(i));
-                        }
                         checkLogin(model.getDbHelper().Login(message.getUser().getUsername(), message.getUser().getPassword()), out,message);
                         break;
                     case REGISTER:
@@ -70,6 +67,9 @@ public class TcpServerHandler extends Thread{
                         break;
                     case LIST_HISTORIC:
                         getHistoric(message,out);
+                        break;
+                    case LIST_GROUP_HISTORIC:
+                        getGroupHistoric(message,out);
                         break;
                     case LIST_GROUPS:
                         getGroups(out);
@@ -112,6 +112,15 @@ public class TcpServerHandler extends Thread{
                         break;
                     case DELETE_MESSAGE:
                         deleteMessage(message,out);
+                        break;
+                    case GROUP_MESSAGE:
+                        sendGroupMessage(message,out);
+                        break;
+                    case MESSAGE_GROUP_SEEN:
+                        updateGroupHistoric(message);
+                        break;
+                    case DELETE_GROUP_MESSAGE:
+                        deleteGroupMessage(message,out);
                         break;
                     case SERVER_CONTACT_REQUEST:
                         sendRequestToClient(message.getMessage(), message.getContactRequest());
@@ -381,6 +390,7 @@ public class TcpServerHandler extends Thread{
             message = new Message(Message.Type.ERROR_MESSAGE,"The username is not valid!");
         }
         else{
+
             ArrayList<Message> historic = model.getDbHelper().getHistoric(user.getId(),contact.getId());
             message = new Message(Message.Type.LIST_HISTORIC,null,historic);
         }
@@ -395,6 +405,7 @@ public class TcpServerHandler extends Thread{
         }
 
     }
+
 
     public synchronized void sendContactRequest(String sender,String receiver,ObjectOutputStream out){
 
@@ -860,7 +871,7 @@ public class TcpServerHandler extends Thread{
                     if(model.getDbHelper().verifyGroupRequest(requester.getId(),request.getIdGroup())){ //Verificar se existe um pedido com o id do grupo e id do requester
 
                         model.getDbHelper().acceptGroupRequest(requester.getId(),request.getIdGroup());
-                        message = new Message(Message.Type.GROUP_ACCEPT,"Sucess!");
+                        message = new Message(Message.Type.GROUP_ACCEPT,"Success!");
 
                         for(int i = 0; i < model.getClients().size(); i++) {
 
@@ -933,7 +944,7 @@ public class TcpServerHandler extends Thread{
 
 
                         model.getDbHelper().refuseGroupRequest(requester.getId(),request.getIdGroup());
-                        message = new Message(Message.Type.GROUP_REFUSE,"Sucess!");
+                        message = new Message(Message.Type.GROUP_REFUSE,"Success!");
 
                         for(int i = 0; i < model.getClients().size(); i++) {
 
@@ -995,6 +1006,113 @@ public class TcpServerHandler extends Thread{
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+    }
+
+    public void sendGroupMessage(Message msg,ObjectOutputStream out){
+
+        User user = msg.getUser();
+        int idGroup = msg.getGroup().getId();
+        Message message;
+
+        if(model.getDbHelper().checkGroupId(idGroup)){
+
+
+
+            if(model.getDbHelper().checkMemberOrAdmin(user.getId(),idGroup)){
+
+                model.getDbHelper().addGroupMessage(msg);
+                //obter os ids todos dos membros e admin e mandar msg.
+                message = new Message(Message.Type.GROUP_MESSAGE,"Message Sent");
+
+                //mandar msg aos do mm servidor
+                //ContactServers
+
+            }else{
+                message = new Message(Message.Type.ERROR_MESSAGE,"You are not a member of this group");
+            }
+
+        }else{
+            message = new Message(Message.Type.ERROR_MESSAGE,"This group doesn't exist");
+        }
+
+
+
+        try {
+            out.writeObject(message);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void getGroupHistoric(Message msg,ObjectOutputStream out){
+
+        User user = msg.getUser();
+        int idGroup = Integer.parseInt(msg.getMessage());
+        Group group = model.getDbHelper().getGroup(idGroup);
+
+        Message message;
+        if(group == null){
+            message = new Message(Message.Type.ERROR_MESSAGE,"The group id/number is not valid!");
+        }
+        else{
+            if(model.getDbHelper().checkMemberOrAdmin(user.getId(),idGroup)) {
+                ArrayList<Message> historic = model.getDbHelper().getGroupHistoric(idGroup);
+                message = new Message(Message.Type.LIST_GROUP_HISTORIC, null, historic);
+
+            }
+            else{
+                message = new Message(Message.Type.ERROR_MESSAGE,"You are not a member or admin of this group");
+            }
+        }
+
+        try {
+
+            out.writeObject(message);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void updateGroupHistoric(Message msg){
+
+        User user = msg.getUser();
+        Group group = model.getDbHelper().getGroup(Integer.parseInt(msg.getMessage()));
+
+        model.getDbHelper().updateGroupHistoric(user.getId(),group.getId());
+    }
+
+    public synchronized void deleteGroupMessage(Message msg,ObjectOutputStream out){
+
+        User user = msg.getUser();
+        Message message;
+
+        if(model.getDbHelper().checkMessageAuthor(msg.getMessage(),user.getId())){
+
+            if(model.getDbHelper().messageIsFromGroup(msg.getMessage())) {
+                model.getDbHelper().deleteGroupMessage(user.getId(), msg.getMessage());
+                message = new Message(Message.Type.DELETE_GROUP_MESSAGE, "Message deleted !");
+            }else{
+                message = new Message(Message.Type.ERROR_MESSAGE,"This message is from contacts. You can only delete group messages");
+            }
+
+        }
+        else{
+            message = new Message(Message.Type.ERROR_MESSAGE,"You are not the author of this message");
+        }
+
+        try {
+
+            out.writeObject(message);
+            out.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
     }
 

@@ -14,6 +14,7 @@ public class Chat {
     private ArrayList<Conversation> conversations;
     private ArrayList<Group> groups;
     private ArrayList<Request> pendingGroupRequests;
+    private ArrayList<Message> groupHistoric;
 
     private File saveLocation;
 
@@ -30,6 +31,7 @@ public class Chat {
         this.groups = new ArrayList<>();
         this.conversations = new ArrayList<>();
         this.pendingGroupRequests = new ArrayList<>();
+        this.groupHistoric = new ArrayList<>();
     }
 
     public ArrayList<Group> getGroups() {
@@ -118,6 +120,14 @@ public class Chat {
 
     public void setPendingGroupRequests(ArrayList<Request> pendingGroupRequests) {
         this.pendingGroupRequests = pendingGroupRequests;
+    }
+
+    public ArrayList<Message> getGroupHistoric() {
+        return groupHistoric;
+    }
+
+    public void setGroupHistoric(ArrayList<Message> groupHistoric) {
+        this.groupHistoric = groupHistoric;
     }
 }
 

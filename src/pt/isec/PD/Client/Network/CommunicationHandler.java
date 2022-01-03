@@ -34,14 +34,6 @@ public class CommunicationHandler {
 
     public void setUser(User user) { chat.setUser(user);}
 
-    public boolean getRegisterState(){
-        return tcpClientManager.getRegister();
-    }
-
-    public void setRegisterState(boolean state){
-        tcpClientManager.setRegister(state);
-    }
-
     public boolean getLoginState(){
         return tcpClientManager.getLogin();
     }
@@ -490,6 +482,60 @@ public class CommunicationHandler {
 
         }
 
+    }
+
+    public void sendGroupMessage(int id,String content){
+
+        User author = new User(chat.getUser().getId(),chat.getUser().getUsername(),null,chat.getUser().getName());
+        LocalDateTime lt = LocalDateTime.now();
+        Group group = new Group(id,null);
+
+        try {
+            output.writeObject(new Message(Message.Type.GROUP_MESSAGE,content,"Message",lt,author,group,"Não Vista"));
+            output.flush();
+
+        }catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
+    public void listGroupHistoric(int idGroup){
+
+        try {
+
+            output.writeObject(new Message(Message.Type.LIST_GROUP_HISTORIC,String.valueOf(idGroup),getUser()));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
+    public void updateGroupHistoric(int id){
+        try {
+
+            output.writeObject(new Message(Message.Type.MESSAGE_GROUP_SEEN,String.valueOf(id),getUser()));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+    }
+
+    public void deleteGroupMessage(int id){
+
+        try {
+
+            output.writeObject(new Message(Message.Type.DELETE_GROUP_MESSAGE,String.valueOf(id),getUser()));
+            output.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
     }
 
     public Chat getChat() {
