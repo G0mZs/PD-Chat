@@ -1,6 +1,6 @@
 package pt.isec.PD.Server.Network.Tcp;
 
-import pt.isec.PD.Data.*;
+import pt.isec.PD.Data.Models.*;
 import pt.isec.PD.Server.Model.ClientDetails;
 import pt.isec.PD.Server.Model.Server;
 
@@ -902,7 +902,7 @@ public class TcpServerHandler extends Thread{
 
     }
 
-    public synchronized void sendGroupRequest(Request request,ObjectOutputStream out){
+    public synchronized void sendGroupRequest(Request request, ObjectOutputStream out){
 
         Message message;
         User requester = model.getDbHelper().getUser(request.getIdUser());

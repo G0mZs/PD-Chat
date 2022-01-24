@@ -1,17 +1,28 @@
 package pt.isec.PD.GRDS;
 
 import pt.isec.PD.GRDS.Model.Grds;
-import pt.isec.PD.GRDS.TextInterface.GrdsTextInterface;
+import pt.isec.PD.GRDS.Network.CommunicationHandler;
 
-import java.io.IOException;
+import java.rmi.RemoteException;
 
 public class GrdsApp {
-    private static GrdsTextInterface grdsTextInterface;
 
-    public static void main(String[] args){
+
+    public static void main(String[] args) throws RemoteException {
         Grds grds = new Grds();
-        grdsTextInterface = new GrdsTextInterface(grds);
-        grdsTextInterface.uiMain();
+        CommunicationHandler handler = new CommunicationHandler(grds);
+        grds.setHandler(handler);
+        System.out.println("\nGrds Initialized");
 
+        handler.UdpThread();
+        handler.registerRmiService();
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                handler.exit();
+
+            }
+        });
     }
 }

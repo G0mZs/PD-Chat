@@ -3,7 +3,7 @@ package pt.isec.PD.Client.Network;
 import pt.isec.PD.Client.Model.Chat;
 import pt.isec.PD.Client.Network.Tcp.TcpClientManager;
 import pt.isec.PD.Client.Network.Udp.UdpClientManager;
-import pt.isec.PD.Data.*;
+import pt.isec.PD.Data.Models.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,7 +11,6 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 public class CommunicationHandler {
 
@@ -25,7 +24,7 @@ public class CommunicationHandler {
 
     public CommunicationHandler(Chat chat){
         this.chat = chat;
-        this.udpClientManager = new UdpClientManager(chat,Constants.UDP_PORT,Constants.GRDS_ADDRESS);
+        this.udpClientManager = new UdpClientManager(chat, Constants.UDP_PORT,Constants.GRDS_ADDRESS);
     }
 
     public void startUDP(){ udpClientManager.start();}

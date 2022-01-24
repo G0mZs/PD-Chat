@@ -1,7 +1,7 @@
 package pt.isec.PD.Server.Network.Udp;
 
-import pt.isec.PD.Data.Message;
-import pt.isec.PD.Data.Utils;
+import pt.isec.PD.Data.Models.Message;
+import pt.isec.PD.Data.Models.Utils;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;

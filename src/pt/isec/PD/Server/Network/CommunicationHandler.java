@@ -1,7 +1,7 @@
 package pt.isec.PD.Server.Network;
 
-import pt.isec.PD.Data.Constants;
-import pt.isec.PD.Data.Message;
+import pt.isec.PD.Data.Models.Constants;
+import pt.isec.PD.Data.Models.Message;
 import pt.isec.PD.Server.Model.ClientDetails;
 import pt.isec.PD.Server.Model.Server;
 import pt.isec.PD.Server.Network.Tcp.TcpServerListener;

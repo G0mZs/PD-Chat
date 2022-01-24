@@ -1,6 +1,9 @@
 package pt.isec.PD.Client.Model;
 
-import pt.isec.PD.Data.*;
+import pt.isec.PD.Data.Models.Group;
+import pt.isec.PD.Data.Models.Message;
+import pt.isec.PD.Data.Models.Request;
+import pt.isec.PD.Data.Models.User;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -132,11 +135,4 @@ public class Chat {
 }
 
 
-    /*public void setFiles(DefaultMutableTreeNode files) {
-        this.files = files;
-    }
 
-
-    public DefaultMutableTreeNode getFiles() {
-        return files;
-    }*/

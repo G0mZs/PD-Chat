@@ -1,6 +1,6 @@
 package pt.isec.PD.Server.Model;
 
-import pt.isec.PD.Data.User;
+import pt.isec.PD.Data.Models.User;
 
 import java.io.ObjectOutputStream;
 import java.net.Socket;

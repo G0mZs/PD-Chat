@@ -1,14 +1,10 @@
 package pt.isec.PD.Server.TextInterface;
 
-import pt.isec.PD.Data.Constants;
-import pt.isec.PD.Data.Message;
 import pt.isec.PD.Server.Database.DbHelper;
-import pt.isec.PD.Server.Model.ClientDetails;
 import pt.isec.PD.Server.Model.Server;
 import pt.isec.PD.Server.Network.CommunicationHandler;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class ServerTextInterface {
 

@@ -1,7 +1,7 @@
 package pt.isec.PD.Client.Model;
 
-import pt.isec.PD.Data.Message;
-import pt.isec.PD.Data.User;
+import pt.isec.PD.Data.Models.Message;
+import pt.isec.PD.Data.Models.User;
 
 import java.util.ArrayList;
 

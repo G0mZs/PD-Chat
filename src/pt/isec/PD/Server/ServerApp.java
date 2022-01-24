@@ -1,6 +1,5 @@
 package pt.isec.PD.Server;
 
-import pt.isec.PD.Data.Constants;
 import pt.isec.PD.Server.TextInterface.ServerTextInterface;
 
 public class ServerApp {

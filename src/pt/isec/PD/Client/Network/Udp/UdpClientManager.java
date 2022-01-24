@@ -2,8 +2,8 @@ package pt.isec.PD.Client.Network.Udp;
 
 
 import pt.isec.PD.Client.Model.Chat;
-import pt.isec.PD.Data.Message;
-import pt.isec.PD.Data.Utils;
+import pt.isec.PD.Data.Models.Message;
+import pt.isec.PD.Data.Models.Utils;
 
 import java.net.*;
 import java.util.Arrays;
